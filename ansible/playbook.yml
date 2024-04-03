@@ -1,0 +1,750 @@
+---
+- name: Ping Hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      changed_when: false
+      check_mode: false
+      ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
+
+- name: Setup All Hosts
+  hosts: all
+  connection: ssh
+  vars:
+    github_token: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      38653730613130353737366464623362646266663366653166623637646335336162653934376332
+      3864643665353561376266623134343131386639353861320a373637303936353766373132656564
+      34666161386164323137643632623463353734356331353139303737623461353464346263346662
+      6638343135323362650a616639633032613534386637303834306261323266373730333661663430
+      30643334653532663135616530333333346362663435623336396133393964346138633264366362
+      3737386363316563326563343566643166353434313863636662
+  tasks:
+    - name: Setup | apt update
+      ansible.builtin.command: apt update -y
+      become: true
+      changed_when: true
+    - name: Setup | apt upgrade
+      ansible.builtin.command: apt upgrade -y
+      become: true
+      changed_when: true
+    - name: Setup | install required packages
+      ansible.builtin.command: |
+        apt install -y age build-essential curl dnsutils linux-generic linux-headers-generic \
+          mtr-tiny net-tools nfs-common open-vm-tools openssl p7zip-full pciutils python3 \
+          python3-pip software-properties-common tcpdump vim zstd
+        add-apt-repository --yes --update ppa:ansible/ansible
+        apt update -y
+        apt install -y ansible
+      become: true
+      changed_when: true
+    - name: Install sops
+      ansible.builtin.include_role:
+        name: community.sops.install
+      vars:
+        sops_install_on_localhost: true
+        sops_github_token: "{{ github_token }}"
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+    - name: Set hostname on remote hosts
+      ansible.builtin.hostname:
+        name: "{{ ansible_host }}"
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+
+- name: Setup Kubernetes Hosts
+  hosts: kubernetes
+  connection: ssh
+  # vars:
+  tasks:
+    - name: Setup | apt update
+      ansible.builtin.command: apt update -y
+      become: true
+      changed_when: true
+    - name: Setup | apt upgrade
+      ansible.builtin.command: apt upgrade -y
+      become: true
+      changed_when: true
+    - name: Setup | install required packages
+      ansible.builtin.command: |
+        apt install -y bind9 bind9-utils bind9-dnsutils containernetworking-plugins
+      become: true
+      changed_when: true
+      register: packageinstall
+
+# Age/Sops
+- name: Age/Sops
+  hosts: localhost
+  tasks:
+    - name: Stat age.key
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/secrets/age.key"
+      register: age_key_file
+    - name: Fail if Age Keyfile does not exist
+      ansible.builtin.fail:
+        message: "{{ playbook_dir }}/secrets/age.key does not exist"
+      when: not age_key_file.stat.exists
+    - name: Get Age Public Key
+      ansible.builtin.command: cat {{ playbook_dir }}/secrets/age.key | grep public | awk -F':' '{print $2}' | tr -d ' '
+      register: age_public_key
+      when: age_key_file.stat.exists
+      changed_when: true
+
+# Flux
+- name: Install Flux
+  hosts: localhost
+  tasks:
+    - name: Install Flux CLI
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          curl -s https://fluxcd.io/install.sh | bash
+        executable: /bin/bash
+      become: true
+      changed_when: true
+
+# DNS
+- name: Externaldns-key
+  hosts: localhost
+  strategy: linear
+  tasks:
+    - name: Generate externaldns-key
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          tsig-keygen -a hmac-sha256 externaldns | grep secret | cut -d '"' -f2
+        executable: /bin/bash
+      register: externaldns_key
+      changed_when: false
+- name: Setup DNS
+  hosts: kubernetes
+  tasks:
+    - name: Setup BIND9
+      vars:
+        bind_allow_query:
+          - any
+        bind_allow_recursion:
+          - any
+        bind_dns_keys:
+          - name: externaldns-key
+            algorithm: hmac-sha256
+            secret: "{{ externaldns_key }}"
+        bind_zones:
+          - name: homelab.heyser.lan
+            type: primary
+            primaries:
+              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+          - name: homelab.heyser.lan
+            type: secondary
+            primaries:
+              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+      ansible.builtin.import_role:
+        name: "bertvv.bind"
+      when: >-
+        packageinstall.stdout is defined and
+        packageinstall.rc == 0 and
+        not packageinstall is skipped
+
+# k3s
+- name: Get latest releases
+  hosts: localhost
+  tasks:
+    - name: Get Latest Calico Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/projectcalico/calico/releases/latest
+        return_content: true
+      register: calico_release_json
+      failed_when: calico_release_json is failed
+    - name: Get Latest Multus Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/k8snetworkplumbingwg/multus-cni/releases/latest
+        return_content: true
+      register: multus_release_json
+      failed_when: multus_release_json is failed
+    - name: Get Latest Traefik Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/traefik/traefik/releases/latest
+        return_content: true
+      register: traefik_release_json
+      failed_when: traefik_release_json is failed
+- name: Deploy K3s
+  hosts: kubernetes
+  tasks:
+    - name: Install K3s
+      vars:
+        k3s_become: true
+        k3s_state: validated
+        # Set a specific release version or false for stable, latest for latest
+        k3s_release_version: stable
+        k3s_build_cluster: true
+        k3s_etcd_datastore: true
+        k3s_use_unsupported_config: true
+        k3s_server:
+          cluster-cidr: 10.254.0.0/16,fd00:fffe::/64
+          service-cidr: 10.255.0.0/16,fd00:ffff::/64
+          flannel-backend: 'none'
+          secrets-encryption: true
+          etcd-expose-metrics: true
+          disable-network-policy: true
+          disable-kube-proxy: true
+          node-taint:
+            - "node-role.kubernetes.io/control-plane=NoSchedule"
+          node-label:
+            - "node-role.kubernetes.io/control-plane=true"
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+          disable:
+            - traefik
+            - coredns
+            - servicelb
+        k3s_server_manifests_urls:
+          - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
+            filename: tigera-operator.yaml
+          - url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
+            filename: multus-daemonset-thick.yml
+        k3s_agent:
+          node-label:
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+      ansible.builtin.import_role:
+        name: xanmanning.k3s
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+      register: installk3s
+- name: Post k3s install
+  hosts: localhost
+  tasks:
+    - name: Download kubeconfig
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ playbook_dir }}/k3s.yaml"
+      when: >-
+        installk3s is defined and
+        not installk3s is skipped
+    - name: Check if k3s.yaml File Exists
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/k3s.yaml"
+      register: k3s_yaml
+      when: >-
+        installk3s is defined and
+        not installk3s is skipped
+    - name: Create default kube directory
+      ansible.builtin.file:
+        path: ~/.kube
+        state: directory
+        mode: '0755'
+      when: >-
+        installk3s is defined and
+        not installk3s is skipped
+    - name: Copy Kubeconfig to default
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/k3s.yaml"
+        dest: ~/.kube/config
+        mode: '0644'
+      when: >-
+        installk3s is defined and
+        not installk3s is skipped and
+        k3s_yaml.stat.exists
+
+# Calico
+- name: Configure Calico IPPools
+  hosts: localhost
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "~/.kube/config"
+      register: kubeconfig
+    - name: Create Default IPPool
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: IPPool
+          metadata:
+            name: default
+            namespace: calico-system
+          spec:
+            cidr: 10.0.101.0/24
+            ipipMode: Never
+            natOutgoing: false
+            disabled: false
+            nodeSelector: all()
+            allowedUses:
+              - Workload
+              - Tunnel
+    - name: Create System IPPool
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: IPPool
+          metadata:
+            name: system
+            namespace: calico-system
+          spec:
+            cidr: 10.0.100.0/24
+            ipipMode: Never
+            natOutgoing: false
+            disabled: false
+            nodeSelector: all()
+            allowedUses:
+              - Workload
+              - Tunnel
+
+# Traefik
+- name: Traefik Pre-steps
+  hosts: localhost
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "~/.kube/config"
+      register: kubeconfig
+    - name: Add traefik repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        name: traefik
+        repo_url: https://helm.traefik.io/traefik
+    - name: Create traefik-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        name: traefik-system
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
+    - name: Create Traefik IP Reservation
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: IPReservation
+          metadata:
+            name: traefik-ipv4-reservation
+            namespace: traefik-system
+          spec:
+            reservedCIDRs:
+              - 10.0.100.1
+- name: Install Traefik CRDs
+  hosts: localhost
+  tasks:
+    - name: Install Traefik CRD Definition
+      kubernetes.core.k8s:
+        definition: '{{ item }}'
+        namespace: traefik-system
+        state: present
+        apply: true
+        force: true
+        server_side_apply:
+          field_manager: ansible
+          force_conflicts: true
+      with_items: >-
+        {{
+          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.stdout +
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
+        }}
+      when: >-
+        item is not none and
+        kubeconfig.stat.exists
+    - name: Install Traefik CRD RBAC
+      kubernetes.core.k8s:
+        definition: '{{ item }}'
+        namespace: traefik-system
+        state: present
+        apply: true
+        force: true
+        server_side_apply:
+          field_manager: ansible
+          force_conflicts: true
+      with_items: >-
+        {{
+          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.stdout +
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml"
+        }}
+      when: >-
+        item is not none and
+        kubeconfig.stat.exists
+    - name: Install Traefik CRD Resource
+      kubernetes.core.k8s:
+        definition: '{{ item }}'
+        namespace: traefik-system
+        state: present
+        apply: true
+        force: true
+        server_side_apply:
+          field_manager: ansible
+          force_conflicts: true
+      with_items: >-
+        {{
+          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.stdout +
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml"
+        }}
+      when: >-
+        item is not none and
+        kubeconfig.stat.exists
+- name: Install Traefik
+  hosts: localhost
+  tasks:
+    - name: Deploy Traefik chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        name: traefik
+        release_namespace: traefik-system
+        # renovate: registryUrl=https://helm.traefik.io/traefik
+        chart_ref: traefik/traefik
+        chart_version: 24.0.0
+        values_files:
+          - "{{ playbook_dir }}/helm_values/traefik/values.yaml"
+    - name: Configure crowdsec bouncer for traefik
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        namespace: traefik-system
+        definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/crowdsec-bouncer.yaml') | from_yaml_all }}"
+        validate:
+          fail_on_error: false
+    - name: Configure authentik for traefik
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        namespace: traefik-system
+        definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/authentik.yaml') | from_yaml_all }}"
+        validate:
+          fail_on_error: false
+
+# Docker Registry Credentials
+- name: Create docker hub registry credential
+  hosts: localhost
+  tasks:
+    - name: Unencrypt Docker Secrets
+      community.sops.load_vars:
+        file: "{{ playbook_dir }}/secrets/docker.sops.yaml"
+        name: docker
+        expressions: evaluate-on-load
+        age_keyfile: "{{ playbook_dir }}/secrets/age.key"
+    - name: Format docker config
+      ansible.builtin.command: |
+        echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker.data | from_yaml).docker_user }}","email":"{{ (docker.data | from_yaml).docker_email }}","auth":"{{ (docker.data | from_yaml).docker_token }}"}}}'
+      register: dockercfg
+      changed_when: true
+      failed_when:
+        - dockercfg.rc != 0
+        - dockercfg.stdout == ""
+    - name: Create Secret
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: docker-registry-credentials
+            namespace: kube-system
+          type: kubernetes.io/dockercfg
+          data:
+            .dockercfg: "{{ dockercfg.stdout | b64encode }}"
+        validate:
+          fail_on_error: false
+
+# Flux
+- name: Bootstrap Flux
+  hosts: localhost
+  # vars:
+  tasks:
+    - name: Flux pre-checks
+      ansible.builtin.command: flux check --pre
+      become: true
+      register: flux_precheck_out
+      changed_when: true
+      failed_when:
+        - flux_precheck_out.rc != 0
+    - name: Unencrypt Github Secrets
+      community.sops.load_vars:
+        file: "{{ playbook_dir }}/secrets/github.sops.yaml"
+        expressions: ignore
+        name: github
+        age_keyfile: "{{ playbook_dir }}/secrets/age.key"
+    - name: Flux bootstrap
+      environment:
+        GITHUB_TOKEN: "{{ (github.data | from_yaml).github_token }}"
+      ansible.builtin.command: |
+        flux bootstrap github \
+          --owner=ryanheyser \
+          --repository=homelab-ops \
+          --branch main \
+          --private=false \
+          --personal \
+          --network-policy=false
+      register: flux_bootstrap_out
+      changed_when: true
+      failed_when:
+        - flux_bootstrap_out.rc != 0
+
+# Vault
+- name: Install Vault
+  hosts: localhost
+  strategy: linear
+  tasks:
+    - name: Add hashicorp repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        name: hashicorp
+        repo_url: https://helm.releases.hashicorp.com
+    - name: Create vault-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        name: vault-system
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
+    - name: Deploy vault chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        name: vault
+        release_namespace: vault-system
+        # renovate: registryUrl=https://helm.releases.hashicorp.com
+        chart_ref: hashicorp/vault
+        chart_version: 0.26.0
+        values_files:
+          - "{{ playbook_dir }}/ansible/helm_values/vault/values.yaml"
+    - name: Deploy csi-secrets-store chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        name: csi-secrets-store
+        release_namespace: kube-system
+        # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+        chart_ref: secrets-store-csi-driver/secrets-store-csi-driver
+        chart_version: 1.3.4
+        values_files:
+          - "{{ playbook_dir }}/ansible/helm_values/vault/csivalues.yaml"
+    - name: Check if Vault Operator Init File Exists
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/vault-operator-init-secret.key"
+      register: vault_operator_init_file
+    - name: Initialize Vault
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault operator init -format=json -key-shares=10 -key-threshold=3 -recovery-shares=10 -recovery-threshold=3
+      register: vault_operator_init
+      when: >-
+        vault_operator_init_file.stat.exists and
+        kubeconfig.stat.exists
+    - name: Write Vault Configuration to File
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.copy:
+        content: vault_operator_init.stdout
+        dest: "{{ playbook_dir }}/vault-operator-init-secret.key"
+        mode: preserve
+      when: >-
+        vault_operator_init is defined and
+        not vault_operator_init is skipped
+    - name: Read Vault Configuration from File
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.set_fact:
+        vault_operator_init: "lookup('file', {{ playbook_dir }}'/vault-operator-init-secret.key')"
+      when: vault_operator_init_file.stat.exists
+    - name: Check Vault Status
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault status -format=json
+      register: vault_status
+- name: Unseal Vault
+  hosts: localhost
+  tasks:
+    - name: Unseal Vault 1
+      when: >-
+        vault_status.stdout is defined and
+        (vault_status.stdout | from_json).sealed and
+        kubeconfig.stat.exists
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[0] }} -format=json
+    - name: Unseal Vault 2
+      when: >-
+        vault_status.stdout is defined and
+        (vault_status.stdout | from_json).sealed and
+        kubeconfig.stat.exists
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[1] }} -format=json
+    - name: Unseal Vault 3
+      when: >-
+        vault_status.stdout is defined and
+        (vault_status.stdout | from_json).sealed and
+        kubeconfig.stat.exists
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
+    - name: Check Vault Status Again
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault status -format=json
+      register: vault_status_after_unseal
+      failed_when: (vault_status_after_unseal | from_json).sealed
+      when: >-
+        kubeconfig.stat.exists
+    - name: Check if Vault Operator Root File Exists
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/vault-operator-root-generate.key"
+      register: vault_operator_root_file
+- name: Unseal Vault
+  hosts: localhost
+  strategy: linear
+  tasks:
+    - name: Initialize Vault Root Token
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: vault operator generate-root -init -format=json
+      register: vault_operator_root
+      when: >-
+        not vault_operator_root_file.stat.exists and
+        kubeconfig.stat.exists
+    - name: Write Vault Root Generation to File
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.copy:
+        content: vault_operator_root.stdout
+        dest: "{{ playbook_dir }}/vault-operator-root-generate.key"
+        mode: preserve
+      when: >-
+        vault_operator_root is defined and
+        not vault_operator_root is skipped
+    - name: Read Vault Root Token from File
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.set_fact:
+        vault_operator_root: "lookup('file', {{ playbook_dir }}'/vault-operator-root-generate.key')"
+      when: vault_operator_root_file.stat.exists
+    - name: Set Vault Root Token OTP
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.set_fact:
+        vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/vault-operator-root-generate.key')"
+      when: vault_operator_root_file.stat.exists
+    - name: Generate Root Token 1
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: >-
+          vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+            -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[0] }} -format=json
+      when: >-
+        vault_operator_root.stdout is defined and
+        vault_operator_init.stdout is defined and
+        not (vault_operator_root.stdout | from_json).complete and
+        kubeconfig.stat.exists
+      register: vault_operator_root
+    - name: Generate Root Token 2
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: >-
+          vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+            -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[1] }} -format=json
+      when: >-
+        vault_operator_root.stdout is defined and
+        vault_operator_init.stdout is defined and
+        not (vault_operator_root.stdout | from_json).complete and
+        kubeconfig.stat.exists
+      register: vault_operator_root
+    - name: Generate Root Token 3
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: >-
+          vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+            -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
+      when: >-
+        vault_operator_root.stdout is defined and
+        vault_operator_init.stdout is defined and
+        not (vault_operator_root.stdout | from_json).complete and
+        kubeconfig.stat.exists
+      register: vault_operator_root
+    - name: Write Vault Encrypted Root Token to File
+      # noqa: run-once[task]
+      run_once: true
+      community.sops.sops_encrypt:
+        content_json: "{{ vault_operator_root.stdout | to_json }}"
+        path: "{{ playbook_dir }}/vault-operator-root-token.key.enc"
+        age: age_public_key.stdout
+      when: >-
+        vault_operator_root.stdout is defined and
+        vault_operator_init.stdout is defined and
+        (vault_operator_root.stdout | from_json).complete
+- name: Create Vault Token Secret
+  hosts: localhost
+  strategy: linear
+  tasks:
+    - name: Login to Vault
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s_exec:
+        namespace: vault-system
+        pod: vault-0
+        command: >-
+          vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
+            {{ (vault_operator_init.stdout | from_json).root_token }}
+      when: >-
+        vault_operator_root.stdout is defined and
+        vault_operator_init.stdout is defined and
+        (vault_operator_root.stdout | from_json).complete and
+        (vault_operator_root.stdout | from_json).encoded_token != "" and
+        (vault_operator_init.stdout | from_json).root_token != "" and
+        kubeconfig.stat.exists
+      register: vault_login
+      failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+    - name: Create Vault Token Secret
+      # noqa: run-once[task]
+      run_once: true
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: vault-token
+            namespace: kube-system
+          type: opaque
+          data:
+            token: "{{ (vault_operator_init.stdout | from_json).root_token | b64encode }}"
+      when: >-
+        kubeconfig.stat.exists and
+        vault_operator_init.stdout is defined
+      failed_when: >-
+        {{(vault_operator_init.stdout | from_json).root_token | b64encode}} == ""

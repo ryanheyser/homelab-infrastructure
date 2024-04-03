@@ -1,0 +1,10 @@
+k3s.yaml
+*unencrypted*
+!*.sops.yaml
+*.sops.yaml.*
+!*.sops.yaml.template
+age.key
+vault-operator-init-*.key*
+ansible_id_ed25519
+*.iso
+user-data

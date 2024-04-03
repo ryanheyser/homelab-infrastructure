@@ -1,0 +1,29 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+localhost:
+  vars:
+    ansible_user: rumblpak
+controlnodes:
+  vars:
+    ansible_user: ansible
+  hosts:
+    claycia:
+      ansible_host: 10.0.0.15
+      k3s_control_node: true
+workernodes:
+  vars:
+    ansible_user: ansible
+  hosts:
+    darkmatter:
+      ansible_host: 10.0.0.12
+    miraclematter:
+      ansible_host: 10.0.0.13
+    darknebula:
+      ansible_host: 10.0.0.14
+kubernetes:
+  vars:
+    ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
+  children:
+    controlnodes:
+    workernodes:
