@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+invoked=$_
+if [[ $invoked != $0 ]]
+then
+  OPTIND=1
+fi
+alias ll='ls -lG'
+alias la='ls -laG'
+alias l1='ls -1G'
+alias lh='ls -lhG'
+alias lah='ls -lahG'
+alias cls="printf '\33c\e[3J'"
+alias crs="tput civis; tput cvvis"
+alias vi='/usr/bin/env vim'
+alias git='/usr/bin/env git --no-pager'

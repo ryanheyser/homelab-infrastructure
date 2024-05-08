@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+invoked=$_
+if [[ $invoked != $0 ]]
+then
+  OPTIND=1
+fi
+parse_git_branch() {
+  git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+git_color() {
+  [[ -n $(git status --porcelain=v2 2>/dev/null) ]] && echo 31 || echo 32
+}
+export -f parse_git_branch
+export -f git_color

@@ -1,0 +1,146 @@
+---
+- name: Ping Hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      changed_when: false
+      check_mode: false
+      ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
+
+- name: Setup All Hosts
+  hosts: proxmox
+  connection: ssh
+  tasks:
+    - name: Setup | apt update
+      ansible.builtin.command: apt update -y
+      become: true
+      changed_when: true
+    - name: Setup | apt upgrade
+      ansible.builtin.command: apt upgrade -y
+      become: true
+      changed_when: true
+    - name: Setup | install required packages
+      ansible.builtin.command: |
+        apt install -y age build-essential curl dnsutils mtr-tiny net-tools \
+          openssl p7zip-full pciutils python3 python3-pip software-properties-common \
+          tcpdump vim zstd
+      become: true
+      changed_when: true
+    - name: Setup | install ansible
+      ansible.builtin.command: |
+        UBUNTU_CODENAME=jammy
+        wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | tee /etc/apt/sources.list.d/ansible.list
+        apt update
+        apt install ansible
+      become: true
+      changed_when: true
+    - name: Setup | Install sops
+      ansible.builtin.include_role:
+        name: community.sops.install
+      vars:
+        sops_install_on_localhost: true
+        sops_github_token: "{{ github_token }}"
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+    - name: Setup | Disable proxmox subscription notice
+      ansible.builtin.command:
+        sed -Ezi.bak "s/(function\(orig_cmd\) \{)/\1\n\torig_cmd\(\);\n\treturn;/g" /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js && systemctl restart pveproxy.service
+      become: true
+      changed_when: true
+    - name: Setup | Install truenas-proxmox
+      ansible.builtin.command:
+        keyring_location=/usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
+        curl -1sLf 'https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key' |  gpg --dearmor >> ${keyring_location}
+        cat << EOF > /etc/apt/sources.list.d/ksatechnologies-repo.list
+        # Source: KSATechnologies
+        # Site: https://cloudsmith.io
+        # Repository: KSATechnologies / truenas-proxmox
+        # Description: TrueNAS plugin for Proxmox VE - Production
+        deb [signed-by=${keyring_location}] https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/deb/debian any-version main
+        EOF
+        apt update
+        apt install freenas-proxmox
+      become: true
+      changed_when: true
+
+# Environment Setup
+- name: Setup Hosts Environment
+  hosts: proxmox
+  vars:
+    GPG_FINGERPRINT: "AEF33B7BBF745C632286CB291C9E3B67BDE73F8E"
+  tasks:
+    - name: Setup | Render Profile Configuration
+      ansible.builtin.set_fact:
+        profile: "{{ lookup('template', playbook_dir + '/templates/profile.j2' ) }}"
+    - name: Setup | Create Profile Configuration
+      ansible.builtin.command: |
+        echo {{ profile }} >>/etc/profile
+        echo {{ profile }} >>/root/.bashrc
+        echo {{ profile }} >>/etc/bash.bashrc
+      when: profile is not none
+    - name: Setup | Render vimrc
+      ansible.builtin.set_fact:
+        vimrc: "{{ lookup('template', playbook_dir + '/templates/vimrc.j2' ) }}"
+    - name: Setup | Create vimrc
+      ansible.builtin.command: |
+        echo {{ vimrc }} >>/usr/share/vim/vimrc
+      when: vimrc is not none
+    - name: Setup | Render bash aliases
+      ansible.builtin.set_fact:
+        bash_aliases: "{{ lookup('template', playbook_dir + '/templates/bash-aliases.j2' ) }}"
+    - name: Setup | Create bash-aliases
+      ansible.builtin.command: |
+        mkdir -p /etc/profile.d
+        echo {{ bash_aliases }} >/etc/profile.d/bash-aliases.sh
+        chmod +x /etc/profile.d/bash-aliases.sh
+      when: bash_aliases is not none
+    - name: Setup | Render bash-coloring
+      ansible.builtin.set_fact:
+        bash_coloring: "{{ lookup('template', playbook_dir + '/templates/bash-coloring.j2' ) }}"
+    - name: Setup | Create bash-coloring
+      ansible.builtin.command: |
+        mkdir -p /etc/profile.d
+        echo {{ bash_coloring }} >/etc/profile.d/bash-coloring.sh
+        chmod +x /etc/profile.d/bash-coloring.sh
+      when: bash_coloring is not none
+    - name: Setup | Render bash-git
+      ansible.builtin.set_fact:
+        bash_git: "{{ lookup('template', playbook_dir + '/templates/bash-git.j2' ) }}"
+    - name: Setup | Create bash-git
+      ansible.builtin.command: |
+        mkdir -p /etc/profile.d
+        echo {{ bash_git }} >/etc/profile.d/bash-git.sh
+        chmod +x /etc/profile.d/bash-git.sh
+      when: bash_git is not none
+    - name: Setup | Render bash-history
+      ansible.builtin.set_fact:
+        bash_history: "{{ lookup('template', playbook_dir + '/templates/bash-history.j2' ) }}"
+    - name: Setup | Create bash-history
+      ansible.builtin.command: |
+        mkdir -p /etc/profile.d
+        echo {{ bash_history }} >/etc/profile.d/bash-history.sh
+        chmod +x /etc/profile.d/bash-history.sh
+      when: bash_history is not none
+    
+# Age/Sops
+- name: Age/Sops
+  hosts: localhost
+  tasks:
+    - name: Stat age.key
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/secrets/age.key"
+      register: age_key_file
+    - name: Fail if Age Keyfile does not exist
+      ansible.builtin.fail:
+        message: "{{ playbook_dir }}/secrets/age.key does not exist"
+      when: not age_key_file.stat.exists
+    - name: Get Age Public Key
+      ansible.builtin.command: cat {{ playbook_dir }}/secrets/age.key | grep public | awk -F':' '{print $2}' | tr -d ' '
+      register: age_public_key
+      when: age_key_file.stat.exists
+      changed_when: true

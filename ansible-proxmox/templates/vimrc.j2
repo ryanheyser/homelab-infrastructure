@@ -1,0 +1,292 @@
+set backspace=indent,eol,start  " more powerful backspacing
+set t_Co=256
+set termguicolors
+
+if empty(glob('$HOME/.vim/autoload/plug.vim'))
+    silent !curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source /usr/share/vim/vimrc
+endif
+
+call plug#begin()
+Plug 'honza/vim-snippets'
+Plug 'junegunn/limelight.vim'
+Plug 'frazrepo/vim-rainbow'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'ekalinin/dockerfile.vim'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+Plug 'airblade/vim-gitgutter'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'tpope/vim-markdown'
+Plug 'jiangmiao/auto-pairs'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'dense-analysis/ale'
+call plug#end()
+
+let g:rainbow_active = 1
+let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
+let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_auto_colors = 0
+let g:EditorConfig_exclude_patterns = ['scp://.*','fugitive://.*']
+let g:markdown_minlines = 100
+let g:markdown_fenced_languages = ['html','python','bash=sh','zsh=sh','sh','ksh=sh','json','go','sql','yaml','xml']
+let g:AutoPairsFlyMode = 1
+let g:airline#extensions#tabline#left_sep = ' '
+let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+let g:airline_highlighting_cache = 1
+let g:airline_powerline_fonts = 1
+let g:airline_theme='distinguished'
+let g:ale_completion_autoimport = 1
+let g:ale_completion_enabled = 1
+let g:ale_fixers = {
+    \   '*': ['remove_trailing_lines', 'trim_whitespace', 'prettier'],
+    \}
+let g:ale_fix_on_save = 1
+
+hi x016_Grey0 ctermbg=16 guibg=#000000 "rgb=0,0,0
+hi x017_NavyBlue ctermbg=17 guibg=#00005f "rgb=0,0,95
+hi x018_DarkBlue ctermbg=18 guibg=#000087 "rgb=0,0,135
+hi x019_Blue3 ctermbg=19 guibg=#0000af "rgb=0,0,175
+hi x020_Blue3 ctermbg=20 guibg=#0000d7 "rgb=0,0,215
+hi x021_Blue1 ctermbg=21 guibg=#0000ff "rgb=0,0,255
+hi x022_DarkGreen ctermbg=22 guibg=#005f00 "rgb=0,95,0
+hi x023_DeepSkyBlue4 ctermbg=23 guibg=#005f5f "rgb=0,95,95
+hi x024_DeepSkyBlue4 ctermbg=24 guibg=#005f87 "rgb=0,95,135
+hi x025_DeepSkyBlue4 ctermbg=25 guibg=#005faf "rgb=0,95,175
+hi x026_DodgerBlue3 ctermbg=26 guibg=#005fd7 "rgb=0,95,215
+hi x027_DodgerBlue2 ctermbg=27 guibg=#005fff "rgb=0,95,255
+hi x028_Green4 ctermbg=28 guibg=#008700 "rgb=0,135,0
+hi x029_SpringGreen4 ctermbg=29 guibg=#00875f "rgb=0,135,95
+hi x030_Turquoise4 ctermbg=30 guibg=#008787 "rgb=0,135,135
+hi x031_DeepSkyBlue3 ctermbg=31 guibg=#0087af "rgb=0,135,175
+hi x032_DeepSkyBlue3 ctermbg=32 guibg=#0087d7 "rgb=0,135,215
+hi x033_DodgerBlue1 ctermbg=33 guibg=#0087ff "rgb=0,135,255
+hi x034_Green3 ctermbg=34 guibg=#00af00 "rgb=0,175,0
+hi x035_SpringGreen3 ctermbg=35 guibg=#00af5f "rgb=0,175,95
+hi x036_DarkCyan ctermbg=36 guibg=#00af87 "rgb=0,175,135
+hi x037_LightSeaGreen ctermbg=37 guibg=#00afaf "rgb=0,175,175
+hi x038_DeepSkyBlue2 ctermbg=38 guibg=#00afd7 "rgb=0,175,215
+hi x039_DeepSkyBlue1 ctermbg=39 guibg=#00afff "rgb=0,175,255
+hi x040_Green3 ctermbg=40 guibg=#00d700 "rgb=0,215,0
+hi x041_SpringGreen3 ctermbg=41 guibg=#00d75f "rgb=0,215,95
+hi x042_SpringGreen2 ctermbg=42 guibg=#00d787 "rgb=0,215,135
+hi x043_Cyan3 ctermbg=43 guibg=#00d7af "rgb=0,215,175
+hi x044_DarkTurquoise ctermbg=44 guibg=#00d7d7 "rgb=0,215,215
+hi x045_Turquoise2 ctermbg=45 guibg=#00d7ff "rgb=0,215,255
+hi x046_Green1 ctermbg=46 guibg=#00ff00 "rgb=0,255,0
+hi x047_SpringGreen2 ctermbg=47 guibg=#00ff5f "rgb=0,255,95
+hi x048_SpringGreen1 ctermbg=48 guibg=#00ff87 "rgb=0,255,135
+hi x049_MediumSpringGreen ctermbg=49 guibg=#00ffaf "rgb=0,255,175
+hi x050_Cyan2 ctermbg=50 guibg=#00ffd7 "rgb=0,255,215
+hi x051_Cyan1 ctermbg=51 guibg=#00ffff "rgb=0,255,255
+hi x052_DarkRed ctermbg=52 guibg=#5f0000 "rgb=95,0,0
+hi x053_DeepPink4 ctermbg=53 guibg=#5f005f "rgb=95,0,95
+hi x054_Purple4 ctermbg=54 guibg=#5f0087 "rgb=95,0,135
+hi x055_Purple4 ctermbg=55 guibg=#5f00af "rgb=95,0,175
+hi x056_Purple3 ctermbg=56 guibg=#5f00d7 "rgb=95,0,215
+hi x057_BlueViolet ctermbg=57 guibg=#5f00ff "rgb=95,0,255
+hi x058_Orange4 ctermbg=58 guibg=#5f5f00 "rgb=95,95,0
+hi x059_Grey37 ctermbg=59 guibg=#5f5f5f "rgb=95,95,95
+hi x060_MediumPurple4 ctermbg=60 guibg=#5f5f87 "rgb=95,95,135
+hi x061_SlateBlue3 ctermbg=61 guibg=#5f5faf "rgb=95,95,175
+hi x062_SlateBlue3 ctermbg=62 guibg=#5f5fd7 "rgb=95,95,215
+hi x063_RoyalBlue1 ctermbg=63 guibg=#5f5fff "rgb=95,95,255
+hi x064_Chartreuse4 ctermbg=64 guibg=#5f8700 "rgb=95,135,0
+hi x065_DarkSeaGreen4 ctermbg=65 guibg=#5f875f "rgb=95,135,95
+hi x066_PaleTurquoise4 ctermbg=66 guibg=#5f8787 "rgb=95,135,135
+hi x067_SteelBlue ctermbg=67 guibg=#5f87af "rgb=95,135,175
+hi x068_SteelBlue3 ctermbg=68 guibg=#5f87d7 "rgb=95,135,215
+hi x069_CornflowerBlue ctermbg=69 guibg=#5f87ff "rgb=95,135,255
+hi x070_Chartreuse3 ctermbg=70 guibg=#5faf00 "rgb=95,175,0
+hi x071_DarkSeaGreen4 ctermbg=71 guibg=#5faf5f "rgb=95,175,95
+hi x072_CadetBlue ctermbg=72 guibg=#5faf87 "rgb=95,175,135
+hi x073_CadetBlue ctermbg=73 guibg=#5fafaf "rgb=95,175,175
+hi x074_SkyBlue3 ctermbg=74 guibg=#5fafd7 "rgb=95,175,215
+hi x075_SteelBlue1 ctermbg=75 guibg=#5fafff "rgb=95,175,255
+hi x076_Chartreuse3 ctermbg=76 guibg=#5fd700 "rgb=95,215,0
+hi x077_PaleGreen3 ctermbg=77 guibg=#5fd75f "rgb=95,215,95
+hi x078_SeaGreen3 ctermbg=78 guibg=#5fd787 "rgb=95,215,135
+hi x079_Aquamarine3 ctermbg=79 guibg=#5fd7af "rgb=95,215,175
+hi x080_MediumTurquoise ctermbg=80 guibg=#5fd7d7 "rgb=95,215,215
+hi x081_SteelBlue1 ctermbg=81 guibg=#5fd7ff "rgb=95,215,255
+hi x082_Chartreuse2 ctermbg=82 guibg=#5fff00 "rgb=95,255,0
+hi x083_SeaGreen2 ctermbg=83 guibg=#5fff5f "rgb=95,255,95
+hi x084_SeaGreen1 ctermbg=84 guibg=#5fff87 "rgb=95,255,135
+hi x085_SeaGreen1 ctermbg=85 guibg=#5fffaf "rgb=95,255,175
+hi x086_Aquamarine1 ctermbg=86 guibg=#5fffd7 "rgb=95,255,215
+hi x087_DarkSlateGray2 ctermbg=87 guibg=#5fffff "rgb=95,255,255
+hi x088_DarkRed ctermbg=88 guibg=#870000 "rgb=135,0,0
+hi x089_DeepPink4 ctermbg=89 guibg=#87005f "rgb=135,0,95
+hi x090_DarkMagenta ctermbg=90 guibg=#870087 "rgb=135,0,135
+hi x091_DarkMagenta ctermbg=91 guibg=#8700af "rgb=135,0,175
+hi x092_DarkViolet ctermbg=92 guibg=#8700d7 "rgb=135,0,215
+hi x093_Purple ctermbg=93 guibg=#8700ff "rgb=135,0,255
+hi x094_Orange4 ctermbg=94 guibg=#875f00 "rgb=135,95,0
+hi x095_LightPink4 ctermbg=95 guibg=#875f5f "rgb=135,95,95
+hi x096_Plum4 ctermbg=96 guibg=#875f87 "rgb=135,95,135
+hi x097_MediumPurple3 ctermbg=97 guibg=#875faf "rgb=135,95,175
+hi x098_MediumPurple3 ctermbg=98 guibg=#875fd7 "rgb=135,95,215
+hi x099_SlateBlue1 ctermbg=99 guibg=#875fff "rgb=135,95,255
+hi x100_Yellow4 ctermbg=100 guibg=#878700 "rgb=135,135,0
+hi x101_Wheat4 ctermbg=101 guibg=#87875f "rgb=135,135,95
+hi x102_Grey53 ctermbg=102 guibg=#878787 "rgb=135,135,135
+hi x103_LightSlateGrey ctermbg=103 guibg=#8787af "rgb=135,135,175
+hi x104_MediumPurple ctermbg=104 guibg=#8787d7 "rgb=135,135,215
+hi x105_LightSlateBlue ctermbg=105 guibg=#8787ff "rgb=135,135,255
+hi x106_Yellow4 ctermbg=106 guibg=#87af00 "rgb=135,175,0
+hi x107_DarkOliveGreen3 ctermbg=107 guibg=#87af5f "rgb=135,175,95
+hi x108_DarkSeaGreen ctermbg=108 guibg=#87af87 "rgb=135,175,135
+hi x109_LightSkyBlue3 ctermbg=109 guibg=#87afaf "rgb=135,175,175
+hi x110_LightSkyBlue3 ctermbg=110 guibg=#87afd7 "rgb=135,175,215
+hi x111_SkyBlue2 ctermbg=111 guibg=#87afff "rgb=135,175,255
+hi x112_Chartreuse2 ctermbg=112 guibg=#87d700 "rgb=135,215,0
+hi x113_DarkOliveGreen3 ctermbg=113 guibg=#87d75f "rgb=135,215,95
+hi x114_PaleGreen3 ctermbg=114 guibg=#87d787 "rgb=135,215,135
+hi x115_DarkSeaGreen3 ctermbg=115 guibg=#87d7af "rgb=135,215,175
+hi x116_DarkSlateGray3 ctermbg=116 guibg=#87d7d7 "rgb=135,215,215
+hi x117_SkyBlue1 ctermbg=117 guibg=#87d7ff "rgb=135,215,255
+hi x118_Chartreuse1 ctermbg=118 guibg=#87ff00 "rgb=135,255,0
+hi x119_LightGreen ctermbg=119 guibg=#87ff5f "rgb=135,255,95
+hi x120_LightGreen ctermbg=120 guibg=#87ff87 "rgb=135,255,135
+hi x121_PaleGreen1 ctermbg=121 guibg=#87ffaf "rgb=135,255,175
+hi x122_Aquamarine1 ctermbg=122 guibg=#87ffd7 "rgb=135,255,215
+hi x123_DarkSlateGray1 ctermbg=123 guibg=#87ffff "rgb=135,255,255
+hi x124_Red3 ctermbg=124 guibg=#af0000 "rgb=175,0,0
+hi x125_DeepPink4 ctermbg=125 guibg=#af005f "rgb=175,0,95
+hi x126_MediumVioletRed ctermbg=126 guibg=#af0087 "rgb=175,0,135
+hi x127_Magenta3 ctermbg=127 guibg=#af00af "rgb=175,0,175
+hi x128_DarkViolet ctermbg=128 guibg=#af00d7 "rgb=175,0,215
+hi x129_Purple ctermbg=129 guibg=#af00ff "rgb=175,0,255
+hi x130_DarkOrange3 ctermbg=130 guibg=#af5f00 "rgb=175,95,0
+hi x131_IndianRed ctermbg=131 guibg=#af5f5f "rgb=175,95,95
+hi x132_HotPink3 ctermbg=132 guibg=#af5f87 "rgb=175,95,135
+hi x133_MediumOrchid3 ctermbg=133 guibg=#af5faf "rgb=175,95,175
+hi x134_MediumOrchid ctermbg=134 guibg=#af5fd7 "rgb=175,95,215
+hi x135_MediumPurple2 ctermbg=135 guibg=#af5fff "rgb=175,95,255
+hi x136_DarkGoldenrod ctermbg=136 guibg=#af8700 "rgb=175,135,0
+hi x137_LightSalmon3 ctermbg=137 guibg=#af875f "rgb=175,135,95
+hi x138_RosyBrown ctermbg=138 guibg=#af8787 "rgb=175,135,135
+hi x139_Grey63 ctermbg=139 guibg=#af87af "rgb=175,135,175
+hi x140_MediumPurple2 ctermbg=140 guibg=#af87d7 "rgb=175,135,215
+hi x141_MediumPurple1 ctermbg=141 guibg=#af87ff "rgb=175,135,255
+hi x142_Gold3 ctermbg=142 guibg=#afaf00 "rgb=175,175,0
+hi x143_DarkKhaki ctermbg=143 guibg=#afaf5f "rgb=175,175,95
+hi x144_NavajoWhite3 ctermbg=144 guibg=#afaf87 "rgb=175,175,135
+hi x145_Grey69 ctermbg=145 guibg=#afafaf "rgb=175,175,175
+hi x146_LightSteelBlue3 ctermbg=146 guibg=#afafd7 "rgb=175,175,215
+hi x147_LightSteelBlue ctermbg=147 guibg=#afafff "rgb=175,175,255
+hi x148_Yellow3 ctermbg=148 guibg=#afd700 "rgb=175,215,0
+hi x149_DarkOliveGreen3 ctermbg=149 guibg=#afd75f "rgb=175,215,95
+hi x150_DarkSeaGreen3 ctermbg=150 guibg=#afd787 "rgb=175,215,135
+hi x151_DarkSeaGreen2 ctermbg=151 guibg=#afd7af "rgb=175,215,175
+hi x152_LightCyan3 ctermbg=152 guibg=#afd7d7 "rgb=175,215,215
+hi x153_LightSkyBlue1 ctermbg=153 guibg=#afd7ff "rgb=175,215,255
+hi x154_GreenYellow ctermbg=154 guibg=#afff00 "rgb=175,255,0
+hi x155_DarkOliveGreen2 ctermbg=155 guibg=#afff5f "rgb=175,255,95
+hi x156_PaleGreen1 ctermbg=156 guibg=#afff87 "rgb=175,255,135
+hi x157_DarkSeaGreen2 ctermbg=157 guibg=#afffaf "rgb=175,255,175
+hi x158_DarkSeaGreen1 ctermbg=158 guibg=#afffd7 "rgb=175,255,215
+hi x159_PaleTurquoise1 ctermbg=159 guibg=#afffff "rgb=175,255,255
+hi x160_Red3 ctermbg=160 guibg=#d70000 "rgb=215,0,0
+hi x161_DeepPink3 ctermbg=161 guibg=#d7005f "rgb=215,0,95
+hi x162_DeepPink3 ctermbg=162 guibg=#d70087 "rgb=215,0,135
+hi x163_Magenta3 ctermbg=163 guibg=#d700af "rgb=215,0,175
+hi x164_Magenta3 ctermbg=164 guibg=#d700d7 "rgb=215,0,215
+hi x165_Magenta2 ctermbg=165 guibg=#d700ff "rgb=215,0,255
+hi x166_DarkOrange3 ctermbg=166 guibg=#d75f00 "rgb=215,95,0
+hi x167_IndianRed ctermbg=167 guibg=#d75f5f "rgb=215,95,95
+hi x168_HotPink3 ctermbg=168 guibg=#d75f87 "rgb=215,95,135
+hi x169_HotPink2 ctermbg=169 guibg=#d75faf "rgb=215,95,175
+hi x170_Orchid ctermbg=170 guibg=#d75fd7 "rgb=215,95,215
+hi x171_MediumOrchid1 ctermbg=171 guibg=#d75fff "rgb=215,95,255
+hi x172_Orange3 ctermbg=172 guibg=#d78700 "rgb=215,135,0
+hi x173_LightSalmon3 ctermbg=173 guibg=#d7875f "rgb=215,135,95
+hi x174_LightPink3 ctermbg=174 guibg=#d78787 "rgb=215,135,135
+hi x175_Pink3 ctermbg=175 guibg=#d787af "rgb=215,135,175
+hi x176_Plum3 ctermbg=176 guibg=#d787d7 "rgb=215,135,215
+hi x177_Violet ctermbg=177 guibg=#d787ff "rgb=215,135,255
+hi x178_Gold3 ctermbg=178 guibg=#d7af00 "rgb=215,175,0
+hi x179_LightGoldenrod3 ctermbg=179 guibg=#d7af5f "rgb=215,175,95
+hi x180_Tan ctermbg=180 guibg=#d7af87 "rgb=215,175,135
+hi x181_MistyRose3 ctermbg=181 guibg=#d7afaf "rgb=215,175,175
+hi x182_Thistle3 ctermbg=182 guibg=#d7afd7 "rgb=215,175,215
+hi x183_Plum2 ctermbg=183 guibg=#d7afff "rgb=215,175,255
+hi x184_Yellow3 ctermbg=184 guibg=#d7d700 "rgb=215,215,0
+hi x185_Khaki3 ctermbg=185 guibg=#d7d75f "rgb=215,215,95
+hi x186_LightGoldenrod2 ctermbg=186 guibg=#d7d787 "rgb=215,215,135
+hi x187_LightYellow3 ctermbg=187 guibg=#d7d7af "rgb=215,215,175
+hi x188_Grey84 ctermbg=188 guibg=#d7d7d7 "rgb=215,215,215
+hi x189_LightSteelBlue1 ctermbg=189 guibg=#d7d7ff "rgb=215,215,255
+hi x190_Yellow2 ctermbg=190 guibg=#d7ff00 "rgb=215,255,0
+hi x191_DarkOliveGreen1 ctermbg=191 guibg=#d7ff5f "rgb=215,255,95
+hi x192_DarkOliveGreen1 ctermbg=192 guibg=#d7ff87 "rgb=215,255,135
+hi x193_DarkSeaGreen1 ctermbg=193 guibg=#d7ffaf "rgb=215,255,175
+hi x194_Honeydew2 ctermbg=194 guibg=#d7ffd7 "rgb=215,255,215
+hi x195_LightCyan1 ctermbg=195 guibg=#d7ffff "rgb=215,255,255
+hi x196_Red1 ctermbg=196 guibg=#ff0000 "rgb=255,0,0
+hi x197_DeepPink2 ctermbg=197 guibg=#ff005f "rgb=255,0,95
+hi x198_DeepPink1 ctermbg=198 guibg=#ff0087 "rgb=255,0,135
+hi x199_DeepPink1 ctermbg=199 guibg=#ff00af "rgb=255,0,175
+hi x200_Magenta2 ctermbg=200 guibg=#ff00d7 "rgb=255,0,215
+hi x201_Magenta1 ctermbg=201 guibg=#ff00ff "rgb=255,0,255
+hi x202_OrangeRed1 ctermbg=202 guibg=#ff5f00 "rgb=255,95,0
+hi x203_IndianRed1 ctermbg=203 guibg=#ff5f5f "rgb=255,95,95
+hi x204_IndianRed1 ctermbg=204 guibg=#ff5f87 "rgb=255,95,135
+hi x205_HotPink ctermbg=205 guibg=#ff5faf "rgb=255,95,175
+hi x206_HotPink ctermbg=206 guibg=#ff5fd7 "rgb=255,95,215
+hi x207_MediumOrchid1 ctermbg=207 guibg=#ff5fff "rgb=255,95,255
+hi x208_DarkOrange ctermbg=208 guibg=#ff8700 "rgb=255,135,0
+hi x209_Salmon1 ctermbg=209 guibg=#ff875f "rgb=255,135,95
+hi x210_LightCoral ctermbg=210 guibg=#ff8787 "rgb=255,135,135
+hi x211_PaleVioletRed1 ctermbg=211 guibg=#ff87af "rgb=255,135,175
+hi x212_Orchid2 ctermbg=212 guibg=#ff87d7 "rgb=255,135,215
+hi x213_Orchid1 ctermbg=213 guibg=#ff87ff "rgb=255,135,255
+hi x214_Orange1 ctermbg=214 guibg=#ffaf00 "rgb=255,175,0
+hi x215_SandyBrown ctermbg=215 guibg=#ffaf5f "rgb=255,175,95
+hi x216_LightSalmon1 ctermbg=216 guibg=#ffaf87 "rgb=255,175,135
+hi x217_LightPink1 ctermbg=217 guibg=#ffafaf "rgb=255,175,175
+hi x218_Pink1 ctermbg=218 guibg=#ffafd7 "rgb=255,175,215
+hi x219_Plum1 ctermbg=219 guibg=#ffafff "rgb=255,175,255
+hi x220_Gold1 ctermbg=220 guibg=#ffd700 "rgb=255,215,0
+hi x221_LightGoldenrod2 ctermbg=221 guibg=#ffd75f "rgb=255,215,95
+hi x222_LightGoldenrod2 ctermbg=222 guibg=#ffd787 "rgb=255,215,135
+hi x223_NavajoWhite1 ctermbg=223 guibg=#ffd7af "rgb=255,215,175
+hi x224_MistyRose1 ctermbg=224 guibg=#ffd7d7 "rgb=255,215,215
+hi x225_Thistle1 ctermbg=225 guibg=#ffd7ff "rgb=255,215,255
+hi x226_Yellow1 ctermbg=226 guibg=#ffff00 "rgb=255,255,0
+hi x227_LightGoldenrod1 ctermbg=227 guibg=#ffff5f "rgb=255,255,95
+hi x228_Khaki1 ctermbg=228 guibg=#ffff87 "rgb=255,255,135
+hi x229_Wheat1 ctermbg=229 guibg=#ffffaf "rgb=255,255,175
+hi x230_Cornsilk1 ctermbg=230 guibg=#ffffd7 "rgb=255,255,215
+hi x231_Grey100 ctermbg=231 guibg=#ffffff "rgb=255,255,255
+hi x232_Grey3 ctermbg=232 guibg=#080808 "rgb=8,8,8
+hi x233_Grey7 ctermbg=233 guibg=#121212 "rgb=18,18,18
+hi x234_Grey11 ctermbg=234 guibg=#1c1c1c "rgb=28,28,28
+hi x235_Grey15 ctermbg=235 guibg=#262626 "rgb=38,38,38
+hi x236_Grey19 ctermbg=236 guibg=#303030 "rgb=48,48,48
+hi x237_Grey23 ctermbg=237 guibg=#3a3a3a "rgb=58,58,58
+hi x238_Grey27 ctermbg=238 guibg=#444444 "rgb=68,68,68
+hi x239_Grey30 ctermbg=239 guibg=#4e4e4e "rgb=78,78,78
+hi x240_Grey35 ctermbg=240 guibg=#585858 "rgb=88,88,88
+hi x241_Grey39 ctermbg=241 guibg=#626262 "rgb=98,98,98
+hi x242_Grey42 ctermbg=242 guibg=#6c6c6c "rgb=108,108,108
+hi x243_Grey46 ctermbg=243 guibg=#767676 "rgb=118,118,118
+hi x244_Grey50 ctermbg=244 guibg=#808080 "rgb=128,128,128
+hi x245_Grey54 ctermbg=245 guibg=#8a8a8a "rgb=138,138,138
+hi x246_Grey58 ctermbg=246 guibg=#949494 "rgb=148,148,148
+hi x247_Grey62 ctermbg=247 guibg=#9e9e9e "rgb=158,158,158
+hi x248_Grey66 ctermbg=248 guibg=#a8a8a8 "rgb=168,168,168
+hi x249_Grey70 ctermbg=249 guibg=#b2b2b2 "rgb=178,178,178
+hi x250_Grey74 ctermbg=250 guibg=#bcbcbc "rgb=188,188,188
+hi x251_Grey78 ctermbg=251 guibg=#c6c6c6 "rgb=198,198,198
+hi x252_Grey82 ctermbg=252 guibg=#d0d0d0 "rgb=208,208,208
+hi x253_Grey85 ctermbg=253 guibg=#dadada "rgb=218,218,218
+hi x254_Grey89 ctermbg=254 guibg=#e4e4e4 "rgb=228,228,228
+hi x255_Grey93 ctermbg=255 guibg=#eeeeee "rgb=238,238,238
+
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=#767676 ctermbg=243
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=#e4e4e4 ctermbg=254

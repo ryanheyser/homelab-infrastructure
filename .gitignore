@@ -1,6 +1,6 @@
 k3s.yaml
 *unencrypted*
-*.sops.yaml
+*.sops.yaml*
 !*.sops.yaml.enc
 !*.sops.yaml.template
 age.key
