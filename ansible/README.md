@@ -25,27 +25,27 @@ chmod 0400 ~/.config/sops/age/keys.txt
 ### Provision SOPS templates
 
 #### docker.sops.yaml.template
-1. Copy `secrets/docker.sops.yaml.template` to `secrets/docker.sops.yaml.unencrypted`
-2. Provision `secrets/docker.sops.yaml.unencrypted` with docker hub credentials
-3. Encrypt `secrets/docker.sops.yaml.unencrypted` to `secrets/docker.sops.yaml` by:
+1. Copy `secrets/docker.sops.yaml.template` to `secrets/docker.sops.yaml`
+2. Provision `secrets/docker.sops.yaml` with docker hub credentials
+3. Encrypt `secrets/docker.sops.yaml` to `secrets/docker.sops.yaml.enc` by:
 ```bash
-sops --encrypt --age '<age public key>' secrets/docker.sops.yaml.unencrypted >secrets/docker.sops.yaml
+sops --encrypt --age '<age public key>' secrets/docker.sops.yaml >secrets/docker.sops.yaml.enc
 ```
 
 #### github.sops.yaml.template
-1. Copy `secrets/github.sops.yaml.template` to `secrets/github.sops.yaml.unencrypted`
-2. Provision `secrets/github.sops.yaml.unencrypted` with github credentials
-3. Encrypt `secrets/github.sops.yaml.unencrypted` to `secrets/github.sops.yaml` by:
+1. Copy `secrets/github.sops.yaml.template` to `secrets/github.sops.yaml`
+2. Provision `secrets/github.sops.yaml` with github credentials
+3. Encrypt `secrets/github.sops.yaml` to `secrets/github.sops.yaml.enc` by:
 ```bash
-sops --encrypt --age '<age public key>' secrets/github.sops.yaml.unencrypted >secrets/github.sops.yaml
+sops --encrypt --age '<age public key>' secrets/github.sops.yaml >secrets/github.sops.yaml.enc
 ```
 
 #### Optional
-1. Delete the unencryped files `secrets/docker.sops.yaml.unencrypted` and `secrets/github.sops.yaml.unencrypted`
+1. Delete the unencryped files `secrets/docker.sops.yaml` and `secrets/github.sops.yaml`
 2. To decrypt:
 ```bash
-sops --decrypt secrets/docker.sops.yaml
-sops --decrypt secrets/github.sops.yaml
+sops --decrypt --input-type yaml --output-type yaml secrets/docker.sops.yaml.enc >secrets/docker.sops.yaml
+sops --decrypt --input-type yaml --output-type yaml secrets/github.sops.yaml.enc >github.sops.yaml
 ```
 
 ### Provision github_token

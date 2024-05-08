@@ -42,24 +42,24 @@ ports:
     http3:
       enabled: true
     middlewares:
-    - traefik-system@kubernetescrd
+      - traefik-system@kubernetescrd
   web:
     middlewares:
-    - traefik-system@kubernetescrd
+      - traefik-system@kubernetescrd
 tolerations:
-- key: node-role.kubernetes.io/control-plane
-  operator: Equal
-  effect: NoSchedule
-- effect: PreferNoSchedule
-  key: node-role.kubernetes.io
-  value: master
+  - key: node-role.kubernetes.io/control-plane
+    operator: Equal
+    effect: NoSchedule
+  - effect: PreferNoSchedule
+    key: node-role.kubernetes.io
+    value: master
 autoscaling:
   enabled: true
   maxReplicas: 3
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
