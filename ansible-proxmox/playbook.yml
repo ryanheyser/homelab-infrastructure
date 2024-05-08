@@ -184,6 +184,7 @@
         user: ansible
         state: present
         key: "{{ ansible_public_key }}"
+        key_options: 'from=10.0.0.0/8'
     - name: Setup | Create rumblpak user
       ansible.builtin.user:
         name: rumblpak
