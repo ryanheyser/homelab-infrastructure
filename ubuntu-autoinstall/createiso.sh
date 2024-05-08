@@ -24,19 +24,19 @@ if ! command -v dd &> /dev/null
 then
     apt install -y coreutils
 fi
-dlurl="https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/jammy-live-server-amd64.iso"
-shasumurl="https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/SHA256SUMS"
+# dlurl="https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/jammy-live-server-amd64.iso"
+# shasumurl="https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/SHA256SUMS"
 # dlurl="https://releases.ubuntu.com/mantic/ubuntu-23.10-live-server-amd64.iso"
 # shasumurl="https://releases.ubuntu.com/mantic/SHA256SUMS"
-# dlurl="https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/noble-live-server-amd64.iso"
-# shasumurl="https://cdimage.ubuntu.com/ubuntu-server/daily-live/current/SHA256SUMS"
+dlurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/noble-live-server-amd64.iso"
+shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA256SUMS"
 fn="ubuntu-server.iso"
 shasumfn="SHA256SUMS"
 ago=`date --date "1 day ago" +%s`
 if [[ ! -f $fn ]]
 then
-    wget -O $fn $dlurl
-    wget -O $shasumfn $shasumurl
+    wget -c -O $fn $dlurl
+    wget -c -O $shasumfn $shasumurl
     sha256sum $fn | awk '{print $1}' | xargs -I{} grep {} $shasumfn
     ret=$?
     if [[ $ret -gt 0 ]]
@@ -57,8 +57,8 @@ else
     if [[ $ago -gt $filets ]] || [[ $ret -gt 0 ]]
     then
         echo "Cached file too old, downloading."
-        wget -O $fn $dlurl
-        wget -O $shasumfn $shasumurl
+        wget -c -O $fn $dlurl
+        wget -c -O $shasumfn $shasumurl
         sha256sum $fn | awk '{print $1}' | xargs -I{} grep {} $shasumfn
         if [[ $? -gt 0 ]]
         then
