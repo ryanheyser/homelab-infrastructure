@@ -168,20 +168,28 @@
       when: bash_env is not none
       changed_when: false
 
-# # Age/Sops
-# - name: Age/Sops
-#   hosts: localhost
-#   tasks:
-#     - name: Stat age.key
-#       ansible.builtin.stat:
-#         path: "{{ playbook_dir }}/secrets/age.key"
-#       register: age_key_file
-#     - name: Fail if Age Keyfile does not exist
-#       ansible.builtin.fail:
-#         message: "{{ playbook_dir }}/secrets/age.key does not exist"
-#       when: not age_key_file.stat.exists
-#     - name: Get Age Public Key
-#       ansible.builtin.command: cat {{ playbook_dir }}/secrets/age.key | grep public | awk -F':' '{print $2}' | tr -d ' '
-#       register: age_public_key
-#       when: age_key_file.stat.exists
-#       changed_when: true
+# User Setup
+- name: Setup Hosts Users
+  hosts: proxmox
+  tasks:
+    - name: Setup | Load ansible public key
+      ansible.builtin.set_fact:
+        ansible_public_key: "{{ lookup('file', playbook_dir + '/secrets/ansible_id_ed25519.pub') }}"
+    - name: Setup | Create ansible user
+      ansible.builtin.user:
+        name: ansible
+        expires: -1
+    - name: Setup | Add key to ansible user
+      ansible.posix.authorized_key:
+        user: ansible
+        state: present
+        key: "{{ ansible_public_key }}"
+    - name: Setup | Create rumblpak user
+      ansible.builtin.user:
+        name: rumblpak
+        expires: -1
+    - name: Setup | Add key to rumblpak user
+      ansible.posix.authorized_key:
+        user: rumblpak
+        state: present
+        key: "{{ lookup('url', 'https://github.com/rumblpak.keys', split_lines=False) }}"

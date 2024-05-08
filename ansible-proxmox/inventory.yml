@@ -6,7 +6,7 @@ localhost:
     ansible_user: rumblpak
 proxmox:
   vars:
-    ansible_user: ansible
+    ansible_user: root
     ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
   hosts:
     pichikuri:
