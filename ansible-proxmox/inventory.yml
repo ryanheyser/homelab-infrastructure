@@ -11,11 +11,11 @@ proxmox:
   hosts:
     pichikuri:
       ansible_host: 10.0.0.9
-    darkmatter:
-      ansible_host: 10.0.0.12
-    miraclematter:
-      ansible_host: 10.0.0.13
-    orbservor:
-      ansible_host: 10.0.0.14
+    # darkmatter:
+    #   ansible_host: 10.0.0.12
+    # miraclematter:
+    #   ansible_host: 10.0.0.13
+    # orbservor:
+    #   ansible_host: 10.0.0.14
     miasmoros:
       ansible_host: 10.0.0.15

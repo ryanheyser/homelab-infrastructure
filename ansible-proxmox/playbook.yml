@@ -14,6 +14,15 @@
 - name: Setup All Hosts
   hosts: proxmox
   connection: ssh
+  vars:
+    github_token: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      31376165383330653737393839613239626332306636656261653037333761323631363637373164
+      6561313737343638393335626665353735313633623036310a636336646434343338386636353033
+      64623838633966303937336164616334343962336434346464663436316363396632643539386437
+      3664633865653161610a316535366534353261643833623165623535633531393764656537666331
+      36633134313138306436343363613030383265653063323564663233393232636233623964613562
+      3265653936383532666136386661653036376536303961646664
   tasks:
     - name: Setup | apt update
       ansible.builtin.command: apt update -y
@@ -49,6 +58,8 @@
         name: community.sops.install
       vars:
         sops_install_on_localhost: true
+        sops_become_on_install: true
+        sops_github_latest_detection: "auto"
         sops_github_token: "{{ github_token }}"
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
@@ -58,15 +69,16 @@
         regexp: |
           (function\(orig_cmd\) \{)
         replace: |
-          \1\n\torig_cmd\(\);\n\treturn;
+          \1\n\torig_cmd();\n\treturn;
       become: true
-      changed_when: true
+      register: proxmoxsub
+      changed_when: false
     - name: Setup | Disable proxmox subscription notice - restart pveproxy
       ansible.builtin.systemd_service:
         name: pveproxy.service
         state: restarted
       become: true
-      changed_when: true
+      changed_when: proxmoxsub
     - name: Setup | Download truenas-proxmox keyring
       ansible.builtin.uri:
         url: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key
@@ -74,7 +86,7 @@
       register: truenas_proxmox_keyring
     - name: Setup | Setup truenas-proxmox apt repo
       ansible.builtin.copy:
-        dest: /etc/apt/sources.list.d/ksatechnologies-repo.list
+        dest: /etc/apt/sources.list.d/ksatechnologies-repo.sources
         mode: '0644'
         content: |
           # Source: KSATechnologies
@@ -118,8 +130,10 @@
       ansible.builtin.set_fact:
         vimrc: "{{ lookup('template', playbook_dir + '/templates/vimrc.j2') }}"
     - name: Setup | Create vimrc
-      ansible.builtin.command: |
-        echo {{ vimrc }} >>/usr/share/vim/vimrc
+      ansible.builtin.copy:
+        content: "{{ vimrc }}"
+        dest: /usr/share/vim/vimrc
+        mode: '0755'
       when: vimrc is not none
       changed_when: false
     - name: Setup | Render bash aliases
