@@ -98,14 +98,59 @@
           Suites: any-version
           Components: main
           Signed-By: /usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
-    - name: Setup | Install truenas-proxmox
+      register: truenasproxmoxapt
+      changed_when: false
+    - name: Setup | Add truenas-proxmox key ring
       ansible.builtin.command: |
         echo {{ truenas_proxmox_keyring }} | \
           gpg --dearmor >>/usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
         apt update
+      when: truenas_proxmox_keyring
+      changed_when: true
+    - name: Setup | install truenas-proxmox
+      ansible.builtin.command: |
         apt install freenas-proxmox
       become: true
-      changed_when: true
+      changed_when: false
+      register: truenasproxmox
+    - name: Setup | install truenas-proxmox - restart pvedaemon
+      ansible.builtin.systemd_service:
+        name: pvedaemon.service
+        state: restarted
+      become: true
+      changed_when: truenasproxmox
+    - name: Setup | install truenas-proxmox - restart pveproxy
+      ansible.builtin.systemd_service:
+        name: pveproxy.service
+        state: restarted
+      become: true
+      changed_when: truenasproxmox
+    - name: Setup | install truenas-proxmox - restart pvestatd
+      ansible.builtin.systemd_service:
+        name: pvestatd.service
+        state: restarted
+      become: true
+      changed_when: truenasproxmox
+    - name: Setup | install truenas-proxmox - restart pvescheduler
+      ansible.builtin.systemd_service:
+        name: pvescheduler.service
+        state: restarted
+      become: true
+      changed_when: truenasproxmox
+    - name: Setup | Create SSH Key File on hosts
+      ansible.builtin.command: |
+        touch /etc/pve/priv/zfs/10.0.0.8_id_rsa
+      become: true
+      changed_when: false
+    - name: Setup | Read SSH Key
+      ansible.builtin.set_fact:
+        ssh_key: "{{ lookup('template', playbook_dir + '/secrets/10.0.0.8_id_rsa') }}"
+    - name: Setup | Copy SSH Key to hosts
+      ansible.builtin.copy:
+        content: "{{ ssh_key }}"
+        dest: /etc/pve/priv/zfs/10.0.0.8_id_rsa
+        mode: '0600'
+      become: true
 
 # Environment Setup
 - name: Setup Hosts Environment

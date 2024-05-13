@@ -33,6 +33,12 @@ shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA
 fn="ubuntu-server.iso"
 shasumfn="SHA256SUMS"
 ago=`date --date "1 day ago" +%s`
+curl -s -I --write-out '%{http_code}' $dlurl | grep "HTTP/1.1 200 OK"
+if [[ $? -gt 0 ]]
+then
+    dlurl=$(echo $dlurl | sed 's/current/pending/g')
+    shasumurl=$(echo $shasumurl | sed 's/current/pending/g')
+fi
 if [[ ! -f $fn ]]
 then
     wget -c -O $fn $dlurl

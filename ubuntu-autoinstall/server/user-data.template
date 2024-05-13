@@ -43,7 +43,8 @@ autoinstall:
       ens18:
         match: {name: "ens18"}
         dhcp4: true
-        dhcp6: true
+        dhcp-identifier: mac
+        dhcp6: false
         mtu: 9000
     vlans:
       vl99:
@@ -56,18 +57,13 @@ autoinstall:
           route-metric: 200
         dhcp6-overrides:
           route-metric: 200
-    bridges:
-      vpnbr:
-        interfaces: [ vl99 ]
-        dhcp4: true
-        dhcp6: false
-        dhcp-identifier: mac
-        dhcp4-overrides:
-          route-metric: 200
-        dhcp6-overrides:
-          route-metric: 200
   user-data:
     write_files:
+    - path: /etc/modprobe.d/blacklist.conf
+      append: true
+      content: |
+        # Nouveau driver conflicts with NVidia driver
+        blacklist nouveau
     - path: /etc/bash.bashrc
       append: true
       content: |
@@ -529,6 +525,7 @@ autoinstall:
     - vim-nox
     - python3-dev
     - bash-completion
+    - dkms
     timezone: US/Eastern
     drivers:
       nvidia:
@@ -563,7 +560,7 @@ autoinstall:
       passwd: 
       lock_passwd: true
       ssh_authorized_keys:
-      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOnvMtAb5sZHOTtr4A8E1w4Zc0ijyq0sOLBMNd3U3BWz ansible@homelab.heyser.lan
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ4hZb0hehdXA/yRmHJwDL1aMdpQwicDt0NBA80fezfb ansible@homelab.heyser.xyz
     runcmd:
     - find /home | grep '\.bashrc' | xargs sed -i -r 's/^([[:space:]]+?)(PS1.*)/\1# \2\n\1echo -n/g'
     - find /root | grep '\.bashrc' | xargs sed -i -r 's/^([[:space:]]+?)(PS1.*)/\1# \2\n\1echo -n/g'
@@ -591,7 +588,7 @@ autoinstall:
     - systemctl mask snapd.autoimport.service
     - systemctl mask snapd.service
     - systemctl mask snapd.apparmor.service
-    - apt remove --purge snapd && apt-mark hold snapd
+    - apt remove --purge snapd lxd-installer && apt-mark hold snapd
     - TEMP_DEB="$(mktemp)" && wget -O "$TEMP_DEB" 'https://github.com/Skyedra/UnspamifyUbuntu/blob/master/fake-ubuntu-advantage-tools/fake-ubuntu-advantage-tools.deb?raw=true' && sudo dpkg -i "$TEMP_DEB"; rm -f "$TEMP_DEB"
     - test -f /var/lib/ubuntu-advantage/messages/motd-esm-announce && rm /var/lib/ubuntu-advantage/messages/motd-esm-announce
     - touch /var/lib/ubuntu-advantage/messages/motd-esm-announce && chattr +i /var/lib/ubuntu-advantage/messages/motd-esm-announce
