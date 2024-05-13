@@ -42,7 +42,7 @@ fi
 if [[ ! -f $fn ]]
 then
     wget -c -O $fn $dlurl
-    wget -c -O $shasumfn $shasumurl
+    wget -O $shasumfn $shasumurl
     sha256sum $fn | awk '{print $1}' | xargs -I{} grep {} $shasumfn
     ret=$?
     if [[ $ret -gt 0 ]]
@@ -64,7 +64,7 @@ else
     then
         echo "Cached file too old, downloading."
         wget -c -O $fn $dlurl
-        wget -c -O $shasumfn $shasumurl
+        wget -O $shasumfn $shasumurl
         sha256sum $fn | awk '{print $1}' | xargs -I{} grep {} $shasumfn
         if [[ $? -gt 0 ]]
         then

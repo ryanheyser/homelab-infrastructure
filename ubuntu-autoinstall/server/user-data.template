@@ -522,10 +522,11 @@ autoinstall:
     - gpg
     - build-essential
     - cmake
-    - vim-nox
     - python3-dev
     - bash-completion
     - dkms
+    - pkg-config
+    - libglvnd-dev
     timezone: US/Eastern
     drivers:
       nvidia:
