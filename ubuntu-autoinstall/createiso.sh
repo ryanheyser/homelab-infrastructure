@@ -32,7 +32,7 @@ dlurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/noble-l
 shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA256SUMS"
 fn="ubuntu-server.iso"
 shasumfn="SHA256SUMS"
-ago=`date --date "1 day ago" +%s`
+ago=`date --date "7 day ago" +%s`
 curl -s -I --write-out '%{http_code}' $dlurl | grep "HTTP/1.1 200 OK"
 if [[ $? -gt 0 ]]
 then
@@ -63,7 +63,7 @@ else
     if [[ $ago -gt $filets ]] || [[ $ret -gt 0 ]]
     then
         echo "Cached file too old, downloading."
-        wget -c -O $fn $dlurl
+        wget -O $fn $dlurl
         wget -O $shasumfn $shasumurl
         sha256sum $fn | awk '{print $1}' | xargs -I{} grep {} $shasumfn
         if [[ $? -gt 0 ]]

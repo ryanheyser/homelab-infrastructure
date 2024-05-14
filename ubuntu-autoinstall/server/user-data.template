@@ -23,6 +23,8 @@ autoinstall:
         path: /dev/sda
   packages:
   - software-properties-common
+  - nfs-common
+  - nfs4-acl-tools
   apt:
     geoip: true
     fallback: offline-install
