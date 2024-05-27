@@ -8,19 +8,29 @@ controlnodes:
   vars:
     ansible_user: ansible
   hosts:
-    claycia:
-      ansible_host: 10.0.0.15
+    madoo:
+      ansible_host: 10.0.1.10
+      k3s_control_node: true
+    magoo:
+      ansible_host: 10.0.1.11
+      k3s_control_node: true
+    marx:
+      ansible_host: 10.0.1.12
       k3s_control_node: true
 workernodes:
   vars:
     ansible_user: ansible
   hosts:
-    darkmatter:
-      ansible_host: 10.0.0.12
-    miraclematter:
-      ansible_host: 10.0.0.13
-    darknebula:
-      ansible_host: 10.0.0.14
+    peezer:
+      ansible_host: 10.0.1.20
+    peloo:
+      ansible_host: 10.0.1.21
+    peran:
+      ansible_host: 10.0.1.22
+    perara:
+      ansible_host: 10.0.1.23
+    phanta:
+      ansible_host: 10.0.1.24
 kubernetes:
   vars:
     ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"

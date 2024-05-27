@@ -17,12 +17,12 @@
   vars:
     github_token: !vault |
       $ANSIBLE_VAULT;1.1;AES256
-      32636339316331396565323464643938666538333836306633353634613530366131323430303465
-      6632353837646166643930346361363837323537633061360a306137343034646330386566366639
-      39653931343137306231643936303465643266353362393638343839393262353064343333346232
-      3332373933653537630a313464386333346531633436656635373939333736663566356563303264
-      39366265383437626539633133303038363830373133623662636164306235313631393636383536
-      3534633137353834373366313439343764303561393334383364
+      31376165383330653737393839613239626332306636656261653037333761323631363637373164
+      6561313737343638393335626665353735313633623036310a636336646434343338386636353033
+      64623838633966303937336164616334343962336434346464663436316363396632643539386437
+      3664633865653161610a316535366534353261643833623165623535633531393764656537666331
+      36633134313138306436343363613030383265653063323564663233393232636233623964613562
+      3265653936383532666136386661653036376536303961646664
   tasks:
     - name: Setup | apt update
       ansible.builtin.command: apt update -y
@@ -79,17 +79,19 @@
 # Age/Sops
 - name: Age/Sops
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Stat age.key
       ansible.builtin.stat:
-        path: "{{ playbook_dir }}/secrets/age.key"
+        path: "{{ home }}/.config/sops/age/keys.txt"
       register: age_key_file
     - name: Fail if Age Keyfile does not exist
       ansible.builtin.fail:
-        message: "{{ playbook_dir }}/secrets/age.key does not exist"
+        message: "{{ home }}/.config/sops/age/keys.txt does not exist"
       when: not age_key_file.stat.exists
     - name: Get Age Public Key
-      ansible.builtin.command: cat {{ playbook_dir }}/secrets/age.key | grep public | awk -F':' '{print $2}' | tr -d ' '
+      ansible.builtin.command: cat {{ home }}/.config/sops/age/keys.txt | grep public | awk -F':' '{print $2}' | tr -d ' '
       register: age_public_key
       when: age_key_file.stat.exists
       changed_when: true
@@ -428,16 +430,21 @@
 # Docker Registry Credentials
 - name: Create docker hub registry credential
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Check docker secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
+      register: dockersecretsfile
     - name: Unencrypt Docker Secrets
-      community.sops.load_vars:
-        file: "{{ playbook_dir }}/secrets/docker.sops.yaml"
-        name: docker
-        expressions: evaluate-on-load
-        age_keyfile: "{{ playbook_dir }}/secrets/age.key"
+      ansible.builtin.set_fact:
+          docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: dockersecretsfile.stat.exists
+      failed_when: not dockersecretsfile.stat.exists
     - name: Format docker config
       ansible.builtin.command: |
-        echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker.data | from_yaml).docker_user }}","email":"{{ (docker.data | from_yaml).docker_email }}","auth":"{{ (docker.data | from_yaml).docker_token }}"}}}'
+        echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}"}}}'
       register: dockercfg
       changed_when: true
       failed_when:
@@ -462,7 +469,8 @@
 # Flux
 - name: Bootstrap Flux
   hosts: localhost
-  # vars:
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Flux pre-checks
       ansible.builtin.command: flux check --pre
@@ -471,15 +479,18 @@
       changed_when: true
       failed_when:
         - flux_precheck_out.rc != 0
-    - name: Unencrypt Github Secrets
-      community.sops.load_vars:
-        file: "{{ playbook_dir }}/secrets/github.sops.yaml"
-        expressions: ignore
-        name: github
-        age_keyfile: "{{ playbook_dir }}/secrets/age.key"
+    - name: Check github secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
+      register: githubsecretsfile
+    - name: Unencrypt Docker Secrets
+      ansible.builtin.set_fact:
+          github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: githubsecretsfile.stat.exists
+      failed_when: not githubsecretsfile.stat.exists
     - name: Flux bootstrap
       environment:
-        GITHUB_TOKEN: "{{ (github.data | from_yaml).github_token }}"
+        GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
       ansible.builtin.command: |
         flux bootstrap github \
           --owner=ryanheyser \
