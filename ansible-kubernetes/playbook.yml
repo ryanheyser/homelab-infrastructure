@@ -1,15 +1,15 @@
 ---
-# - name: Ping Hosts
-#   hosts: all
-#   gather_facts: false
-#   tasks:
-#     - name: Ping all hosts
-#       delegate_to: localhost
-#       changed_when: false
-#       check_mode: false
-#       ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
-#       failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
-#       register: ping_hosts
+- name: Ping Hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      changed_when: false
+      check_mode: false
+      ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
 
 - name: Setup All Hosts
   hosts: all
@@ -182,6 +182,7 @@
       vars:
         k3s_become: true
         k3s_state: validated
+        k3s_registration_address: kubernetes.homelab.heyser.xyz
         # Set a specific release version or false for stable, latest for latest
         k3s_release_version: stable
         k3s_build_cluster: true
@@ -255,7 +256,7 @@
         k3s_yaml.stat.exists
 
 # Calico
-- name: Configure Calico IPPools
+- name: Configure Calico
   hosts: localhost
   tasks:
     - name: Check for kubeconfig
@@ -300,6 +301,19 @@
             allowedUses:
               - Workload
               - Tunnel
+    - name: Create Global BGP Peer Config
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: BGPPeer
+          metadata:
+            name: bgppeer
+            namespace: calico-system
+          spec:
+            peerIP: 10.0.0.1
+            asNumber: 65000
 
 # Traefik
 - name: Traefik Pre-steps
@@ -314,10 +328,10 @@
       kubernetes.core.helm_repository:
         name: traefik
         repo_url: https://helm.traefik.io/traefik
-    - name: Create traefik-system namespace
+    - name: Create network-system namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
-        name: traefik-system
+        name: network-system
         api_version: v1
         kind: Namespace
         state: present
@@ -333,7 +347,7 @@
           kind: IPReservation
           metadata:
             name: traefik-ipv4-reservation
-            namespace: traefik-system
+            namespace: network-system
           spec:
             reservedCIDRs:
               - 10.0.100.1
@@ -343,7 +357,7 @@
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
         definition: '{{ item }}'
-        namespace: traefik-system
+        namespace: network-system
         state: present
         apply: true
         force: true
@@ -362,7 +376,7 @@
     - name: Install Traefik CRD RBAC
       kubernetes.core.k8s:
         definition: '{{ item }}'
-        namespace: traefik-system
+        namespace: network-system
         state: present
         apply: true
         force: true
@@ -381,7 +395,7 @@
     - name: Install Traefik CRD Resource
       kubernetes.core.k8s:
         definition: '{{ item }}'
-        namespace: traefik-system
+        namespace: network-system
         state: present
         apply: true
         force: true
@@ -404,7 +418,7 @@
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
         name: traefik
-        release_namespace: traefik-system
+        release_namespace: network-system
         # renovate: registryUrl=https://helm.traefik.io/traefik
         chart_ref: traefik/traefik
         chart_version: 28.1.0
@@ -414,7 +428,7 @@
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         state: present
-        namespace: traefik-system
+        namespace: network-system
         definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/crowdsec-bouncer.yaml') | from_yaml_all }}"
         validate:
           fail_on_error: false
@@ -422,7 +436,7 @@
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         state: present
-        namespace: traefik-system
+        namespace: network-system
         definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/authentik.yaml') | from_yaml_all }}"
         validate:
           fail_on_error: false
@@ -546,7 +560,7 @@
           - "{{ playbook_dir }}/ansible/helm_values/vault/csivalues.yaml"
     - name: Check if Vault Operator Init File Exists
       ansible.builtin.stat:
-        path: "{{ playbook_dir }}/vault-operator-init-secret.key"
+        path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
       register: vault_operator_init_file
     - name: Initialize Vault
       # noqa: run-once[task]
@@ -563,17 +577,28 @@
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.copy:
-        content: vault_operator_init.stdout
-        dest: "{{ playbook_dir }}/vault-operator-init-secret.key"
+        content: "{{ vault_operator_init.stdout }}"
+        dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
         mode: preserve
       when: >-
         vault_operator_init is defined and
         not vault_operator_init is skipped
+      register: vault_operator_init_config
+    - name: Write Vault Configuration to Encrypted File
+      # noqa: run-once[task]
+      run_once: true
+      community.sops.sops_encrypt:
+        content_json: "{{ vault_operator_init.stdout }}"
+        path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key.enc"
+        age: age_public_key.stdout
+      when: >-
+        vault_operator_init_config is defined and
+        not vault_operator_init_config is skipped
     - name: Read Vault Configuration from File
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.set_fact:
-        vault_operator_init: "lookup('file', {{ playbook_dir }}'/vault-operator-init-secret.key')"
+        vault_operator_init: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-init-secret.key')"
       when: vault_operator_init_file.stat.exists
     - name: Check Vault Status
       when: kubeconfig.stat.exists
@@ -623,7 +648,7 @@
         kubeconfig.stat.exists
     - name: Check if Vault Operator Root File Exists
       ansible.builtin.stat:
-        path: "{{ playbook_dir }}/vault-operator-root-generate.key"
+        path: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
       register: vault_operator_root_file
 - name: Unseal Vault
   hosts: localhost
@@ -645,7 +670,7 @@
       run_once: true
       ansible.builtin.copy:
         content: vault_operator_root.stdout
-        dest: "{{ playbook_dir }}/vault-operator-root-generate.key"
+        dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
         mode: preserve
       when: >-
         vault_operator_root is defined and
@@ -654,13 +679,13 @@
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.set_fact:
-        vault_operator_root: "lookup('file', {{ playbook_dir }}'/vault-operator-root-generate.key')"
+        vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
       when: vault_operator_root_file.stat.exists
     - name: Set Vault Root Token OTP
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.set_fact:
-        vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/vault-operator-root-generate.key')"
+        vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
       when: vault_operator_root_file.stat.exists
     - name: Generate Root Token 1
       # noqa: run-once[task]
@@ -712,7 +737,7 @@
       run_once: true
       community.sops.sops_encrypt:
         content_json: "{{ vault_operator_root.stdout | to_json }}"
-        path: "{{ playbook_dir }}/vault-operator-root-token.key.enc"
+        path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
         age: age_public_key.stdout
       when: >-
         vault_operator_root.stdout is defined and
