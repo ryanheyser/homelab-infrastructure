@@ -42,10 +42,10 @@ ports:
     http3:
       enabled: true
     middlewares:
-      - traefik-system@kubernetescrd
+      - network-system@kubernetescrd
   web:
     middlewares:
-      - traefik-system@kubernetescrd
+      - network-system@kubernetescrd
 tolerations:
   - key: node-role.kubernetes.io/control-plane
     operator: Equal

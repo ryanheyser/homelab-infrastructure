@@ -95,6 +95,7 @@
         url: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key
         return_content: true
       register: truenas_proxmox_keyring
+      changed_when: true
     - name: Setup | Setup truenas-proxmox apt repo
       ansible.builtin.copy:
         dest: /etc/apt/sources.list.d/ksatechnologies-repo.sources
@@ -110,7 +111,7 @@
           Components: main
           Signed-By: /usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
       register: truenasproxmoxapt
-      changed_when: false
+      changed_when: true
     - name: Setup | Add truenas-proxmox key ring
       ansible.builtin.command: |
         echo {{ truenas_proxmox_keyring }} | \
@@ -138,12 +139,17 @@
     - name: Setup | Read SSH Key
       ansible.builtin.set_fact:
         ssh_key: "{{ lookup('template', playbook_dir + '/secrets/10.0.0.8_id_rsa') }}"
+        ssh_key_pub: "{{ lookup('template', playbook_dir + '/secrets/10.0.0.8_id_rsa.pub') }}"
     - name: Setup | Copy SSH Key to hosts
       ansible.builtin.copy:
         content: "{{ ssh_key }}"
         dest: /etc/pve/priv/zfs/10.0.0.8_id_rsa
         mode: '0600'
       become: true
+    - name: Setup | Add SSH Key to known hosts
+      ansible.builtin.known_hosts:
+        name: 10.0.0.8
+        key: "awoofy.,10.0.0.8 {{ ssh_key_pub }}"
   handlers:
     - name: Setup | Disable proxmox subscription notice
       ansible.builtin.replace:
