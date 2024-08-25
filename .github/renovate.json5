@@ -37,13 +37,13 @@
   "commitMessageExtra": "to {{newVersion}}",
   "commitMessageSuffix": "",
   "helm-values": {
-    "fileMatch": ["./.+\\.yaml$"]
+    "fileMatch": ["./.+\\.yaml$","./.+\\.yml$"]
   },
   "flux": {
-    "fileMatch": ["./.+\\.yaml$"]
+    "fileMatch": ["./.+\\.yaml$","./.+\\.yml$"]
   },
   "kubernetes": {
-    "fileMatch": ["\\.yaml$"],
+    "fileMatch": ["\\.yaml$","\\.yml$"],
     "ignorePaths": [
       "flux-system/",
       ".github"
@@ -51,21 +51,21 @@
   },
   "regexManagers": [
     {
-      "fileMatch": ["./.+\\.yaml$"],
+      "fileMatch": ["./.+\\.yaml$","./.+\\.yml$"],
       "matchStrings": [
         "registryUrl=(?<registryUrl>.*?)\n *chart: (?<depName>.*?)\n *chart_ref: (?<depName>.*?)\n *version: (?<currentValue>.*)\n *chart_version: (?<currentValue>.*)\n"
       ],
       "datasourceTemplate": "helm"
     },
     {
-      "fileMatch": ["./.+\\.yaml$"],
+      "fileMatch": ["./.+\\.yaml$","./.+\\.yml$"],
       "matchStrings": [
         "moduleName=(?<moduleName>.*?)\n *version: (?<currentValue>.*)\n"
       ],
       "datasourceTemplate": "github-releases"
     },
     {
-      "fileMatch": ["./.+\\.yaml$"],
+      "fileMatch": ["./.+\\.yaml$","./.+\\.yml$"],
       "matchPackageNames": [
         "cert-manager"
       ],
