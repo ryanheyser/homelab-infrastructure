@@ -1,49 +1,6 @@
 {
   "packageRules": [
     {
-      "description": "1Password Group",
-      "groupName": "1Password",
-      "matchPackagePatterns": ["1password"],
-      "matchDatasources": ["docker"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true
-    },
-    {
-      "description": "Hashicorp Group",
-      "groupName": "hashicorp",
-      "matchPackagePatterns": ["vault"],
-      "matchDatasources": ["helm"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true,
-      "stabilityDays": 2
-    },
-    {
-      "description": "Crowdsec Group",
-      "groupName": "crowdsecc",
-      "matchPackagePatterns": ["crowdsec-bouncer-traefik-plugin"],
-      "matchDatasources": ["github-releases"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true,
-      "stabilityDays": 2
-    },
-    {
-      "description": "secrets-store-csi-driver Group",
-      "groupName": "secrets-store-csi-driver",
-      "matchPackagePatterns": ["secrets-store-csi-driver"],
-      "matchDatasources": ["helm"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true,
-      "stabilityDays": 2
-    },
-    {
       "matchDatasources": ["github-tags", "docker"],
       "matchPackagePatterns": ["rancher/system-upgrade-controller"],
       "groupName": "system-upgrade-controller-suite",
@@ -92,6 +49,17 @@
       },
       "separateMinorPatch": false,
       "stabilityDays": 2
-    }
+    },
+    {
+      description: "Flux Group",
+      groupName: "Flux",
+      matchPackagePatterns: ["^flux", "^ghcr.io/fluxcd/"],
+      matchDatasources: ["docker", "github-tags"],
+      versioning: "semver",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+      separateMinorPatch: true,
+    },
   ]
 }

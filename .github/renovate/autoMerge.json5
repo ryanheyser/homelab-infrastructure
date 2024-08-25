@@ -9,13 +9,12 @@
       "schedule": "after 1am and before 5am",
       "updateTypes": ["minor", "patch"],
       "packageNames": [
-        "ghcr.io/home-assistant/home-assistant",
-        "ghcr.io/onedr0p/radarr",
-        "ghcr.io/onedr0p/sonarr",
-        "ghcr.io/onedr0p/sabnzbd",
-        "plexinc/pms-docker",
-        "nodered/node-red",
-        "ghcr.io/zwave-js/zwave-js-ui",
+        "adguard/adguardhome",
+        "codercom/code-server",
+        "tzahi12345/youtubedl-material",
+        "ghcr.io/advplyr/audiobookshelf",
+        "ghcr.io/onedr0p/qbittorrent",
+        "ghcr.io/onedr0p/intel-gpu-exporter",
         "codercom/code-server",
         "adguard/adguardhome"
       ]
@@ -63,7 +62,8 @@
       "automergeType": "branch",
       "matchUpdateTypes": ["minor", "patch"],
       "matchPackagePattern": [
-        "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+        "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin",
+        "github.com/k8snetworkplumbingwg/multus-cni"
       ]
     },
     {
@@ -100,4 +100,3 @@
     }
   ]
 }
-
