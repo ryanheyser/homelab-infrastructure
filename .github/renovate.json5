@@ -31,8 +31,8 @@
   "rebaseWhen": "conflicted",
   "commitBodyTable": true,
   "platformCommit": true,
-  "gitAuthor": "rumblpak <rumblpak@users.noreply.github.com>",
-  "commitBody": "Signed-off-by: rumblpak <rumblpak@users.noreply.github.com>",
+  "gitAuthor": "Ryan Heyser <rumblpak@users.noreply.github.com>",
+  "commitBody": "Signed-off-by: Ryan Heyser <rumblpak@users.noreply.github.com>",
   ignorePaths: [
     "setup/**",
     ".taskfiles/**",
