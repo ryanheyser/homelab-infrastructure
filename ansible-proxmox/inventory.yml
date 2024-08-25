@@ -1,0 +1,28 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_sudo_pass: '!vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      66313832383330326235616364663962626163353533633936333935333964323231343235383632
+      6436343261333335373164303166316630306235306661610a353130373031636531616539356162
+      65656236616130666432396638633133343464323733653836623130306133373438613565633564
+      6532323039393639330a373133393239343639666438326236613962353734326630643937626134
+      3732'
+localhost:
+  vars:
+    ansible_user: rumblpak
+proxmox:
+  vars:
+    ansible_user: root
+    ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
+  hosts:
+    pichikuri:
+      ansible_host: 10.0.0.9
+    # darkmatter:
+    #   ansible_host: 10.0.0.12
+    # miraclematter:
+    #   ansible_host: 10.0.0.13
+    # orbservor:
+    #   ansible_host: 10.0.0.14
+    miasmoros:
+      ansible_host: 10.0.0.15

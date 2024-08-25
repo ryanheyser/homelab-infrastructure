@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+invoked=$_
+if [[ $invoked != $0 ]]
+then
+  OPTIND=1
+fi
+export SOPS_AGE_RECIPIENT="age17wuhnknp7ddtrjdsxc6vk5cz5mw2gz7aa37j2e8kcj97k8k46etszma4kn"
+export GPG_FINGERPRINT="8CFBB03BAAE973FD3C02613384D01E22F5F98EC9"
+export GPG_TTY="$(tty)"
+
+if command -v kubectl &>/dev/null
+then
+    source <(kubectl completion bash)
+fi

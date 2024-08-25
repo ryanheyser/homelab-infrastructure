@@ -1,0 +1,103 @@
+{
+  "packageRules": [
+    // auto-updates - daily
+    {
+      "datasources": ["docker"],
+      "automerge": true,
+      "automergeType": "branch",
+      "requiredStatusChecks": null,
+      "schedule": "after 1am and before 5am",
+      "updateTypes": ["minor", "patch"],
+      "packageNames": [
+        "ghcr.io/home-assistant/home-assistant",
+        "ghcr.io/onedr0p/radarr",
+        "ghcr.io/onedr0p/sonarr",
+        "ghcr.io/onedr0p/sabnzbd",
+        "plexinc/pms-docker",
+        "nodered/node-red",
+        "ghcr.io/zwave-js/zwave-js-ui",
+        "codercom/code-server",
+        "adguard/adguardhome"
+      ]
+    },
+    // auto-updates - weekly
+    // {
+    //   "datasources": ["docker"],
+    //   "automerge": true,
+    //   "automergeType": "branch",
+    //   "requiredStatusChecks": null,
+    //   "schedule": ["before 3am on Monday"],
+    //   "updateTypes": ["minor", "patch"],
+    //   "packageNames": [
+    //     "ghcr.io/onedr0p/prowlarr-develop",
+    //     "ghcr.io/onedr0p/readarr-develop"
+    //   ]
+    // },
+    {
+      "datasources": ["helm"],
+      "automerge": true,
+      "requiredStatusChecks": null,
+      "schedule": "after 1am and before 5am",
+      "updateTypes": ["minor", "patch"],
+      "packageNames": [
+        "grafana",
+        "thanos",
+        "reloader",
+        "kube-prometheus-stack"
+      ]
+    },
+    {
+      "description": "Auto merge GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["github-tags"],
+      "automerge": true,
+      "ignoreTests": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Auto merge GitHub Releases",
+      "matchDatasources": ["github-releases"],
+      "automerge": true,
+      "ignoreTests": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackagePattern": [
+        "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      ]
+    },
+    {
+      "description": "Auto merge GitHub Tags",
+      "matchDatasources": ["github-tags"],
+      "automerge": true,
+      "ignoreTests": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackagePattern": [
+        "github.com/jetstack/cert-manager"
+      ]
+    },
+    {
+      "description": "Auto merge container digests",
+      "matchDatasources": ["docker"],
+      "automerge": false,
+      "automergeType": "branch",
+      "requiredStatusChecks": null,
+      "matchUpdateTypes": ["digest"],
+      "matchPackagePattern": ["ghcr.io/onedr0p"]
+    },
+    {
+      "datasources": ["helm"],
+      "automerge": true,
+      "automergeType": "branch",
+      "requiredStatusChecks": null,
+      "schedule": "after 1am and before 5am",
+      "updateTypes": ["minor", "patch"],
+      "packageNames": [
+        "secrets-store-csi-driver",
+        "vault"
+      ]
+    }
+  ]
+}
+

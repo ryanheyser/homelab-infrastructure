@@ -1,0 +1,101 @@
+global:
+  namespace: vault-system
+  enabled: true
+injector:
+  replicas: 3
+  logFormat: "json"
+  certs:
+    secretName: null
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+server:
+  logLevel: "info"
+  logFormat: "json"
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - host: vault.homelab.heyser.xyz
+        paths: []
+    tls:
+      - secretName: vault-homelab-heyser-xyz-tls
+        hosts:
+          - vault.homelab.heyser.xyz
+  tolerations:
+    - effect: PreferNoSchedule
+      key: node-role.kubernetes.io
+      value: master
+    - key: node-role.kubernetes.io/control-plane
+      operator: Equal
+      effect: NoSchedule
+  dataStorage:
+    enabled: true
+    size: 40Gi
+    annotations:
+      nfs.io/storage-path: "containers/kubernetes/vault/data"
+    storageClass: "nfs-dynamic"
+    accessMode: ReadWriteMany
+  auditStorage:
+    enabled: true
+    annotations:
+      nfs.io/storage-path: "containers/kubernetes/vault/audit"
+    storageClass: "nfs-dynamic"
+    accessMode: ReadWriteMany
+  extraEnvironmentVars:
+    VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
+  extraVolumes:
+    - type: secret
+      name: tls-server
+    - type: secret
+      name: tls-ca
+  standalone:
+    enabled: false
+  ha:
+    enabled: true
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/vault/userconfig/tls-server/fullchain.pem"
+          tls_key_file = "/vault/userconfig/tls-server/server.key"
+          tls_client_ca_file = "/vault/userconfig/tls-server/client-auth-ca.pem"
+        }
+        storage "raft" {
+          path = "/vault/data"
+            retry_join {
+            leader_api_addr = "https://vault-0.vault-system.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/server.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-1.vault-system.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/server.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-2.vault-system.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
+            leader_client_key_file = "/vault/userconfig/tls-server/server.key"
+          }
+        }
+        service_registration "kubernetes" {}
+ui:
+  enabled: true
+csi:
+  enabled: true
+  daemonSet:
+    updateStrategy:
+      maxSurge: 1
+      maxUnavailable: 1
+  agent:
+    logFormat: json

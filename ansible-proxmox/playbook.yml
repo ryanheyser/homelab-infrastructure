@@ -1,0 +1,372 @@
+---
+- name: Ping Hosts
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      check_mode: false
+      ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
+      changed_when: false
+
+- name: Setup All Hosts
+  hosts: proxmox
+  connection: ssh
+  vars:
+    github_token: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      31376165383330653737393839613239626332306636656261653037333761323631363637373164
+      6561313737343638393335626665353735313633623036310a636336646434343338386636353033
+      64623838633966303937336164616334343962336434346464663436316363396632643539386437
+      3664633865653161610a316535366534353261643833623165623535633531393764656537666331
+      36633134313138306436343363613030383265653063323564663233393232636233623964613562
+      3265653936383532666136386661653036376536303961646664
+  tasks:
+    - name: Setup | apt update
+      ansible.builtin.command: apt update -y
+      become: true
+      changed_when: true
+    - name: Setup | apt upgrade
+      ansible.builtin.command: apt upgrade -y
+      become: true
+      changed_when: true
+    - name: Setup | install required packages
+      ansible.builtin.apt:
+        state: 'latest'
+        pkg:
+          - age 
+          - build-essential 
+          - curl 
+          - dnsutils 
+          - mtr-tiny 
+          - net-tools
+          - openssl 
+          - p7zip-full 
+          - pciutils 
+          - python3 
+          - python3-pip 
+          - python3-venv 
+          - python3-virtualenv
+          - software-properties-common 
+          - tcpdump 
+          - vim 
+          - zstd
+      become: true
+      changed_when: true
+    - name: Setup | Upgrade proxmox
+      ansible.builtin.apt:
+        state: 'latest'
+        update_cache: true
+        pkg:
+          - proxmox-ve
+          - pve-manager
+      register: proxmoxupgrade
+      notify:
+        - Setup | Disable proxmox subscription notice
+
+    - name: Setup | Download ansible keyring
+      ansible.builtin.uri:
+        url: https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367
+        return_content: true
+      register: ansible_keyring
+    - name: Setup | install ansible
+      ansible.builtin.command: |
+        echo {{ ansible_keyring }} | gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
+        ubuntu=jammy echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $ubuntu main" \
+          | tee /etc/apt/sources.list.d/ansible.list
+        apt update
+        apt install ansible
+      become: true
+      changed_when: true
+    - name: Setup | Install sops
+      ansible.builtin.include_role:
+        name: community.sops.install
+      vars:
+        sops_install_on_localhost: true
+        sops_become_on_install: true
+        sops_github_latest_detection: "auto"
+        sops_github_token: "{{ github_token }}"
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+    - name: Setup | Download truenas-proxmox keyring
+      ansible.builtin.uri:
+        url: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key
+        return_content: true
+      register: truenas_proxmox_keyring
+    - name: Setup | Setup truenas-proxmox apt repo
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/ksatechnologies-repo.sources
+        mode: '0644'
+        content: |
+          # Source: KSATechnologies
+          # Site: https://cloudsmith.io
+          # Repository: KSATechnologies / truenas-proxmox
+          # Description: TrueNAS plugin for Proxmox VE - Production
+          Types: deb
+          URIs: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/deb/debian
+          Suites: any-version
+          Components: main
+          Signed-By: /usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
+      register: truenasproxmoxapt
+      changed_when: false
+    - name: Setup | Add truenas-proxmox key ring
+      ansible.builtin.command: |
+        echo {{ truenas_proxmox_keyring }} | \
+          gpg --dearmor >>/usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
+        apt update
+      when: truenas_proxmox_keyring
+      changed_when: true
+    - name: Setup | install truenas-proxmox
+      ansible.builtin.apt:
+        state: 'latest'
+        pkg:
+          - freenas-proxmox
+      become: true
+      register: truenasproxmox
+      notify:
+        - Setup | install truenas-proxmox - restart pvedaemon
+        - Setup | install truenas-proxmox - restart pveproxy
+        - Setup | install truenas-proxmox - restart pvestatd
+        - Setup | install truenas-proxmox - restart pvescheduler
+    - name: Setup | Create SSH Key File on hosts
+      ansible.builtin.command: |
+        touch /etc/pve/priv/zfs/10.0.0.8_id_rsa
+      become: true
+      changed_when: false
+    - name: Setup | Read SSH Key
+      ansible.builtin.set_fact:
+        ssh_key: "{{ lookup('template', playbook_dir + '/secrets/10.0.0.8_id_rsa') }}"
+    - name: Setup | Copy SSH Key to hosts
+      ansible.builtin.copy:
+        content: "{{ ssh_key }}"
+        dest: /etc/pve/priv/zfs/10.0.0.8_id_rsa
+        mode: '0600'
+      become: true
+  handlers:
+    - name: Setup | Disable proxmox subscription notice
+      ansible.builtin.replace:
+        path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+        regexp: |
+          (function\(orig_cmd\) \{)
+        replace: |
+          \1\n\torig_cmd();\n\treturn;
+      become: true
+      when: proxmoxupgrade.changed
+      register: proxmoxsub
+      notify:
+        - Setup | Disable proxmox subscription notice - restart pveproxy
+    - name: Setup | Disable proxmox subscription notice - restart pveproxy
+      ansible.builtin.systemd_service:
+        name: pveproxy.service
+        state: restarted
+      become: true
+      when: proxmoxsub.changed
+    - name: Setup | install truenas-proxmox - restart pvedaemon
+      ansible.builtin.systemd_service:
+        name: pvedaemon.service
+        state: restarted
+      become: true
+      when: truenasproxmox.changed
+    - name: Setup | install truenas-proxmox - restart pveproxy
+      ansible.builtin.systemd_service:
+        name: pveproxy.service
+        state: restarted
+      become: true
+      when: truenasproxmox.changed
+    - name: Setup | install truenas-proxmox - restart pvestatd
+      ansible.builtin.systemd_service:
+        name: pvestatd.service
+        state: restarted
+      become: true
+      when: truenasproxmox.changed
+    - name: Setup | install truenas-proxmox - restart pvescheduler
+      ansible.builtin.systemd_service:
+        name: pvescheduler.service
+        state: restarted
+      become: true
+      when: truenasproxmox.changed
+    
+
+# Environment Setup
+- name: Setup Hosts Environment
+  hosts: proxmox
+  tasks:
+    - name: Setup | Create profile.d Directory
+      ansible.builtin.file:
+        path: "/etc/profile.d"
+        state: directory
+        mode: '0755'
+    - name: Setup | Render Profile Configuration
+      ansible.builtin.set_fact:
+        profile: "{{ lookup('template', playbook_dir + '/templates/profile.j2') }}"
+    - name: Setup | Create Profile Configuration
+      ansible.builtin.command: |
+        echo {{ profile }} >>/etc/profile
+        echo {{ profile }} >>/root/.bashrc
+        echo {{ profile }} >>/etc/bash.bashrc
+      when: profile is not none
+      changed_when: false
+    - name: Setup | Render vimrc
+      ansible.builtin.set_fact:
+        vimrc: "{{ lookup('template', playbook_dir + '/templates/vimrc.j2') }}"
+    - name: Setup | Create vimrc
+      ansible.builtin.copy:
+        content: "{{ vimrc }}"
+        dest: /usr/share/vim/vimrc
+        mode: '0755'
+      when: vimrc is not none
+      changed_when: false
+    - name: Setup | Render bash aliases
+      ansible.builtin.set_fact:
+        bash_aliases: "{{ lookup('template', playbook_dir + '/templates/bash-aliases.j2') }}"
+    - name: Setup | Create bash-aliases
+      ansible.builtin.command: |
+        echo {{ bash_aliases }} >/etc/profile.d/bash-aliases.sh
+        chmod +x /etc/profile.d/bash-aliases.sh
+      when: bash_aliases is not none
+      changed_when: false
+    - name: Setup | Render bash-coloring
+      ansible.builtin.set_fact:
+        bash_coloring: "{{ lookup('template', playbook_dir + '/templates/bash-coloring.j2') }}"
+    - name: Setup | Create bash-coloring
+      ansible.builtin.command: |
+        echo {{ bash_coloring }} >/etc/profile.d/bash-coloring.sh
+        chmod +x /etc/profile.d/bash-coloring.sh
+      when: bash_coloring is not none
+      changed_when: false
+    - name: Setup | Render bash-git
+      ansible.builtin.set_fact:
+        bash_git: "{{ lookup('template', playbook_dir + '/templates/bash-git.j2') }}"
+    - name: Setup | Create bash-git
+      ansible.builtin.command: |
+        echo {{ bash_git }} >/etc/profile.d/bash-git.sh
+        chmod +x /etc/profile.d/bash-git.sh
+      when: bash_git is not none
+      changed_when: false
+    - name: Setup | Render bash-history
+      ansible.builtin.set_fact:
+        bash_history: "{{ lookup('template', playbook_dir + '/templates/bash-history.j2') }}"
+    - name: Setup | Create bash-history
+      ansible.builtin.command: |
+        echo {{ bash_history }} >/etc/profile.d/bash-history.sh
+        chmod +x /etc/profile.d/bash-history.sh
+      when: bash_history is not none
+      changed_when: false
+    - name: Setup | Render bash-env
+      ansible.builtin.set_fact:
+        bash_env: "{{ lookup('template', playbook_dir + '/templates/bash-env.j2') }}"
+    - name: Setup | Create bash-env
+      ansible.builtin.command: |
+        echo {{ bash_env }} >/etc/profile.d/bash-env.sh
+        chmod +x /etc/profile.d/bash-env.sh
+      when: bash_env is not none
+      changed_when: false
+
+# User Setup
+- name: Setup Hosts Users
+  hosts: proxmox
+  tasks:
+    - name: Setup | Load ansible public key
+      ansible.builtin.set_fact:
+        ansible_public_key: "{{ lookup('file', playbook_dir + '/secrets/ansible_id_ed25519.pub') }}"
+    - name: Setup | Create ansible user
+      ansible.builtin.user:
+        name: ansible
+        expires: -1
+    - name: Setup | Add key to ansible user
+      ansible.posix.authorized_key:
+        user: ansible
+        state: present
+        key: "{{ ansible_public_key }}"
+        key_options: 'from=10.0.0.0/8'
+    - name: Setup | Create rumblpak user
+      ansible.builtin.user:
+        name: rumblpak
+        expires: -1
+    - name: Setup | Add key to rumblpak user
+      ansible.posix.authorized_key:
+        user: rumblpak
+        state: present
+        key: "{{ lookup('url', 'https://github.com/rumblpak.keys', split_lines=False) }}"
+
+# Metrics Setup
+- name: Setup Ansible Prometheus Metrics
+  hosts: proxmox
+  vars:
+    pve_exporter_token: '!vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      64386537623036313537663764633336306266626463353961333663646663663064643034366665
+      6665663765383039363166343730323035343838636430380a323836383662306631383037363534
+      35333865376563383632343031633566376231636534356439623564353531663362633063623061
+      6233623533323336610a343933663863303736316465633731636262393564373365663931366236
+      65346531323934353830353435663662366561393536663737343061353132643939616637616138
+      6635376338393761343864366666323965316131646434323962'
+    pve_venv_path: '/root/ansible-venv'
+  tasks:
+    - name: Setup | Create prometheus Directory
+      ansible.builtin.file:
+        path: "/etc/prometheus"
+        state: directory
+        mode: '0755'
+      changed_when: false
+      register: prometheus_directory_create
+      notify:
+        - Setup | Install prometheus-pve-exporter
+        - Setup | Create python-venv
+    - name: Setup | Install prometheus-pve-exporter
+      ansible.builtin.pip:
+        name: 'prometheus-pve-exporter'
+        virtualenv: '{{ pve_venv_path }}'
+      args:
+        state: 'latest'
+      become: true
+      register: prometheus_pve_exporter_pip
+      notify:
+        - Setup | Create prometheus-pve-exporter.service
+        - Setup | Start prometheus-pve-exporter
+  handlers:
+    - name: Setup | Create python-venv
+      ansible.builtin.command:
+        cmd: virtualenv {{ pve_venv_path }} -p python3
+        creates: '{{ pve_venv_path }}'
+      when: prometheus_directory_create.changed
+      changed_when: true
+    - name: Setup | Create pve.yaml
+      ansible.builtin.template:
+        src: "{{ playbook_dir + '/templates/prometheus-pve-exporter-config.yml.j2' }}"
+        dest: '/etc/prometheus/pve.conf'
+        mode: '0644'
+        owner: 'root'
+        group: 'root'
+      when: prometheus_pve_exporter_pip.changed
+    - name: Setup | Create prometheus-pve-exporter.service
+      ansible.builtin.template:
+        src: "{{ playbook_dir + '/templates/prometheus-pve-exporter.service.j2' }}"
+        dest: '/usr/lib/systemd/system/prometheus-pve-exporter.service'
+        mode: '0644'
+        owner: 'root'
+        group: 'root'
+      when: prometheus_pve_exporter_pip.changed
+    - name: Setup | Start prometheus-pve-exporter
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+        name: 'prometheus-pve-exporter'
+        state: 'started'
+        enabled: 'true'
+      become: true
+      when: prometheus_pve_exporter_pip.changed
+
+# Cleanup
+- name: Cleanup
+  hosts: proxmox
+  tasks:
+    - name: Setup | Apt Cleanup
+      ansible.builtin.apt:
+        clean: true
+        autoclean: true
+        autoremove: true
+        upgrade: 'safe'
+        update_cache: true
+      changed_when: true

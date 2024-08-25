@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+invoked=$_
+if [[ $invoked != $0 ]]
+then
+  OPTIND=1
+fi
+HISTTIMEFORMAT="[%F %T]: "
+shopt -s histappend
+HISTFILESIZE=999999
+HISTSIZE=999999
+HISTCONTROL=ignoreboth
+if [[ ! -d $HOME/.logs ]]; then mkdir -p $HOME/.logs; fi
+TMPHISTFILE=$HOME/.logs/bash-history-$(date +Y-%m-%d).log
+if [[ ! -f $TMPHISTFILE ]]; then touch $TMPHISTFILE; fi
+HISTFILE=$TMPHISTFILE
+export PROMPT_COMMAND='CURDATE="$(date +%Y-%m-%d)"; \
+  TMPHISTFILE=$HOME/.logs/bash-history-${CURDATE}.log; \
+  if [[ ! -f $TMPHISTFILE ]]; then touch $TMPHISTFILE; fi; \
+  HISTFILE=$TMPHISTFILE; \
+  if [[ "$(id -u)" -ne 0 ]]; then history -a; history -c; for i in $(ls -ltr $HOME/.logs); do history -r $HOME/.logs/$i; done; fi; \
+  '
+shopt -s cmdhist
+shopt -s checkwinsize
