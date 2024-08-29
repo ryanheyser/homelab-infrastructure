@@ -1,9 +1,18 @@
 all:
   vars:
     ansible_python_interpreter: /usr/bin/python3
-    ansible_ssh_common_args: '-o ProxyCommand="ssh -p 2222 -W %h:%p -q ansible@bastion.homelab.heyser.xyz"'
+    # ansible_ssh_common_args: '-o ProxyCommand="ssh -p 2222 -W %h:%p -q ansible@bastion.homelab.heyser.xyz"'
+    ansible_sudo_pass: '!vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      66313832383330326235616364663962626163353533633936333935333964323231343235383632
+      6436343261333335373164303166316630306235306661610a353130373031636531616539356162
+      65656236616130666432396638633133343464323733653836623130306133373438613565633564
+      6532323039393639330a373133393239343639666438326236613962353734326630643937626134
+      3732'
+    ansible_port: 22
 localhost:
   vars:
+    ansible_connection: ssh
     ansible_user: rumblpak
     ansible_sudo_pass: '!vault |
       $ANSIBLE_VAULT;1.1;AES256
@@ -15,6 +24,7 @@ localhost:
 controlnodes:
   vars:
     ansible_user: ansible
+    ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
     ansible_sudo_pass: '!vault |
       $ANSIBLE_VAULT;1.1;AES256
       33653764656431663736326164646235313830356161366431343936346137666338363930643138
@@ -35,6 +45,7 @@ controlnodes:
 workernodes:
   vars:
     ansible_user: ansible
+    ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
     ansible_sudo_pass: '!vault |
       $ANSIBLE_VAULT;1.1;AES256
       65643139393061346134663438636464326331393039663566306363323831353966346162616262
@@ -42,6 +53,7 @@ workernodes:
       36383736386534653165383232636465306535666436646634303736363537326330656432653461
       6536633433383532350a623530303865633833393262663939626533636461303332306661353066
       3835'
+    k3s_control_node: false
   hosts:
     peezer:
       ansible_host: 10.0.1.20
@@ -55,6 +67,7 @@ workernodes:
       ansible_host: 10.0.1.24
 kubernetes:
   vars:
+    ansible_user: ansible
     ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
   children:
     controlnodes:

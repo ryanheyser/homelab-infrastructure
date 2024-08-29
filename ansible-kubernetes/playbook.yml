@@ -1,19 +1,34 @@
 ---
 - name: Ping Hosts
   hosts: all
-  gather_facts: false
   tasks:
     - name: Ping all hosts
       delegate_to: localhost
-      changed_when: false
+      delegate_facts: true
       check_mode: false
-      ansible.builtin.command: ping -c 2 "{{ ansible_host }}"
+      ansible.builtin.command: |
+        ping -c 2 "{{ inventory_hostname }}"
+      become: true
       failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
       register: ping_hosts
+      changed_when: false
+
+- name: Setup SSH Access
+  hosts: all
+  tasks:
+    - name: Setup | Read SSH Key
+      ansible.builtin.set_fact:
+        ansible_ssh_key_pub: "{{ lookup('template', playbook_dir + '/secrets/ansible_id_ed25519.pub') }}"
+    - name: Setup | Add SSH Key to known hosts
+      ansible.builtin.known_hosts:
+        name: "{{ ansible_host }}"
+        key: "{{ ansible_host }} {{ ansible_ssh_key_pub }}"
+      changed_when: false
 
 - name: Setup All Hosts
   hosts: all
   connection: ssh
+  gather_facts: true
   vars:
     github_token: !vault |
       $ANSIBLE_VAULT;1.1;AES256
@@ -33,13 +48,42 @@
       become: true
       changed_when: true
     - name: Setup | install required packages
-      ansible.builtin.command: |
-        apt install -y age build-essential curl dnsutils linux-generic linux-headers-generic \
-          mtr-tiny net-tools nfs-common open-vm-tools openssl p7zip-full pciutils python3 \
-          python3-pip software-properties-common tcpdump vim zstd
-        add-apt-repository --yes --update ppa:ansible/ansible
-        apt update -y
-        apt install -y ansible
+      ansible.builtin.apt:
+        state: 'present'
+        update_cache: true
+        pkg:
+          - age 
+          - build-essential 
+          - curl 
+          - dnsutils
+          - linux-generic
+          - linux-headers-generic 
+          - mtr-tiny 
+          - net-tools
+          - nfs-common
+          - open-vm-tools
+          - openssl 
+          - p7zip-full 
+          - pciutils 
+          - python3 
+          - python3-pip 
+          - python3-venv 
+          - python3-virtualenv
+          - software-properties-common 
+          - tcpdump 
+          - vim 
+          - zstd
+      become: true
+      changed_when: true
+    - name: Setup | install ansible ppa
+      ansible.builtin.apt_repository:
+        repo: ppa:ansible/ansible
+    - name: Setup | install ansible packages
+      ansible.builtin.apt:
+        state: 'present'
+        update_cache: true
+        pkg:
+          - ansible
       become: true
       changed_when: true
     - name: Install sops
@@ -48,11 +92,15 @@
       vars:
         sops_install_on_localhost: true
         sops_github_token: "{{ github_token }}"
+        sops_become_on_install: true
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     - name: Set hostname on remote hosts
       ansible.builtin.hostname:
         name: "{{ ansible_host }}"
+      vars:
+        sops_github_token: "{{ github_token }}"
+        sops_become_on_install: true
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
 
@@ -61,17 +109,21 @@
   connection: ssh
   # vars:
   tasks:
-    - name: Setup | apt update
-      ansible.builtin.command: apt update -y
+    - name: Setup | upgrade all packages
+      ansible.builtin.apt:
+        state: latest # noqa package-latest
+        update_cache: true
+        name: '*'
       become: true
-      changed_when: true
-    - name: Setup | apt upgrade
-      ansible.builtin.command: apt upgrade -y
-      become: true
-      changed_when: true
     - name: Setup | install required packages
-      ansible.builtin.command: |
-        apt install -y bind9 bind9-utils bind9-dnsutils containernetworking-plugins
+      ansible.builtin.apt:
+        state: 'present'
+        update_cache: true
+        pkg:
+          - bind9 
+          - bind9-utils 
+          - bind9-dnsutils 
+          - containernetworking-plugins
       become: true
       changed_when: true
       register: packageinstall
@@ -91,7 +143,8 @@
         message: "{{ home }}/.config/sops/age/keys.txt does not exist"
       when: not age_key_file.stat.exists
     - name: Get Age Public Key
-      ansible.builtin.command: cat {{ home }}/.config/sops/age/keys.txt | grep public | awk -F':' '{print $2}' | tr -d ' '
+      ansible.builtin.command: |
+        grep -Po '(?<=public key: ).*' {{ home }}/.config/sops/age/keys.txt
       register: age_public_key
       when: age_key_file.stat.exists
       changed_when: true
@@ -120,7 +173,7 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          tsig-keygen -a hmac-sha256 externaldns | grep secret | cut -d '"' -f2
+          /usr/sbin/tsig-keygen -a hmac-sha256 externaldns | /usr/bin/grep secret | /usr/bin/cut -d '"' -f2
         executable: /bin/bash
       register: externaldns_key
       changed_when: false
@@ -129,6 +182,10 @@
   tasks:
     - name: Setup BIND9
       vars:
+        bind_dnssec_enable: false
+        bind_dnssesc_validation: false
+        bind_listen_ipv4:
+          - any
         bind_allow_query:
           - any
         bind_allow_recursion:
@@ -181,13 +238,14 @@
     - name: Install K3s
       vars:
         k3s_become: true
-        k3s_state: validated
+        k3s_state: started
         k3s_registration_address: kubernetes.homelab.heyser.xyz
         # Set a specific release version or false for stable, latest for latest
-        k3s_release_version: stable
+        k3s_release_version: false
         k3s_build_cluster: true
         k3s_etcd_datastore: true
         k3s_use_unsupported_config: true
+        k3s_install_hard_links: true
         k3s_server:
           cluster-cidr: 10.254.0.0/16,fd00:fffe::/64
           service-cidr: 10.255.0.0/16,fd00:ffff::/64
@@ -222,6 +280,7 @@
       register: installk3s
 - name: Post k3s install
   hosts: localhost
+  gather_facts: false
   tasks:
     - name: Download kubeconfig
       ansible.builtin.fetch:
@@ -421,7 +480,7 @@
         release_namespace: network-system
         # renovate: registryUrl=https://helm.traefik.io/traefik
         chart_ref: traefik/traefik
-        chart_version: 28.1.0
+        chart_version: 30.1.0
         values_files:
           - "{{ playbook_dir }}/helm_values/traefik/values.yaml"
     - name: Configure crowdsec bouncer for traefik
@@ -545,7 +604,7 @@
         release_namespace: vault-system
         # renovate: registryUrl=https://helm.releases.hashicorp.com
         chart_ref: hashicorp/vault
-        chart_version: 0.26.0
+        chart_version: 0.28.1
         values_files:
           - "{{ playbook_dir }}/ansible/helm_values/vault/values.yaml"
     - name: Deploy csi-secrets-store chart
@@ -555,7 +614,7 @@
         release_namespace: kube-system
         # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
         chart_ref: secrets-store-csi-driver/secrets-store-csi-driver
-        chart_version: 1.3.4
+        chart_version: 1.4.5
         values_files:
           - "{{ playbook_dir }}/ansible/helm_values/vault/csivalues.yaml"
     - name: Check if Vault Operator Init File Exists
