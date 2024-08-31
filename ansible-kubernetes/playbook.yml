@@ -211,51 +211,60 @@
         not packageinstall is skipped
 
 # k3s
-- name: Get latest releases
-  hosts: localhost
+- name: K3s | install kubernetes
+  hosts: kubernetes
   tasks:
     - name: Get Latest Calico Release
+      delegate_to: localhost
+      run_once: true
       ansible.builtin.uri:
         url: https://api.github.com/repos/projectcalico/calico/releases/latest
         return_content: true
       register: calico_release_json
       failed_when: calico_release_json is failed
     - name: Get Latest Multus Release
+      delegate_to: localhost
+      run_once: true
       ansible.builtin.uri:
         url: https://api.github.com/repos/k8snetworkplumbingwg/multus-cni/releases/latest
         return_content: true
       register: multus_release_json
       failed_when: multus_release_json is failed
     - name: Get Latest Traefik Release
+      delegate_to: localhost
+      run_once: true
       ansible.builtin.uri:
         url: https://api.github.com/repos/traefik/traefik/releases/latest
         return_content: true
       register: traefik_release_json
       failed_when: traefik_release_json is failed
-- name: Deploy K3s
-  hosts: kubernetes
-  tasks:
-    - name: Install K3s
+    - name: Deploy | Install K3s
       vars:
         k3s_become: true
-        k3s_state: started
+        k3s_state: installed
+          #k3s_primary_control_node: "{{ groups.controlnodes | first }}"
         k3s_registration_address: kubernetes.homelab.heyser.xyz
         # Set a specific release version or false for stable, latest for latest
         k3s_release_version: false
         k3s_build_cluster: true
         k3s_etcd_datastore: true
         k3s_use_unsupported_config: true
+        k3s_use_experimental: true
         k3s_install_hard_links: true
         k3s_server:
-          cluster-cidr: 10.254.0.0/16,fd00:fffe::/64
-          service-cidr: 10.255.0.0/16,fd00:ffff::/64
+          #listen-port: 6443
+          bind-address: "{{ ansible_host }}"
+            #cluster-cidr: 10.254.0.0/16
+            #service-cidr: 10.255.0.0/16
+          no-flannel: true
           flannel-backend: 'none'
           secrets-encryption: true
           etcd-expose-metrics: true
           disable-network-policy: true
           disable-kube-proxy: true
-          node-taint:
-            - "node-role.kubernetes.io/control-plane=NoSchedule"
+          write-kubeconfig-mode: '0644'
+            #node-taint:
+            #- "node-role.kubernetes.io/control-plane:NoSchedule"
           node-label:
             - "node-role.kubernetes.io/control-plane=true"
             - "topology.kubernetes.io/region=us-east-1"
@@ -267,6 +276,8 @@
         k3s_server_manifests_urls:
           - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
             filename: tigera-operator.yaml
+          - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
+            filename: custom-resources.yaml
           - url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
             filename: multus-daemonset-thick.yml
         k3s_agent:
@@ -275,68 +286,94 @@
             - "topology.kubernetes.io/zone=us-east-1a"
       ansible.builtin.import_role:
         name: xanmanning.k3s
-      when: >-
-        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+          #when: >-
+          #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
       register: installk3s
 - name: Post k3s install
-  hosts: localhost
+  hosts: controlnodes
   gather_facts: false
   tasks:
     - name: Download kubeconfig
+      run_once: true
+      become: true
       ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
         dest: "{{ playbook_dir }}/k3s.yaml"
-      when: >-
-        installk3s is defined and
-        not installk3s is skipped
+        flat: true
+          # when: >-
+          #installk3s is defined
+- name: Post k3s install p2
+  hosts: localhost
+  gather_facts: false
+  tasks:
     - name: Check if k3s.yaml File Exists
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/k3s.yaml"
       register: k3s_yaml
-      when: >-
-        installk3s is defined and
-        not installk3s is skipped
-    - name: Create default kube directory
+        # when: >-
+        # installk3s is defined
+    - name: Create system kube directory
       ansible.builtin.file:
-        path: ~/.kube
+        path: "/etc/rancher/k3s"
         state: directory
         mode: '0755'
-      when: >-
-        installk3s is defined and
-        not installk3s is skipped
-    - name: Copy Kubeconfig to default
+          #when: >-
+          #installk3s is defined
+    - name: Create user kube directory
+      vars:
+        home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+      ansible.builtin.file:
+        path: "{{ home }}/.kube"
+        state: directory
+        mode: '0755'
+          #when: >-
+          #installk3s is defined
+    - name: Copy Kubeconfig to system
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/k3s.yaml"
-        dest: ~/.kube/config
+        dest: "/etc/rancher/k3s/"
+        force: true
         mode: '0644'
       when: >-
-        installk3s is defined and
-        not installk3s is skipped and
         k3s_yaml.stat.exists
+    - name: Copy Kubeconfig to user default
+      vars:
+        home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+      ansible.builtin.command: |
+        /usr/bin/cp "{{ playbook_dir }}/k3s.yaml" "{{ home }}/.kube/config"
+      when: >-
+        k3s_yaml.stat.exists
+      #installk3s is defined and
 
 # Calico
 - name: Configure Calico
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Check for kubeconfig
       ansible.builtin.stat:
-        path: "~/.kube/config"
+        path: "{{ home }}/.kube/config"
       register: kubeconfig
     - name: Create Default IPPool
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
+        apply: true
+        server_side_apply: 
+          field_manager: ansible
         definition:
           apiVersion: projectcalico.org/v3
           kind: IPPool
           metadata:
             name: default
-            namespace: calico-system
+            namespace: kube-system
           spec:
             cidr: 10.0.101.0/24
             ipipMode: Never
-            natOutgoing: false
-            disabled: false
+            natOutgoing: "false"
+            disabled: "false"
             nodeSelector: all()
             allowedUses:
               - Workload
@@ -344,13 +381,17 @@
     - name: Create System IPPool
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
+        server_side_apply:
+          field_manager: ansible
+        apply: true
         definition:
           apiVersion: projectcalico.org/v3
           kind: IPPool
           metadata:
             name: system
-            namespace: calico-system
+            namespace: kube-system
           spec:
             cidr: 10.0.100.0/24
             ipipMode: Never
@@ -363,13 +404,17 @@
     - name: Create Global BGP Peer Config
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
+        apply: true
+        server_side_apply:
+          field_manager: ansible
         definition:
           apiVersion: projectcalico.org/v3
           kind: BGPPeer
           metadata:
             name: bgppeer
-            namespace: calico-system
+            namespace: kube-system
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
