@@ -249,13 +249,13 @@
             - traefik
             - coredns
             - servicelb
-        k3s_server_manifests_urls:
-          - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
-            filename: tigera-operator.yaml
-          - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
-            filename: custom-resources.yaml
-          - url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
-            filename: multus-daemonset-thick.yml
+        # k3s_server_manifests_urls:
+        #   - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
+        #     filename: tigera-operator.yaml
+        #   - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
+        #     filename: custom-resources.yaml
+        #   - url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
+        #     filename: multus-daemonset-thick.yml
         k3s_agent:
           node-label:
             - "topology.kubernetes.io/region=us-east-1"
