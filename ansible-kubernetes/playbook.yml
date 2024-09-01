@@ -214,30 +214,6 @@
 - name: K3s | install kubernetes
   hosts: kubernetes
   tasks:
-    - name: Get Latest Calico Release
-      delegate_to: localhost
-      run_once: true
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/projectcalico/calico/releases/latest
-        return_content: true
-      register: calico_release_json
-      failed_when: calico_release_json is failed
-    - name: Get Latest Multus Release
-      delegate_to: localhost
-      run_once: true
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/k8snetworkplumbingwg/multus-cni/releases/latest
-        return_content: true
-      register: multus_release_json
-      failed_when: multus_release_json is failed
-    - name: Get Latest Traefik Release
-      delegate_to: localhost
-      run_once: true
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/traefik/traefik/releases/latest
-        return_content: true
-      register: traefik_release_json
-      failed_when: traefik_release_json is failed
     - name: Deploy | Install K3s
       vars:
         k3s_become: true
@@ -292,6 +268,7 @@
 - name: Post k3s install
   hosts: controlnodes
   gather_facts: false
+  strategy: linear
   tasks:
     - name: Download kubeconfig
       run_once: true
@@ -341,9 +318,72 @@
         home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
       ansible.builtin.command: |
         /usr/bin/cp "{{ playbook_dir }}/k3s.yaml" "{{ home }}/.kube/config"
+      changed_when: true
       when: >-
         k3s_yaml.stat.exists
       #installk3s is defined and
+
+# CNI
+- name: Configure Calico
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Get Latest Calico Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/projectcalico/calico/releases/latest
+        return_content: true
+      register: calico_release_json
+      failed_when: calico_release_json is failed
+    - name: Get Latest Multus Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/k8snetworkplumbingwg/multus-cni/releases/latest
+        return_content: true
+      register: multus_release_json
+      failed_when: multus_release_json is failed
+    # - name: Get Latest Traefik Release
+    #   ansible.builtin.uri:
+    #     url: https://api.github.com/repos/traefik/traefik/releases/latest
+    #     return_content: true
+    #   register: traefik_release_json
+    #   failed_when: traefik_release_json is failed
+    - name: Download tigera operator manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
+        dest: "{{ playbook_dir }}/tigera-operator.yaml"
+        mode: '0664'
+      register: tigeraoperatormanifest
+    - name: Download tigera custom resources manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
+        dest: "{{ playbook_dir }}/custom-resources.yaml"
+        mode: '0664'
+      register: tigeracustomresourcesmanifest
+    - name: Download multus daemonset thick manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
+        dest: "{{ playbook_dir }}/multus-daemonset-thick.yml"
+        mode: '0664'
+      register: multusdaemonsetmanifest
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Apply tigera operator manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/tigera-operator.yaml"
+    - name: Apply tigera operator manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/custom-resources.yaml"
+    - name: Apply tigera operator manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/multus-daemonset-thick.yml"
 
 # Calico
 - name: Configure Calico
@@ -363,6 +403,7 @@
         apply: true
         server_side_apply: 
           field_manager: ansible
+          force_conflicts: true
         definition:
           apiVersion: projectcalico.org/v3
           kind: IPPool
@@ -385,6 +426,7 @@
         state: present
         server_side_apply:
           field_manager: ansible
+          force_conflicts: true
         apply: true
         definition:
           apiVersion: projectcalico.org/v3
@@ -409,6 +451,7 @@
         apply: true
         server_side_apply:
           field_manager: ansible
+          force_conflicts: true
         definition:
           apiVersion: projectcalico.org/v3
           kind: BGPPeer
@@ -430,11 +473,13 @@
     - name: Add traefik repository
       when: kubeconfig.stat.exists
       kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
         name: traefik
         repo_url: https://helm.traefik.io/traefik
     - name: Create network-system namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         name: network-system
         api_version: v1
         kind: Namespace
@@ -445,7 +490,12 @@
     - name: Create Traefik IP Reservation
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
+        apply: true
+        server_side_apply:
+          field_manager: ansible
+          force_conflicts: true
         definition:
           apiVersion: projectcalico.org/v3
           kind: IPReservation
@@ -460,6 +510,7 @@
   tasks:
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         definition: '{{ item }}'
         namespace: network-system
         state: present
@@ -479,6 +530,7 @@
         kubeconfig.stat.exists
     - name: Install Traefik CRD RBAC
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         definition: '{{ item }}'
         namespace: network-system
         state: present
@@ -498,6 +550,7 @@
         kubeconfig.stat.exists
     - name: Install Traefik CRD Resource
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         definition: '{{ item }}'
         namespace: network-system
         state: present
@@ -521,6 +574,7 @@
     - name: Deploy Traefik chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
         name: traefik
         release_namespace: network-system
         # renovate: registryUrl=https://helm.traefik.io/traefik
@@ -531,6 +585,7 @@
     - name: Configure crowdsec bouncer for traefik
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
         namespace: network-system
         definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/crowdsec-bouncer.yaml') | from_yaml_all }}"
@@ -539,6 +594,7 @@
     - name: Configure authentik for traefik
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
         namespace: network-system
         definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/authentik.yaml') | from_yaml_all }}"
@@ -571,6 +627,7 @@
     - name: Create Secret
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
         definition:
           apiVersion: v1
@@ -630,11 +687,13 @@
     - name: Add hashicorp repository
       when: kubeconfig.stat.exists
       kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
         name: hashicorp
         repo_url: https://helm.releases.hashicorp.com
     - name: Create vault-system namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         name: vault-system
         api_version: v1
         kind: Namespace
@@ -645,6 +704,7 @@
     - name: Deploy vault chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
         name: vault
         release_namespace: vault-system
         # renovate: registryUrl=https://helm.releases.hashicorp.com
@@ -655,6 +715,7 @@
     - name: Deploy csi-secrets-store chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
         name: csi-secrets-store
         release_namespace: kube-system
         # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
@@ -670,6 +731,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault operator init -format=json -key-shares=10 -key-threshold=3 -recovery-shares=10 -recovery-threshold=3
@@ -707,6 +769,7 @@
     - name: Check Vault Status
       when: kubeconfig.stat.exists
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault status -format=json
@@ -720,6 +783,7 @@
         (vault_status.stdout | from_json).sealed and
         kubeconfig.stat.exists
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[0] }} -format=json
@@ -729,6 +793,7 @@
         (vault_status.stdout | from_json).sealed and
         kubeconfig.stat.exists
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[1] }} -format=json
@@ -738,11 +803,13 @@
         (vault_status.stdout | from_json).sealed and
         kubeconfig.stat.exists
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
     - name: Check Vault Status Again
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault status -format=json
@@ -762,6 +829,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: vault operator generate-root -init -format=json
@@ -795,6 +863,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: >-
@@ -810,6 +879,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: >-
@@ -825,6 +895,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: >-
@@ -855,6 +926,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
+        kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
         command: >-
@@ -873,6 +945,7 @@
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
         state: present
         definition:
           apiVersion: v1
