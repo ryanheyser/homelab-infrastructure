@@ -390,6 +390,10 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/apiserver.yaml"
+        wait: true
+        wait_condition:
+          type:  "Ready"
+          status: "True"
     - name: Apply tigera operator manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
