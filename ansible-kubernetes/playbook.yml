@@ -237,10 +237,10 @@
           secrets-encryption: true
           etcd-expose-metrics: true
           disable-network-policy: true
-          disable-kube-proxy: true
+          # disable-kube-proxy: true
           write-kubeconfig-mode: '0644'
-            #node-taint:
-            #- "node-role.kubernetes.io/control-plane:NoSchedule"
+          node-taint:
+            - "node-role.kubernetes.io/control-plane:NoSchedule"
           node-label:
             - "node-role.kubernetes.io/control-plane=true"
             - "topology.kubernetes.io/region=us-east-1"
