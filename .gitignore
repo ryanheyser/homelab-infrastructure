@@ -13,3 +13,7 @@ vault-operator-init-*.key*
 *.iso
 user-data
 SHA256SUMS
+apiserver.yaml
+custom-resources.yaml
+multus-daemonset-thick.yml
+tigera-operator.yaml
