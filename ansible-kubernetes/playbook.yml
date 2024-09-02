@@ -370,6 +370,11 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/tigera-operator.yaml"
+    - name: Apply multus daemonset manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/multus-daemonset-thick.yml"
     - name: Wait for apply tigera operator manifest to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
@@ -446,11 +451,6 @@
           status: "True"
         wait_sleep: 5
         wait_timeout: 300
-    - name: Apply multus daemonset manifest to the cluster.
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        src: "{{ playbook_dir }}/multus-daemonset-thick.yml"
 
 # Calico
 - name: Configure Calico
