@@ -426,7 +426,7 @@
         name: patch-operator
         release_namespace: patch-operator-system
         # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
-        chart_ref: traefik/traefik
+        chart_ref: patch-operator/patch-operator
         chart_version: v0.1.11
     - name: Install Patch ServiceAccount
       kubernetes.core.k8s:
