@@ -386,8 +386,6 @@
           type: kubernetes.io/dockercfg
           data:
             .dockercfg: "{{ dockercfg.stdout | b64encode }}"
-        validate:
-          fail_on_error: false
 
 # Patch Operator
 - name: Patch Operator | Pre-steps
