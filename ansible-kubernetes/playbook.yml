@@ -426,7 +426,7 @@
         chart_version: v0.1.11
     - name: Install Patch ServiceAccount
       kubernetes.core.k8s:
-        kubeconfig: 
+        kubeconfig: "{{ home }}/.kube/config"
         state: "present"
         definition:
           apiVersion: v1
@@ -436,7 +436,7 @@
             namespace: patch-operator-system
     - name: Install Patch ServiceAccount ClusterRole
       kubernetes.core.k8s:
-        kubeconfig: 
+        kubeconfig: "{{ home }}/.kube/config"
         state: "present"
         definition:
           apiVersion: rbac.authorization.k8s.io/v1
@@ -449,7 +449,7 @@
               verbs: ["get", "watch", "list", "update", "patch"]
     - name: Install Patch ServiceAccount ClusterRole
       kubernetes.core.k8s:
-        kubeconfig: 
+        kubeconfig: "{{ home }}/.kube/config"
         state: "present"
         definition:
           apiVersion: rbac.authorization.k8s.io/v1
@@ -466,7 +466,7 @@
             apiGroup: rbac.authorization.k8s.io
     - name: Install Image Pull Secret Patch
       kubernetes.core.k8s:
-        kubeconfig: 
+        kubeconfig: "{{ home }}/.kube/config"
         state: "present"
         definition:
           apiVersion: redhatcop.redhat.io/v1alpha1
