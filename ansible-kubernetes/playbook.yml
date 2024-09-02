@@ -383,6 +383,9 @@
         label_selectors:
           - k8s-app = tigera-operator
         wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
         wait_sleep: 5
         wait_timeout: 300
     - name: Apply tigera custom resources manifest to the cluster.
@@ -403,6 +406,9 @@
         label_selectors:
           - k8s-app = calico-apiserver
         wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
         wait_sleep: 5
         wait_timeout: 300
     - name: Apply multus daemonset manifest to the cluster.
