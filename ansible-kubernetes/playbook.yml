@@ -398,13 +398,13 @@
         path: "~/.kube/config"
       register: kubeconfig
     - name: Add patch operator repository
-      when: kubeconfig.stat.exists
+      # when: kubeconfig.stat.exists
       kubernetes.core.helm_repository:
         kubeconfig: "{{ home }}/.kube/config"
         name: patch-operator
         repo_url: https://redhat-cop.github.io/patch-operator
     - name: Create network-system namespace
-      when: kubeconfig.stat.exists
+      # when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         name: patch-operator-system
@@ -420,7 +420,7 @@
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Deploy Patch Operator chart
-      when: kubeconfig.stat.exists
+      # when: kubeconfig.stat.exists
       kubernetes.core.helm:
         kubeconfig: "{{ home }}/.kube/config"
         name: patch-operator
