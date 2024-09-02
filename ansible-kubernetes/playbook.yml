@@ -380,11 +380,19 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/tigera-operator.yaml"
-    - name: Apply tigera operator manifest to the cluster.
+        wait: true
+        wait_condition:
+          type:  "Ready"
+          status: "True"
+    - name: Apply tigera custom resources manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/custom-resources.yaml"
+        wait: true
+        wait_condition:
+          type:  "Ready"
+          status: "True"
     - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -394,11 +402,15 @@
         wait_condition:
           type:  "Ready"
           status: "True"
-    - name: Apply tigera operator manifest to the cluster.
+    - name: Apply multus daemonset manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/multus-daemonset-thick.yml"
+        wait: true
+        wait_condition:
+          type:  "Ready"
+          status: "True"
 
 # Calico
 - name: Configure Calico
@@ -476,6 +488,8 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
+
+# Coredns
 
 # Traefik
 - name: Traefik Pre-steps
