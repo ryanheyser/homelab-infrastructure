@@ -415,6 +415,19 @@
           metadata:
             name: default
           spec: {}
+    - name: Wait for apply tigera apiserver manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: calico-kube-controllers
+        label_selectors:
+          - k8s-app = calico-kube-controllers
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
     - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
