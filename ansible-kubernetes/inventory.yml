@@ -36,15 +36,18 @@ controlnodes:
     madoo:
       ansible_host: 10.0.1.10
       ansible_fqdn: madoo.homelab.heyser.xyz
+      ansible_hostname: madoo
       k3s_control_node: true
     magoo:
       ansible_host: 10.0.1.11
-      k3s_control_node: true
       ansible_fqdn: magoo.homelab.heyser.xyz
+      ansible_hostname: magoo
+      k3s_control_node: true
     marx:
       ansible_host: 10.0.1.12
-      k3s_control_node: true
       ansible_fqdn: marx.homelab.heyser.xyz
+      ansible_hostname: marx
+      k3s_control_node: true
 workernodes:
   vars:
     ansible_user: ansible
@@ -61,18 +64,23 @@ workernodes:
     peezer:
       ansible_host: 10.0.1.20
       ansible_fqdn: peezer.homelab.heyser.xyz
+      ansible_hostname: peezer
     peloo:
       ansible_host: 10.0.1.21
       ansible_fqdn: peloo.homelab.heyser.xyz
+      ansible_hostname: peloo
     peran:
       ansible_host: 10.0.1.22
       ansible_fqdn: peran.homelab.heyser.xyz
+      ansible_hostname: peran
     perara:
       ansible_host: 10.0.1.23
       ansible_fqdn: perara.homelab.heyser.xyz
+      ansible_hostname: perara
     phanta:
       ansible_host: 10.0.1.24
       ansible_fqdn: phanta.homelab.heyser.xyz
+      ansible_hostname: phanta
 kubernetes:
   vars:
     ansible_user: ansible
