@@ -326,18 +326,20 @@
 # Reflector
 - name: Reflector
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Check for kubeconfig
       ansible.builtin.stat:
-        path: "~/.kube/config"
+        path: "{{ home }}/.kube/config"
       register: kubeconfig
-    - name: Download multus daemonset thick manifest to the cluster.
+    - name: Download reflector manifest to the cluster.
       ansible.builtin.get_url:
         url: https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml
         dest: "{{ playbook_dir }}/reflector.yaml"
         mode: '0664'
       register: reflector
-    - name: Apply multus daemonset manifest to the cluster.
+    - name: Apply reflector manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
