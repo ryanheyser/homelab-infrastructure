@@ -266,6 +266,7 @@
   strategy: linear
   tasks:
     - name: Download kubeconfig
+      # noqa: run-once[task]
       run_once: true
       become: true
       ansible.builtin.fetch:
