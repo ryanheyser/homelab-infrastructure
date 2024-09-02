@@ -390,6 +390,8 @@
 # Patch Operator
 - name: Patch Operator | Pre-steps
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Check for kubeconfig
       ansible.builtin.stat:
@@ -414,6 +416,8 @@
             cni.projectcalico.org/ipv4pools: '["system"]'
 - name: Patch Operator | Install
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Deploy Patch Operator chart
       when: kubeconfig.stat.exists
