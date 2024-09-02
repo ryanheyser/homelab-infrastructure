@@ -17,3 +17,4 @@ apiserver.yaml
 custom-resources.yaml
 multus-daemonset-thick.yml
 tigera-operator.yaml
+reflector.yaml
