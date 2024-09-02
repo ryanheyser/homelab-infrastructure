@@ -384,7 +384,7 @@
         wait_condition:
           type:  "Available"
           status: "True"
-          reason: "MinimumReplicasAvailable"
+        wait_timeout: 300
     - name: Apply tigera custom resources manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -399,7 +399,7 @@
         wait_condition:
           type:  "Available"
           status: "True"
-          reason: "MinimumReplicasAvailable"
+        wait_timeout: 300
     - name: Apply multus daemonset manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
