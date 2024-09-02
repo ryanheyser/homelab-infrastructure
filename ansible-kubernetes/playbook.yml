@@ -230,8 +230,8 @@
         k3s_server:
           #listen-port: 6443
           bind-address: "{{ ansible_host }}"
-            #cluster-cidr: 10.254.0.0/16
-            #service-cidr: 10.255.0.0/16
+          cluster-cidr: 10.254.0.0/16
+          service-cidr: 10.255.0.0/16
           no-flannel: true
           flannel-backend: 'none'
           secrets-encryption: true
@@ -251,13 +251,6 @@
             - traefik
             - coredns
             - servicelb
-        # k3s_server_manifests_urls:
-        #   - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
-        #     filename: tigera-operator.yaml
-        #   - url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
-        #     filename: custom-resources.yaml
-        #   - url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
-        #     filename: multus-daemonset-thick.yml
         k3s_agent:
           node-label:
             - "topology.kubernetes.io/region=us-east-1"
@@ -382,10 +375,15 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/tigera-operator.yaml"
+    - name: Wait for apply tigera operator manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deploy
+        namespace: tigera-operator
+        label_selectors:
+          - k8s-app = tigera-operator
         wait: true
-        wait_condition:
-          type:  "Available"
-          status: "True"
+        wait_sleep: 5
         wait_timeout: 300
     - name: Apply tigera custom resources manifest to the cluster.
       kubernetes.core.k8s:
@@ -397,10 +395,15 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         src: "{{ playbook_dir }}/apiserver.yaml"
+    - name: Wait for apply tigera apiserver manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deploy
+        namespace: calico-apiserver
+        label_selectors:
+          - k8s-app = calico-apiserver
         wait: true
-        wait_condition:
-          type:  "Available"
-          status: "True"
+        wait_sleep: 5
         wait_timeout: 300
     - name: Apply multus daemonset manifest to the cluster.
       kubernetes.core.k8s:
