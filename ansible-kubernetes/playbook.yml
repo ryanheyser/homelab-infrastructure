@@ -245,6 +245,8 @@
             - "node-role.kubernetes.io/control-plane=true"
             - "topology.kubernetes.io/region=us-east-1"
             - "topology.kubernetes.io/zone=us-east-1a"
+          tls-san:
+            - "kubernetes.homelab.heyser.xyz"
           disable:
             - traefik
             - coredns
