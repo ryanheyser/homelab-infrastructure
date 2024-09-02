@@ -348,18 +348,12 @@
         dest: "{{ playbook_dir }}/tigera-operator.yaml"
         mode: '0664'
       register: tigeraoperatormanifest
-    - name: Download tigera custom resources manifest to the cluster.
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/custom-resources.yaml
-        dest: "{{ playbook_dir }}/custom-resources.yaml"
-        mode: '0664'
-      register: tigeracustomresourcesmanifest
-    - name: Download tigera custom resources manifest to the cluster.
+    - name: Download tigera apiserver manifest to the cluster.
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/apiserver.yaml
         dest: "{{ playbook_dir }}/apiserver.yaml"
         mode: '0664'
-      register: tigeracustomresourcesmanifest
+      register: tigeraapiservermanifest
     - name: Download multus daemonset thick manifest to the cluster.
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
@@ -406,11 +400,20 @@
               nodeAddressAutodetectionV4:
                 cidrs:
                   - '10.0.0.0/18'
-    - name: Apply tigera custom resources manifest to the cluster.
+    - name: Create APIServer for Tigera Operator
+      when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
-        src: "{{ playbook_dir }}/custom-resources.yaml"
+        apply: true
+        server_side_apply: 
+          field_manager: ansible
+        definition:
+          apiVersion: operator.tigera.io/v1
+          kind: APIServer
+          metadata:
+            name: default
+          spec: {}
     - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
