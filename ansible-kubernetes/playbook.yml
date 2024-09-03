@@ -245,6 +245,7 @@
             - "node-role.kubernetes.io/control-plane=true"
             - "topology.kubernetes.io/region=us-east-1"
             - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
           tls-san:
             - "kubernetes.homelab.heyser.xyz"
           disable:
@@ -255,6 +256,7 @@
           node-label:
             - "topology.kubernetes.io/region=us-east-1"
             - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
       ansible.builtin.import_role:
         name: xanmanning.k3s
           #when: >-
@@ -282,6 +284,8 @@
 - name: Post k3s install p2
   hosts: localhost
   gather_facts: false
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Check if k3s.yaml File Exists
       ansible.builtin.stat:
@@ -322,6 +326,28 @@
       when: >-
         k3s_yaml.stat.exists
       #installk3s is defined and
+
+- name: Post k3s install p3
+  hosts: kubernetes
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Patch nodes to add route-reflector
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: patched
+        kind: Node
+        name: {{ ansible_host }}
+        definition:
+          metadata:
+            annotations:
+              projectcalico.org/RouteReflectorClusterID: 244.0.0.1
 
 # Reflector
 - name: Reflector
@@ -472,9 +498,31 @@
             name: default
           spec:
             calicoNetwork:
+              bgp: "enabled"
+              serviceCIDRs:
+                - 10.255.0.0/16
               nodeAddressAutodetectionV4:
                 cidrs:
                   - '10.0.0.0/18'
+              ipPools:
+                - name: default
+                  cidr: 10.0.101.0/24
+                  ipipMode: Never
+                  natOutgoing: "false"
+                  disabled: "false"
+                  nodeSelector: all()
+                  allowedUses:
+                    - Workload
+                    - Tunnel
+                - name: system
+                  cidr: 10.0.100.0/24
+                  ipipMode: Never
+                  natOutgoing: "false"
+                  disabled: "false"
+                  nodeSelector: all()
+                  allowedUses:
+                    - Workload
+                    - Tunnel
     - name: Create APIServer for Tigera Operator
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -518,8 +566,8 @@
         wait_condition:
           type: "Available"
           status: "True"
-        wait_sleep: 5
-        wait_timeout: 300
+        wait_sleep: 30
+        wait_timeout: 600
 
 # Calico
 - name: Configure Calico
@@ -531,52 +579,6 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
-    - name: Create Default IPPool
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        apply: true
-        server_side_apply: 
-          field_manager: ansible
-        definition:
-          apiVersion: projectcalico.org/v3
-          kind: IPPool
-          metadata:
-            name: default
-            namespace: kube-system
-          spec:
-            cidr: 10.0.101.0/24
-            ipipMode: Never
-            natOutgoing: "false"
-            disabled: "false"
-            nodeSelector: all()
-            allowedUses:
-              - Workload
-              - Tunnel
-    - name: Create System IPPool
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        server_side_apply:
-          field_manager: ansible
-        apply: true
-        definition:
-          apiVersion: projectcalico.org/v3
-          kind: IPPool
-          metadata:
-            name: system
-            namespace: kube-system
-          spec:
-            cidr: 10.0.100.0/24
-            ipipMode: Never
-            natOutgoing: false
-            disabled: false
-            nodeSelector: all()
-            allowedUses:
-              - Workload
-              - Tunnel
     - name: Create Global BGP Peer Config
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
