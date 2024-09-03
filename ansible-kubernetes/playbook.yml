@@ -493,7 +493,7 @@
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Deployment
-        namespace: calico-kube-controllers
+        namespace: calico-system
         label_selectors:
           - k8s-app = calico-kube-controllers
         wait: true
