@@ -500,8 +500,8 @@
             serviceCIDRs:
                 - 10.255.0.0/16
             calicoNetwork:
-              linuxDataplane: "bpf"
-              bgp: "enabled"
+              linuxDataplane: "BPF"
+              bgp: "Enabled"
               mtu: 9000
               nodeAddressAutodetectionV4:
                 cidrs:
