@@ -343,7 +343,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: patched
         kind: Node
-        name: {{ ansible_host }}
+        name: "{{ ansible_host }}"
         definition:
           metadata:
             annotations:
