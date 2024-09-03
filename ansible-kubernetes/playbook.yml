@@ -509,18 +509,16 @@
               ipPools:
                 - name: default
                   cidr: 10.0.101.0/24
-                  ipipMode: Never
-                  natOutgoing: "false"
-                  disabled: "false"
+                  encapsulation: None
+                  natOutgoing: Disabled
                   nodeSelector: all()
                   allowedUses:
                     - Workload
                     - Tunnel
                 - name: system
                   cidr: 10.0.100.0/24
-                  ipipMode: Never
-                  natOutgoing: "false"
-                  disabled: "false"
+                  encapsulation: None
+                  natOutgoing: Disabled
                   nodeSelector: all()
                   allowedUses:
                     - Workload
