@@ -497,10 +497,10 @@
           metadata:
             name: default
           spec:
-            linuxDataplane: "bpf"
             serviceCIDRs:
                 - 10.255.0.0/16
             calicoNetwork:
+              linuxDataplane: "bpf"
               bgp: "enabled"
               mtu: 9000
               nodeAddressAutodetectionV4:
