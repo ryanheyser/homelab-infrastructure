@@ -243,8 +243,8 @@
             docker.io:
               auth:
                 # {{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}
-                username: "{{ (docker | from_yaml).docker_email }}"
-                token: "{{ (docker | from_yaml).docker_token }}"
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
         k3s_server:
           #listen-port: 6443
           bind-address: "{{ ansible_host }}"
@@ -355,6 +355,17 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
+    - name: Wait for all nodes
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Node
+        name: "{{ ansible_host }}"
+        wait: true
+        wait_condition:
+          type: "Ready"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
     - name: Patch nodes to add route-reflector
       delegate_to: localhost
       kubernetes.core.k8s:
