@@ -214,6 +214,15 @@
 - name: K3s | install kubernetes
   hosts: kubernetes
   tasks:
+    - name: Check docker secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
+      register: dockersecretsfile
+    - name: Unencrypt Docker Secrets
+      ansible.builtin.set_fact:
+          docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: dockersecretsfile.stat.exists
+      failed_when: not dockersecretsfile.stat.exists
     - name: Deploy | Install K3s
       vars:
         k3s_become: true
@@ -227,6 +236,13 @@
         k3s_use_unsupported_config: true
         k3s_use_experimental: true
         k3s_install_hard_links: true
+        k3s_registries:
+          configs:
+            docker.io:
+              auth:
+                # {{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}
+                username: "{{ (docker | from_yaml).docker_email }}"
+                token: "{{ (docker | from_yaml).docker_token }}"
         k3s_server:
           #listen-port: 6443
           bind-address: "{{ ansible_host }}"
@@ -537,7 +553,7 @@
           metadata:
             name: default
           spec: {}
-    - name: Wait for apply tigera apiserver manifest to complete
+    - name: Wait for create calico-kube-controllers to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Deployment
