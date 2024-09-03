@@ -260,10 +260,10 @@
           #when: >-
           #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
       register: installk3s
-    - name: Cleanup | Remove multus-shim if exists
-      ansible.builtin.file:
-        path: "/opt/cni/bin/multus-shim"
-        state: absent
+    # - name: Cleanup | Remove multus-shim if exists
+    #   ansible.builtin.file:
+    #     path: "/opt/cni/bin/multus-shim"
+    #     state: absent
 - name: Post k3s install
   hosts: controlnodes
   gather_facts: false
