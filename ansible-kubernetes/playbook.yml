@@ -817,44 +817,6 @@
         validate:
           fail_on_error: false
 
-# Flux
-- name: Bootstrap Flux
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Flux pre-checks
-      ansible.builtin.command: flux check --pre
-      become: true
-      register: flux_precheck_out
-      changed_when: true
-      failed_when:
-        - flux_precheck_out.rc != 0
-    - name: Check github secrets encrypted file
-      ansible.builtin.stat:
-        path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
-      register: githubsecretsfile
-    - name: Unencrypt Docker Secrets
-      ansible.builtin.set_fact:
-          github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
-      when: githubsecretsfile.stat.exists
-      failed_when: not githubsecretsfile.stat.exists
-    - name: Flux bootstrap
-      environment:
-        GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
-      ansible.builtin.command: |
-        flux bootstrap github \
-          --owner=ryanheyser \
-          --repository=homelab-ops \
-          --branch main \
-          --private=false \
-          --personal \
-          --network-policy=false
-      register: flux_bootstrap_out
-      changed_when: true
-      failed_when:
-        - flux_bootstrap_out.rc != 0
-
 # Patch Operator
 - name: Patch Operator | Pre-steps
   hosts: localhost
@@ -973,6 +935,44 @@
             patchTemplate: |
               imagePullSecrets:
                 - name: docker-registry-credentials
+
+# Flux
+- name: Bootstrap Flux
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Flux pre-checks
+      ansible.builtin.command: flux check --pre
+      become: true
+      register: flux_precheck_out
+      changed_when: true
+      failed_when:
+        - flux_precheck_out.rc != 0
+    - name: Check github secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
+      register: githubsecretsfile
+    - name: Unencrypt Docker Secrets
+      ansible.builtin.set_fact:
+          github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: githubsecretsfile.stat.exists
+      failed_when: not githubsecretsfile.stat.exists
+    - name: Flux bootstrap
+      environment:
+        GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
+      ansible.builtin.command: |
+        flux bootstrap github \
+          --owner=ryanheyser \
+          --repository=homelab-ops \
+          --branch main \
+          --private=false \
+          --personal \
+          --network-policy=false
+      register: flux_bootstrap_out
+      changed_when: true
+      failed_when:
+        - flux_bootstrap_out.rc != 0
 
 # Vault
 - name: Install Vault
