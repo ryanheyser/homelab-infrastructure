@@ -387,112 +387,6 @@
           data:
             .dockercfg: "{{ dockercfg.stdout | b64encode }}"
 
-# Patch Operator
-- name: Patch Operator | Pre-steps
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "~/.kube/config"
-      register: kubeconfig
-    - name: Add patch operator repository
-      # when: kubeconfig.stat.exists
-      kubernetes.core.helm_repository:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator
-        repo_url: https://redhat-cop.github.io/patch-operator
-    - name: Create network-system namespace
-      # when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator-system
-        api_version: v1
-        kind: Namespace
-        state: present
-        definition:
-          annotations:
-            cni.projectcalico.org/ipv4pools: '["system"]'
-- name: Patch Operator | Install
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Deploy Patch Operator chart
-      # when: kubeconfig.stat.exists
-      kubernetes.core.helm:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator
-        release_namespace: patch-operator-system
-        # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
-        chart_ref: patch-operator/patch-operator
-        chart_version: v0.1.11
-        values:
-          enableMonitoring: false
-    - name: Install Patch ServiceAccount
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: v1
-          kind: ServiceAccount
-          metadata:
-            name: patching-service-account
-            namespace: patch-operator-system
-    - name: Install Patch ServiceAccount ClusterRole
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: rbac.authorization.k8s.io/v1
-          kind: ClusterRole
-          metadata:
-            name: service-account-modifier
-          rules:
-            - apiGroups: [""]
-              resources: ["serviceaccounts"]
-              verbs: ["get", "watch", "list", "update", "patch"]
-    - name: Install Patch ServiceAccount ClusterRole
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: rbac.authorization.k8s.io/v1
-          kind: ClusterRoleBinding
-          metadata:
-            name: service-account-modifier-binding
-          subjects:
-            - kind: ServiceAccount
-              name: patching-service-account
-              namespace: patch-operator-system
-          roleRef:
-            kind: ClusterRole
-            name: service-account-modifier
-            apiGroup: rbac.authorization.k8s.io
-    - name: Install Image Pull Secret Patch
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: redhatcop.redhat.io/v1alpha1
-          kind: Patch
-          metadata:
-            name: dockerhub-image-pull-secret-patch
-            namespace: patch-operator-system
-          spec:
-            serviceAccountRef:
-              name: patching-service-account
-            patches:
-              service-account-patch:
-                targetObjectRef: 
-              apiVersion: v1
-              kind: ServiceAccount
-            patchType: application/strategic-merge-patch+json
-            patchTemplate: |
-              imagePullSecrets:
-                - name: docker-registry-credentials
-
 # CNI
 - name: Configure Calico
   hosts: localhost
@@ -702,14 +596,91 @@
             asNumber: 65000
 
 # Coredns
+- name: Coredns Pre-steps
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Add coredns repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: coredns
+        repo_url: https://coredns.github.io/helm
+    - name: Create network-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: kube-system
+        api_version: v1
+        kind: Namespace
+        state: patched
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
+- name: Coredns Install
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Deploy Coredns chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: coredns
+        release_namespace: kube-system
+        # renovate: registryUrl=https://coredns.github.io/helm
+        chart_ref: coredns/coredns
+        chart_version: 1.32.0
+        values:
+          servers:
+          - zones:
+            - zone: .
+            port: 53
+            plugins:
+            - name: errors
+            # Serves a /health endpoint on :8080, required for livenessProbe
+            - name: health
+              configBlock: |-
+                lameduck 5s
+            # Serves a /ready endpoint on :8181, required for readinessProbe
+            - name: ready
+            # Required to query kubernetes API for data
+            - name: kubernetes
+              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+              configBlock: |-
+                pods insecure
+                fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+                ttl 30
+            - name: forward
+              parameters: . 10.0.100.3 10.0.0.1
+              configBlock: |-
+                force_tcp
+                except "cluster.local" "svc.cluster.local" ".svc"
+                policy sequential
+            - name: cache
+              parameters: 30
+            - name: loop
+            - name: reload
+            - name: loadbalance
 
 # Traefik
 - name: Traefik Pre-steps
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Check for kubeconfig
       ansible.builtin.stat:
-        path: "~/.kube/config"
+        path: "{{ home }}/.kube/config"
       register: kubeconfig
     - name: Add traefik repository
       when: kubeconfig.stat.exists
@@ -748,6 +719,8 @@
               - 10.0.100.1
 - name: Install Traefik CRDs
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
@@ -811,6 +784,8 @@
         kubeconfig.stat.exists
 - name: Install Traefik
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Deploy Traefik chart
       when: kubeconfig.stat.exists
@@ -880,10 +855,131 @@
       failed_when:
         - flux_bootstrap_out.rc != 0
 
+# Patch Operator
+- name: Patch Operator | Pre-steps
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "~/.kube/config"
+      register: kubeconfig
+    - name: Add patch operator repository
+      # when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: patch-operator
+        repo_url: https://redhat-cop.github.io/patch-operator
+    - name: Create network-system namespace
+      # when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: patch-operator-system
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
+- name: Patch Operator | Install
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Deploy Patch Operator chart
+      # when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: patch-operator
+        release_namespace: patch-operator-system
+        # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
+        chart_ref: patch-operator/patch-operator
+        chart_version: v0.1.11
+        values:
+          enableMonitoring: false
+    - name: Install Patch ServiceAccount
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: "present"
+        definition:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: patching-service-account
+            namespace: patch-operator-system
+    - name: Install Patch ServiceAccount ClusterRole
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: "present"
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRole
+          metadata:
+            name: service-account-modifier
+          rules:
+            - apiGroups: [""]
+              resources: ["serviceaccounts"]
+              verbs: ["get", "watch", "list", "update", "patch"]
+    - name: Install Patch ServiceAccount ClusterRole
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: "present"
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: service-account-modifier-binding
+          subjects:
+            - kind: ServiceAccount
+              name: patching-service-account
+              namespace: patch-operator-system
+          roleRef:
+            kind: ClusterRole
+            name: service-account-modifier
+            apiGroup: rbac.authorization.k8s.io
+    - name: Wait for patch-operator manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: patch-operator-system
+        label_selectors:
+          - app.kubernetes.io/instance = patch-operator
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
+    - name: Install Image Pull Secret Patch
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: "present"
+        definition:
+          apiVersion: redhatcop.redhat.io/v1alpha1
+          kind: Patch
+          metadata:
+            name: dockerhub-image-pull-secret-patch
+            namespace: patch-operator-system
+          spec:
+            serviceAccountRef:
+              name: patching-service-account
+            patches:
+              service-account-patch:
+                targetObjectRef: 
+              apiVersion: v1
+              kind: ServiceAccount
+            patchType: application/strategic-merge-patch+json
+            patchTemplate: |
+              imagePullSecrets:
+                - name: docker-registry-credentials
+
 # Vault
 - name: Install Vault
   hosts: localhost
   strategy: linear
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Add hashicorp repository
       when: kubeconfig.stat.exists
@@ -977,6 +1073,8 @@
       register: vault_status
 - name: Unseal Vault
   hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Unseal Vault 1
       when: >-
@@ -1025,6 +1123,8 @@
 - name: Unseal Vault
   hosts: localhost
   strategy: linear
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Initialize Vault Root Token
       # noqa: run-once[task]
@@ -1122,6 +1222,8 @@
 - name: Create Vault Token Secret
   hosts: localhost
   strategy: linear
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Login to Vault
       # noqa: run-once[task]
