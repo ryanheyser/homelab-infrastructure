@@ -215,10 +215,12 @@
   hosts: kubernetes
   tasks:
     - name: Check docker secrets encrypted file
+      delegate_to: localhost
       ansible.builtin.stat:
         path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
       register: dockersecretsfile
     - name: Unencrypt Docker Secrets
+      delegate_to: localhost
       ansible.builtin.set_fact:
           docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
       when: dockersecretsfile.stat.exists
