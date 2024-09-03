@@ -356,6 +356,7 @@
         path: "{{ home }}/.kube/config"
       register: kubeconfig
     - name: Wait for all nodes
+      delegate_to: localhost
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Node
