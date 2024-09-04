@@ -559,7 +559,7 @@
           spec: {}
     - name: Wait until HTTP status is 401
       ansible.builtin.uri:
-        url: "https://{{ groups['controlnodes'] | first }}:6443"
+        url: "https://{{ groups['controlnodes'] | first | ansible_host }}:6443"
         return_content: yes
         validate_certs: no
         status_code:
@@ -568,19 +568,6 @@
       retries: 20 # Retries for 20 * 15 seconds = 300 seconds = 5 minutes
       delay: 15 # Every 15 seconds
       register: uri_output
-    - name: Wait for create calico-kube-controllers to complete
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ home }}/.kube/config"
-        kind: Deployment
-        namespace: calico-system
-        label_selectors:
-          - k8s-app = calico-kube-controllers
-        wait: true
-        wait_condition:
-          type: "Available"
-          status: "True"
-        wait_sleep: 5
-        wait_timeout: 300
     - name: Create calico-apiserver namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -677,18 +664,19 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
-
-# Calico
-- name: Configure Calico
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    
+    - name: Wait for create calico-kube-controllers to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: calico-system
+        label_selectors:
+          - k8s-app = calico-kube-controllers
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
 
 # Coredns
 - name: Coredns Pre-steps
