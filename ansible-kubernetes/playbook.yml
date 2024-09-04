@@ -574,17 +574,17 @@
           metadata:
             name: default
           spec: {}
-    - name: Create network-system namespace
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: calico-apiserver
-        api_version: v1
-        kind: Namespace
-        state: patched
-        definition:
-          annotations:
-            cni.projectcalico.org/ipv4pools: '["system"]'
+    - name: Wait until HTTP status is 401
+      ansible.builtin.uri:
+        url: "https://{{ groups.controlnodes[0].ansible_host }}:6443"
+        return_content: yes
+        validate_certs: no
+        status_code:
+          - 401
+      until: uri_output.status == 401
+      retries: 20 # Retries for 20 * 15 seconds = 300 seconds = 5 minutes
+      delay: 15 # Every 15 seconds
+      register: uri_output
     - name: Wait for create calico-kube-controllers to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
@@ -598,6 +598,19 @@
           status: "True"
         wait_sleep: 5
         wait_timeout: 300
+    - name: Create calico-apiserver namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: calico-apiserver
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
+          labels:
+            name: calico-apiserver
     - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
