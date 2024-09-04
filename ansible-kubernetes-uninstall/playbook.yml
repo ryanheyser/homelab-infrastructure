@@ -1,0 +1,100 @@
+---
+- name: Ping Hosts
+  hosts: all
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      delegate_facts: true
+      check_mode: false
+      ansible.builtin.command: |
+        ping -c 2 "{{ inventory_hostname }}"
+      become: true
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
+      changed_when: false
+
+# k3s
+- name: K3s | install kubernetes
+  hosts: kubernetes
+  tasks:
+    - name: Check docker secrets encrypted file
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
+      register: dockersecretsfile
+    - name: Unencrypt Docker Secrets
+      delegate_to: localhost
+      ansible.builtin.set_fact:
+        docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: dockersecretsfile.stat.exists
+      failed_when: not dockersecretsfile.stat.exists
+    - name: Cleanup | Remove multus-shim if exists
+      ansible.builtin.file:
+        path: "/opt/cni/bin/multus-shim"
+        state: absent
+    - name: Deploy | Install K3s
+      vars:
+        k3s_become: true
+        k3s_state: uninstalled
+        # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
+        k3s_registration_address: kubernetes.homelab.heyser.xyz
+        # Set a specific release version or false for stable, latest for latest
+        k3s_release_version: false
+        k3s_build_cluster: true
+        k3s_etcd_datastore: true
+        k3s_use_unsupported_config: true
+        k3s_use_experimental: true
+        k3s_install_hard_links: true
+        k3s_registries:
+          configs:
+            docker.io:
+              auth:
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
+            index.docker.io:
+              auth:
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
+            registry-1.docker.io:
+              auth:
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
+        k3s_server:
+          # listen-port: 6443
+          bind-address: "{{ ansible_host }}"
+          cluster-cidr: 10.254.0.0/16
+          service-cidr: 10.255.0.0/16
+          no-flannel: true
+          flannel-backend: 'none'
+          secrets-encryption: true
+          etcd-expose-metrics: true
+          disable-network-policy: true
+          # disable-kube-proxy: true
+          write-kubeconfig-mode: '0644'
+          node-taint:
+            - "node-role.kubernetes.io/control-plane:NoSchedule"
+          node-label:
+            - "node-role.kubernetes.io/control-plane=true"
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
+          tls-san:
+            - "kubernetes.homelab.heyser.xyz"
+          disable:
+            - traefik
+            - coredns
+            - servicelb
+        k3s_agent:
+          node-label:
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
+      ansible.builtin.import_role:
+        name: xanmanning.k3s
+      # when: >-
+      # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+      register: installk3s
+    # - name: Cleanup | Remove multus-shim if exists
+    #   ansible.builtin.file:
+    #     path: "/opt/cni/bin/multus-shim"
+    #     state: absent
