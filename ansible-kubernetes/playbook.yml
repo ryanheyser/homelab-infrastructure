@@ -550,16 +550,16 @@
                 natOutgoing: Disabled
                 nodeSelector: all()
                 allowedUses:
-                  - Workload
-                  - Tunnel
+                - Workload
+                - Tunnel
               - name: system
                 cidr: 10.0.100.0/24
                 encapsulation: None
                 natOutgoing: Disabled
                 nodeSelector: all()
                 allowedUses:
-                  - Workload
-                  - Tunnel
+                - Workload
+                - Tunnel
     - name: Create APIServer for Tigera Operator
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
