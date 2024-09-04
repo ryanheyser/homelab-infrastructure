@@ -542,7 +542,7 @@
               mtu: 9000
               nodeAddressAutodetectionV4:
                 cidrs:
-                - '10.0.0.0/18'
+                - 10.0.0.0/18
               ipPools:
               - name: default
                 cidr: 10.0.101.0/24
@@ -585,6 +585,19 @@
       retries: 20 # Retries for 20 * 15 seconds = 300 seconds = 5 minutes
       delay: 15 # Every 15 seconds
       register: uri_output
+    - name: Wait for create calico-kube-controllers to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: calico-system
+        label_selectors:
+          - k8s-app = calico-kube-controllers
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
     - name: Create calico-apiserver namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -681,19 +694,6 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
-    - name: Wait for create calico-kube-controllers to complete
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ home }}/.kube/config"
-        kind: Deployment
-        namespace: calico-system
-        label_selectors:
-          - k8s-app = calico-kube-controllers
-        wait: true
-        wait_condition:
-          type: "Available"
-          status: "True"
-        wait_sleep: 5
-        wait_timeout: 300
 
 # Coredns
 - name: Coredns Pre-steps
