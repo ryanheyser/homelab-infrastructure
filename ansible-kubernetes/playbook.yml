@@ -559,7 +559,7 @@
           spec: {}
     - name: Wait until HTTP status is 401
       ansible.builtin.uri:
-        url: "https://{{ groups['controlnodes'] | first | ansible_host }}:6443"
+        url: "https://{{ groups['controlnodes'][0]['ansible_host'] }}:6443"
         return_content: yes
         validate_certs: no
         status_code:
