@@ -241,10 +241,15 @@
         k3s_registries:
           configs:
             docker.io:
+              auth:
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
             index.docker.io:
+              auth:
+                username: "{{ (docker | from_yaml).docker_user }}"
+                password: "{{ (docker | from_yaml).docker_token }}"
             registry-1.docker.io:
               auth:
-                # {{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}
                 username: "{{ (docker | from_yaml).docker_user }}"
                 password: "{{ (docker | from_yaml).docker_token }}"
         k3s_server:
