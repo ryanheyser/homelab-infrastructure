@@ -574,6 +574,17 @@
           metadata:
             name: default
           spec: {}
+    - name: Create network-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: calico-apiserver
+        api_version: v1
+        kind: Namespace
+        state: patched
+        definition:
+          annotations:
+            cni.projectcalico.org/ipv4pools: '["system"]'
     - name: Wait for create calico-kube-controllers to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
