@@ -704,9 +704,9 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
-        apply: true
-        server_side_apply:
-          field_manager: ansible
+        # apply: true
+        # server_side_apply:
+        #   field_manager: ansible
         definition:
           apiVersion: projectcalico.org/v3
           kind: BGPPeer
