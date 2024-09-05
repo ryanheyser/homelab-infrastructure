@@ -598,6 +598,10 @@
           status: "True"
         wait_sleep: 5
         wait_timeout: 300
+      register: calicokubecontrollersstatus
+      until: calicokubecontrollersstatus.result.status == "success"
+      retries: 20
+      delay: 15
     - name: Create calico-apiserver namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
