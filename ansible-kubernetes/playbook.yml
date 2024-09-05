@@ -492,6 +492,12 @@
         dest: "{{ playbook_dir }}/multus-daemonset-thick.yml"
         mode: '0664'
       register: multusdaemonsetmanifest
+    - name: Download calicoctl to the cluster.
+      ansible.builtin.get_url:
+        url: https://github.com/projectcalico/calico/releases/download/{{ calico_release_json.json.tag_name }}/calicoctl-linux-amd64
+        dest: "/usr/local/bin/kubectl-calico"
+        mode: '0777'
+      register: calicoctl
     - name: Check for kubeconfig
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
