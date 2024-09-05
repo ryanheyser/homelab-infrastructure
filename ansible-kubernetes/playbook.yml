@@ -253,8 +253,8 @@
                 username: "{{ (docker | from_yaml).docker_user }}"
                 password: "{{ (docker | from_yaml).docker_token }}"
         k3s_server:
-          #listen-port: 6443
-          bind-address: "{{ ansible_host }}"
+          # listen-port: 6443
+          # bind-address: "{{ ansible_host }}"
           cluster-cidr: 10.254.0.0/16
           service-cidr: 10.255.0.0/16
           no-flannel: true
