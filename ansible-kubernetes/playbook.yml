@@ -257,6 +257,8 @@
           # bind-address: "{{ ansible_host }}"
           cluster-cidr: 10.254.0.0/16
           service-cidr: 10.255.0.0/16
+          advertise-address: 10.255.0.1
+          advertise-port: 443
           no-flannel: true
           flannel-backend: 'none'
           secrets-encryption: true
