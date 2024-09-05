@@ -262,8 +262,8 @@
           # bind-address: 0.0.0.0
           cluster-cidr: 10.254.0.0/16
           service-cidr: 10.255.0.0/16
-          advertise-address: 10.255.0.1
-          advertise-port: 443
+          # advertise-address: 10.255.0.1
+          # advertise-port: 443
           no-flannel: true
           flannel-backend: 'none'
           secrets-encryption: true
@@ -284,7 +284,7 @@
           disable:
             - traefik
             - coredns
-            # - servicelb
+            - servicelb
         k3s_agent:
           node-label:
             - "topology.kubernetes.io/region=us-east-1"
