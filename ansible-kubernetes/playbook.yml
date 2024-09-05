@@ -599,7 +599,7 @@
         wait_sleep: 5
         wait_timeout: 300
       register: calicokubecontrollersstatus
-      until: calicokubecontrollersstatus.resources.status == "success"
+      until: calicokubecontrollersstatus.resources.status.readyReplicas == "1"
       retries: 20
       delay: 15
     - name: Create calico-apiserver namespace
