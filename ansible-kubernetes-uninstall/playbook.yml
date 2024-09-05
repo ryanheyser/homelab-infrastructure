@@ -100,9 +100,9 @@
     #     state: absent
 
 # reboot
-- name: Reboot
-  hosts: kubernetes
-  serial: 1
-  tasks:
-    - name: Reboot all nodes
-      ansible.builtin.reboot:
+# - name: Reboot
+#   hosts: kubernetes
+#   serial: 1
+#   tasks:
+#     - name: Reboot all nodes
+#       ansible.builtin.reboot:
