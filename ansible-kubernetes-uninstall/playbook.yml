@@ -14,7 +14,7 @@
       changed_when: false
 
 # k3s
-- name: K3s | install kubernetes
+- name: K3s | uninstall kubernetes
   hosts: kubernetes
   tasks:
     - name: Check docker secrets encrypted file
@@ -98,3 +98,11 @@
     #   ansible.builtin.file:
     #     path: "/opt/cni/bin/multus-shim"
     #     state: absent
+
+# reboot
+- name: Reboot
+  hosts: kubernetes
+  serial: 1
+  tasks:
+    - name: Reboot all nodes
+      ansible.builtin.reboot:
