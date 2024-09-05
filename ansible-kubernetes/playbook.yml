@@ -229,7 +229,7 @@
       vars:
         k3s_become: true
         k3s_state: installed
-          #k3s_primary_control_node: "{{ groups.controlnodes | first }}"
+        # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
         k3s_registration_address: kubernetes.homelab.heyser.xyz
         # Set a specific release version or false for stable, latest for latest
         k3s_release_version: false
@@ -238,7 +238,6 @@
         k3s_use_unsupported_config: true
         k3s_use_experimental: true
         k3s_install_hard_links: true
-        embedded-registry: true
         k3s_registries:
           mirrors:
             docker.io:
@@ -271,6 +270,7 @@
           etcd-expose-metrics: true
           disable-network-policy: true
           disable-kube-proxy: false
+          embedded-registry: true
           write-kubeconfig-mode: '0644'
           node-taint:
             - "node-role.kubernetes.io/control-plane:NoSchedule"
