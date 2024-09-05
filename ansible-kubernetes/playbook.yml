@@ -238,7 +238,12 @@
         k3s_use_unsupported_config: true
         k3s_use_experimental: true
         k3s_install_hard_links: true
+        embedded-registry: true
         k3s_registries:
+          mirrors:
+            docker.io:
+            index.docker.io:
+            registry-1.docker.io:
           configs:
             docker.io:
               auth:
