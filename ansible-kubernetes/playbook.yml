@@ -1079,8 +1079,8 @@
         state: present
         namespace: network-system
         src: "{{ crowdsecbouncertraefikconfig.stat.path }}"
-        validate:
-          fail_on_error: false
+        # validate:
+        #   fail_on_error: false
     - name: Check for authentik config for traefik
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/helm_values/traefik/authentik.yaml"
@@ -1092,8 +1092,8 @@
         state: present
         namespace: network-system
         src: "{{ authentiktraefikconfig.stat.path }}"
-        validate:
-          fail_on_error: false
+        # validate:
+        #   fail_on_error: false
 
 # Patch Operator
 - name: Patch Operator | Pre-steps

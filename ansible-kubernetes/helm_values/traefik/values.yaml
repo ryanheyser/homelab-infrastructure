@@ -29,8 +29,8 @@ providers:
     allowExternalNameServices: true
   kubernetesIngress:
     allowExternalNameServices: true
-nodeSelector:
-  ingress-ready: 'true'
+# nodeSelector:
+#   ingress-ready: 'true'
 ingressClass:
   enabled: true
   isDefaultClass: true
