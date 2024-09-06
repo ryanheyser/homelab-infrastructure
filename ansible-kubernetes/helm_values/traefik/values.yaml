@@ -35,7 +35,8 @@ ingressClass:
   name: traefik
 service:
   annotations:
-    'cni.projectcalico.org/ipAddrs': '["10.0.100.1"]'
+    cni.projectcalico.org/ipAddrs: '["10.0.100.1"]'
+    metallb.universe.tf/address-pool: "system"
   loadBalancerIP: 10.0.100.1
 ports:
   websecure:

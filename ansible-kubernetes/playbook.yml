@@ -950,7 +950,7 @@
         state: present
         definition:
           annotations:
-            cni.projectcalico.org/ipv4pools: '["system"]'
+            # cni.projectcalico.org/ipv4pools: '["system"]'
     - name: Create Traefik IP Reservation
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -980,6 +980,12 @@
         return_content: true
       register: traefik_release_json
       failed_when: traefik_release_json is failed
+    - name: Download Traefik CRD Definition
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/traefik/traefik/{{ calico_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+        dest: "{{ playbook_dir }}/kubernetes-crd-definition-v1.yml"
+        mode: '0664'
+      register: traefikcrddefv1
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -993,8 +999,8 @@
           force_conflicts: true
       with_items: >-
         {{
-          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
-          traefik_release_json.stdout +
+          lookup("url"), "https://raw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.json.tag_name +
           "/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
         }}
       when: >-
@@ -1013,8 +1019,8 @@
           force_conflicts: true
       with_items: >-
         {{
-          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
-          traefik_release_json.stdout +
+          lookup("url"), "https://raw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.json.tag_name +
           "/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml"
         }}
       when: >-
@@ -1033,8 +1039,8 @@
           force_conflicts: true
       with_items: >-
         {{
-          lookup("url"), "https://aw.githubusercontent.com/traefik/traefik/" +
-          traefik_release_json.stdout +
+          lookup("url"), "https://raw.githubusercontent.com/traefik/traefik/" +
+          traefik_release_json.json.tag_name +
           "/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml"
         }}
       when: >-
@@ -1101,7 +1107,7 @@
         state: present
         definition:
           annotations:
-            cni.projectcalico.org/ipv4pools: '["system"]'
+            # cni.projectcalico.org/ipv4pools: '["system"]'
 - name: Patch Operator | Install
   hosts: localhost
   vars:

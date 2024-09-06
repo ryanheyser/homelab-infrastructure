@@ -18,3 +18,4 @@ custom-resources.yaml
 multus-daemonset-thick.yml
 tigera-operator.yaml
 reflector.yaml
+kubernetes-crd-definition-v1.yml
