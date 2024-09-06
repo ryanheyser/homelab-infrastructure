@@ -770,7 +770,7 @@
         name: network-system
         api_version: v1
         kind: Namespace
-        state: patched
+        state: present
         definition:
           metadata:
             annotations:
