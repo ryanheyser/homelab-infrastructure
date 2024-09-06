@@ -619,8 +619,8 @@
         state: present
         definition:
           metadata:
-            annotations:
-              cni.projectcalico.org/ipv4pools: '["system"]'
+            # annotations:
+            #   cni.projectcalico.org/ipv4pools: '["system"]'
             labels:
               name: calico-apiserver
     - name: Apply tigera apiserver manifest to the cluster.
