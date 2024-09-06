@@ -19,3 +19,5 @@ multus-daemonset-thick.yml
 tigera-operator.yaml
 reflector.yaml
 kubernetes-crd-definition-v1.yml
+kubernetes-crd-rbac.yml
+kubernetes-crd-resource.yml
