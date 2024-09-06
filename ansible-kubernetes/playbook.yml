@@ -382,17 +382,17 @@
           status: "True"
         wait_sleep: 5
         wait_timeout: 300
-    - name: Patch nodes to add route-reflector
-      delegate_to: localhost
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: patched
-        kind: Node
-        name: "{{ ansible_host }}"
-        definition:
-          metadata:
-            annotations:
-              projectcalico.org/RouteReflectorClusterID: 244.0.0.1
+    # - name: Patch nodes to add route-reflector
+    #   delegate_to: localhost
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     state: patched
+    #     kind: Node
+    #     name: "{{ ansible_host }}"
+    #     definition:
+    #       metadata:
+    #         annotations:
+    #           projectcalico.org/RouteReflectorClusterID: 244.0.0.1
 
 # Reflector
 - name: Reflector
@@ -459,7 +459,7 @@
             .dockercfg: "{{ dockercfg.stdout | b64encode }}"
 
 # CNI
-- name: Configure Calico
+- name: Configure CNI
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
@@ -559,15 +559,7 @@
                 - 10.0.0.0/18
               ipPools:
               - name: default
-                cidr: 10.0.101.0/24
-                encapsulation: None
-                natOutgoing: Disabled
-                nodeSelector: all()
-                allowedUses:
-                - Workload
-                - Tunnel
-              - name: system
-                cidr: 10.0.100.0/24
+                cidr: 10.254.0.0/24
                 encapsulation: None
                 natOutgoing: Disabled
                 nodeSelector: all()
@@ -651,6 +643,21 @@
       until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
       retries: 20
       delay: 15
+    - name: Wait for apiservice apiserver to be available
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: APIService
+        name: v3.projectcalico.org
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: calicoapiservicestatus
+      until: calicoapiservicestatus.resources[0].status.conditions | map("status") == "True"
+      retries: 20
+      delay: 15
     # - name: Create Default IPPool Config
     #   when: kubeconfig.stat.exists
     #   kubernetes.core.k8s:
@@ -699,6 +706,27 @@
     #         allowedUses:
     #         - Workload
     #         - Tunnel
+    - name: Create Global BGP Config
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        # apply: true
+        # server_side_apply:
+        #   field_manager: ansible
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: BGPConfiguration
+          metadata:
+            name: default
+            namespace: kube-system
+          spec:
+            asNumber: 65001
+            serviceLoadBalancerIPs:
+              - cidr: 10.0.101.0/24
+              - cidr: 10.0.100.0/24
+            # communities:
+            #   - name: bgpdefault        
     - name: Create Global BGP Peer Config
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -716,6 +744,110 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
+
+# Metallb
+- name: Metallb Pre-steps
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Add Metallb repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: metallb
+        repo_url: https://metallb.github.io/metallb
+    - name: Create network-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: network-system
+        api_version: v1
+        kind: Namespace
+        state: patched
+        definition:
+          annotations:
+            # cni.projectcalico.org/ipv4pools: '["system"]'
+            metallb.universe.tf/address-pool: "system"
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+              pod-security.kubernetes.io/audit: privileged
+              pod-security.kubernetes.io/warn: privileged
+- name: Metallb Install
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Deploy Metallb chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: metallb
+        release_namespace: network-system
+        # renovate: registryUrl=https://metallb.github.io/metallb
+        chart_ref: metallb/metallb
+        chart_version: 0.14.8
+        # values:
+    - name: Wait for metallb controller to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: network-system
+        label_selectors:
+          - app.kubernetes.io/name = metallb
+          - app.kubernetes.io/component = controller
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: metallbcontrollerstatus
+      until: metallbcontrollerstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
+    - name: Create Default IPAddressPool Config
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        # apply: true
+        # server_side_apply:
+        #   field_manager: ansible
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: default
+            namespace: network-system
+          spec:
+            addresses:
+            - 10.0.101.0/24
+    - name: Create System IPAddressPool Config
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        # apply: true
+        # server_side_apply:
+        #   field_manager: ansible
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: system
+            namespace: network-system
+          spec:
+            addresses:
+            - 10.0.101.0/24
 
 # Coredns
 - name: Coredns Pre-steps
@@ -737,13 +869,14 @@
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
-        name: kube-system
+        name: network-system
         api_version: v1
         kind: Namespace
         state: patched
         definition:
           annotations:
-            cni.projectcalico.org/ipv4pools: '["system"]'
+            # cni.projectcalico.org/ipv4pools: '["system"]'
+            metallb.universe.tf/address-pool: "system"
 - name: Coredns Install
   hosts: localhost
   vars:
