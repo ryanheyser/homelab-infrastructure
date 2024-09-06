@@ -1001,7 +1001,7 @@
         {{
           lookup("ansible.builtin.url", "https://raw.githubusercontent.com/traefik/traefik/" +
           traefik_release_json.json.tag_name +
-          "/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml" )
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml" ) | from_yaml_all
         }}
       when: >-
         item is not none and
@@ -1021,7 +1021,7 @@
         {{
           lookup("ansible.builtin.url", "https://raw.githubusercontent.com/traefik/traefik/" +
           traefik_release_json.json.tag_name +
-          "/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml" )
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml" ) | from_yaml_all
         }}
       when: >-
         item is not none and
@@ -1041,7 +1041,7 @@
         {{
           lookup("ansible.builtin.url", "https://raw.githubusercontent.com/traefik/traefik/" +
           traefik_release_json.json.tag_name +
-          "/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml" )
+          "/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml" ) | from_yaml_all
         }}
       when: >-
         item is not none and
