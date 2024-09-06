@@ -982,7 +982,7 @@
       failed_when: traefik_release_json is failed
     - name: Download Traefik CRD Definition
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/traefik/traefik/{{ calico_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+        url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
         dest: "{{ playbook_dir }}/kubernetes-crd-definition-v1.yml"
         mode: '0664'
       register: traefikcrddefv1
