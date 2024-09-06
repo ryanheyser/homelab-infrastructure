@@ -477,12 +477,6 @@
         return_content: true
       register: multus_release_json
       failed_when: multus_release_json is failed
-    # - name: Get Latest Traefik Release
-    #   ansible.builtin.uri:
-    #     url: https://api.github.com/repos/traefik/traefik/releases/latest
-    #     return_content: true
-    #   register: traefik_release_json
-    #   failed_when: traefik_release_json is failed
     - name: Download tigera operator manifest to the cluster.
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
@@ -980,6 +974,12 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Get Latest Traefik Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/traefik/traefik/releases/latest
+        return_content: true
+      register: traefik_release_json
+      failed_when: traefik_release_json is failed
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
