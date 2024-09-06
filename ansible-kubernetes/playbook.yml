@@ -657,7 +657,7 @@
         wait_sleep: 30
         wait_timeout: 600
       register: calicoapiservicestatus
-      until: calicoapiservicestatus.resources[0].status.conditions | map("status") == "True"
+      until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
       retries: 20
       delay: 15
     # - name: Create Default IPPool Config
