@@ -272,6 +272,7 @@
           disable-kube-proxy: false
           embedded-registry: true
           write-kubeconfig-mode: '0644'
+          etcd-arg: "--election-timeout 10000"
           node-taint:
             - "node-role.kubernetes.io/control-plane:NoSchedule"
           node-label:
