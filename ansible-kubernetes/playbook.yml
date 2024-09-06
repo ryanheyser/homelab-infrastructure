@@ -992,12 +992,12 @@
         dest: "{{ playbook_dir }}/kubernetes-crd-rbac.yml"
         mode: '0664'
       register: traefikcrdrbacdef
-    - name: Download Traefik CRD Resource Definition
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml
-        dest: "{{ playbook_dir }}/kubernetes-crd-resource.yml"
-        mode: '0664'
-      register: traefikcrdresourcedef
+    # - name: Download Traefik CRD Resource Definition
+    #   ansible.builtin.get_url:
+    #     url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml
+    #     dest: "{{ playbook_dir }}/kubernetes-crd-resource.yml"
+    #     mode: '0664'
+    #   register: traefikcrdresourcedef
     - name: Install Traefik CRD Definition
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -1026,20 +1026,20 @@
       when: >-
         traefikcrdrbacdef is not none and
         kubeconfig.stat.exists
-    - name: Install Traefik CRD Resource
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        src: "{{ traefikcrdresourcedef.dest }}"
-        namespace: network-system
-        state: present
-        apply: true
-        force: true
-        server_side_apply:
-          field_manager: ansible
-          force_conflicts: true
-      when: >-
-        traefikcrdresourcedef is not none and
-        kubeconfig.stat.exists
+    # - name: Install Traefik CRD Resource
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     src: "{{ traefikcrdresourcedef.dest }}"
+    #     namespace: network-system
+    #     state: present
+    #     apply: true
+    #     force: true
+    #     server_side_apply:
+    #       field_manager: ansible
+    #       force_conflicts: true
+    #   when: >-
+    #     traefikcrdresourcedef is not none and
+    #     kubeconfig.stat.exists
 - name: Install Traefik
   hosts: localhost
   vars:
