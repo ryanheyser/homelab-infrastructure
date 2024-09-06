@@ -623,7 +623,7 @@
               cni.projectcalico.org/ipv4pools: '["system"]'
             labels:
               name: calico-apiserver
-      - name: Apply tigera apiserver manifest to the cluster.
+    - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
