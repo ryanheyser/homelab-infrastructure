@@ -559,7 +559,7 @@
                 - 10.0.0.0/18
               ipPools:
               - name: default
-                cidr: 10.254.0.0/24
+                cidr: 10.254.0.0/16
                 encapsulation: None
                 natOutgoing: Disabled
                 nodeSelector: all()
