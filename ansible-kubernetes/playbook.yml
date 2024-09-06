@@ -974,6 +974,10 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
     - name: Get Latest Traefik Release
       ansible.builtin.uri:
         url: https://api.github.com/repos/traefik/traefik/releases/latest
@@ -1045,6 +1049,10 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
     - name: Deploy Traefik chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
@@ -1056,22 +1064,30 @@
         chart_version: 30.1.0
         values_files:
           - "{{ playbook_dir }}/helm_values/traefik/values.yaml"
+    - name: Check for crowdsec bouncer config
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/helm_values/traefik/crowdsec-bouncer.yaml"
+      register: crowdsecbouncertraefikconfig
     - name: Configure crowdsec bouncer for traefik
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         namespace: network-system
-        definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/crowdsec-bouncer.yaml') | from_yaml_all }}"
+        src: "{{ crowdsecbouncertraefikconfig.stat.path }}"
         validate:
           fail_on_error: false
+    - name: Check for authentik config for traefik
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/helm_values/traefik/authentik.yaml"
+      register: authentiktraefikconfig
     - name: Configure authentik for traefik
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
         namespace: network-system
-        definition: "{{ lookup('file', playbook_dir + '/helm_values/traefik/authentik.yaml') | from_yaml_all }}"
+        src: "{{ authentiktraefikconfig.stat.path }}"
         validate:
           fail_on_error: false
 
