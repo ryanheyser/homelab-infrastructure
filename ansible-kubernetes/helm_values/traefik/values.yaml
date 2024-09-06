@@ -16,11 +16,13 @@ resources:
     memory: "150Mi"
 experimental:
   plugins:
-    enabled: true
+    # enabled: true
     bouncer:
       # renovate: moduleName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       version: v1.3.1 # To update
+    kubernetesGateway:
+      enabled: true
 providers:
   kubernetesCRD:
     allowCrossNamespace: true

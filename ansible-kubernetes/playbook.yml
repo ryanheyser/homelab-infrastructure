@@ -1053,6 +1053,10 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
+    - name: Check for traefik values
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/helm_values/traefik/values.yaml"
+      register: traefikvalues
     - name: Deploy Traefik chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
@@ -1061,9 +1065,9 @@
         release_namespace: network-system
         # renovate: registryUrl=https://helm.traefik.io/traefik
         chart_ref: traefik/traefik
-        chart_version: 30.1.0
+        chart_version: 31.0.0
         values_files:
-          - "{{ playbook_dir }}/helm_values/traefik/values.yaml"
+          - "{{ traefikvalues.stat.path }}"
     - name: Check for crowdsec bouncer config
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/helm_values/traefik/crowdsec-bouncer.yaml"
