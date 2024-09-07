@@ -1095,124 +1095,125 @@
         # validate:
         #   fail_on_error: false
 
-# Patch Operator
-- name: Patch Operator | Pre-steps
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "~/.kube/config"
-      register: kubeconfig
-    - name: Add patch operator repository
-      # when: kubeconfig.stat.exists
-      kubernetes.core.helm_repository:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator
-        repo_url: https://redhat-cop.github.io/patch-operator
-    - name: Create network-system namespace
-      # when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator-system
-        api_version: v1
-        kind: Namespace
-        state: present
-        definition:
-          annotations:
-            # cni.projectcalico.org/ipv4pools: '["system"]'
-- name: Patch Operator | Install
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Deploy Patch Operator chart
-      # when: kubeconfig.stat.exists
-      kubernetes.core.helm:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: patch-operator
-        release_namespace: patch-operator-system
-        # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
-        chart_ref: patch-operator/patch-operator
-        chart_version: v0.1.11
-        values:
-          enableMonitoring: false
-    - name: Install Patch ServiceAccount
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: v1
-          kind: ServiceAccount
-          metadata:
-            name: patching-service-account
-            namespace: patch-operator-system
-    - name: Install Patch ServiceAccount ClusterRole
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: rbac.authorization.k8s.io/v1
-          kind: ClusterRole
-          metadata:
-            name: service-account-modifier
-          rules:
-            - apiGroups: [""]
-              resources: ["serviceaccounts"]
-              verbs: ["get", "watch", "list", "update", "patch"]
-    - name: Install Patch ServiceAccount ClusterRole
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: rbac.authorization.k8s.io/v1
-          kind: ClusterRoleBinding
-          metadata:
-            name: service-account-modifier-binding
-          subjects:
-            - kind: ServiceAccount
-              name: patching-service-account
-              namespace: patch-operator-system
-          roleRef:
-            kind: ClusterRole
-            name: service-account-modifier
-            apiGroup: rbac.authorization.k8s.io
-    - name: Wait for patch-operator manifest to complete
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ home }}/.kube/config"
-        kind: Deployment
-        namespace: patch-operator-system
-        label_selectors:
-          - app.kubernetes.io/instance = patch-operator
-        wait: true
-        wait_condition:
-          type: "Available"
-          status: "True"
-        wait_sleep: 5
-        wait_timeout: 300
-    - name: Install Image Pull Secret Patch
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: "present"
-        definition:
-          apiVersion: redhatcop.redhat.io/v1alpha1
-          kind: Patch
-          metadata:
-            name: dockerhub-image-pull-secret-patch
-            namespace: patch-operator-system
-          spec:
-            serviceAccountRef:
-              name: patching-service-account
-            patches:
-              service-account-patch:
-                targetObjectRef: 
-              apiVersion: v1
-              kind: ServiceAccount
-            patchType: application/strategic-merge-patch+json
-            patchTemplate: |
-              imagePullSecrets:
-                - name: docker-registry-credentials
+# Disabled, Looking into alternatives
+# # Patch Operator
+# - name: Patch Operator | Pre-steps
+#   hosts: localhost
+#   vars:
+#     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+#   tasks:
+#     - name: Check for kubeconfig
+#       ansible.builtin.stat:
+#         path: "~/.kube/config"
+#       register: kubeconfig
+#     - name: Add patch operator repository
+#       # when: kubeconfig.stat.exists
+#       kubernetes.core.helm_repository:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: patch-operator
+#         repo_url: https://redhat-cop.github.io/patch-operator
+#     - name: Create network-system namespace
+#       # when: kubeconfig.stat.exists
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: patch-operator-system
+#         api_version: v1
+#         kind: Namespace
+#         state: present
+#         definition:
+#           annotations:
+#             # cni.projectcalico.org/ipv4pools: '["system"]'
+# - name: Patch Operator | Install
+#   hosts: localhost
+#   vars:
+#     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+#   tasks:
+#     - name: Deploy Patch Operator chart
+#       # when: kubeconfig.stat.exists
+#       kubernetes.core.helm:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: patch-operator
+#         release_namespace: patch-operator-system
+#         # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
+#         chart_ref: patch-operator/patch-operator
+#         chart_version: v0.1.11
+#         values:
+#           enableMonitoring: false
+#     - name: Install Patch ServiceAccount
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         state: "present"
+#         definition:
+#           apiVersion: v1
+#           kind: ServiceAccount
+#           metadata:
+#             name: patching-service-account
+#             namespace: patch-operator-system
+#     - name: Install Patch ServiceAccount ClusterRole
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         state: "present"
+#         definition:
+#           apiVersion: rbac.authorization.k8s.io/v1
+#           kind: ClusterRole
+#           metadata:
+#             name: service-account-modifier
+#           rules:
+#             - apiGroups: [""]
+#               resources: ["serviceaccounts"]
+#               verbs: ["get", "watch", "list", "update", "patch"]
+#     - name: Install Patch ServiceAccount ClusterRole
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         state: "present"
+#         definition:
+#           apiVersion: rbac.authorization.k8s.io/v1
+#           kind: ClusterRoleBinding
+#           metadata:
+#             name: service-account-modifier-binding
+#           subjects:
+#             - kind: ServiceAccount
+#               name: patching-service-account
+#               namespace: patch-operator-system
+#           roleRef:
+#             kind: ClusterRole
+#             name: service-account-modifier
+#             apiGroup: rbac.authorization.k8s.io
+#     - name: Wait for patch-operator manifest to complete
+#       kubernetes.core.k8s_info:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         kind: Deployment
+#         namespace: patch-operator-system
+#         label_selectors:
+#           - app.kubernetes.io/instance = patch-operator
+#         wait: true
+#         wait_condition:
+#           type: "Available"
+#           status: "True"
+#         wait_sleep: 5
+#         wait_timeout: 300
+#     - name: Install Image Pull Secret Patch
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         state: "present"
+#         definition:
+#           apiVersion: redhatcop.redhat.io/v1alpha1
+#           kind: Patch
+#           metadata:
+#             name: dockerhub-image-pull-secret-patch
+#             namespace: patch-operator-system
+#           spec:
+#             serviceAccountRef:
+#               name: patching-service-account
+#             patches:
+#               service-account-patch:
+#                 targetObjectRef: 
+#               apiVersion: v1
+#               kind: ServiceAccount
+#             patchType: application/strategic-merge-patch+json
+#             patchTemplate: |
+#               imagePullSecrets:
+#                 - name: docker-registry-credentials
 
 # Flux
 - name: Bootstrap Flux
