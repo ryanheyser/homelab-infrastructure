@@ -37,6 +37,9 @@
     "setup/**",
     ".taskfiles/**",
   ],
+  "ansible": {
+    "fileMatch": ["./.+\\.ya?ml$"],
+  },
   "helm-values": {
     "fileMatch": ["./.+\\.ya?ml$"]
   },
