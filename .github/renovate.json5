@@ -48,27 +48,27 @@
     ],
   },
   "helm-values": {
-    "fileMatch": ["\\.ya?ml$"],
+    "fileMatch": ["helm_values/**\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
       "vars\\.ya?ml",
     ],
   },
-  "flux": {
-    "fileMatch": ["\\.ya?ml$"],
-    "ignorePaths": [
-      ".github/**",
-      "vars\\.ya?ml",
-    ],
-  },
-  "kubernetes": {
-    "fileMatch": ["\\.ya?ml$"],
-    "ignorePaths": [
-      "flux-system/",
-      ".github/**",
-      "vars\\.ya?ml",
-    ],
-  },
+  // "flux": {
+  //   "fileMatch": ["\\.ya?ml$"],
+  //   "ignorePaths": [
+  //     ".github/**",
+  //     "vars\\.ya?ml",
+  //   ],
+  // },
+  // "kubernetes": {
+  //   "fileMatch": ["\\.ya?ml$"],
+  //   "ignorePaths": [
+  //     "flux-system/",
+  //     ".github/**",
+  //     "vars\\.ya?ml",
+  //   ],
+  // },
 
   // "packageRules": [
   //   // Setup datasources
