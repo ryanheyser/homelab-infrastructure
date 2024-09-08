@@ -48,25 +48,25 @@
     ],
   },
   "helm-values": {
-    "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
+    "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
-      "**/vars\\.ya?ml",
+      "vars\\.ya?ml",
     ],
   },
   "flux": {
-    "fileMatch": ["\\.ya?ml$","!vars\\.ya?ml"],
+    "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
-      "**/vars\\.ya?ml",
+      "vars\\.ya?ml",
     ],
   },
   "kubernetes": {
-    "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
+    "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
       "flux-system/",
       ".github/**",
-      "**/vars\\.ya?ml",
+      "vars\\.ya?ml",
     ],
   },
 
