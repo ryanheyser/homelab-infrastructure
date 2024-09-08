@@ -45,6 +45,9 @@
     "ignorePaths": [
       ".github/**",
     ],
+    "ignoreDeps": [
+      "vault"
+    ]
   },
   "helm-values": {
     "fileMatch": ["\\.ya?ml$","!playbook\\.ya?ml"],
