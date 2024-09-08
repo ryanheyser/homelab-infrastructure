@@ -53,14 +53,14 @@
     "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
-      "^playbook.ya?ml$",
+      "^playbook\\.ya?ml$",
     ],
   },
   "flux": {
     "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
-      "^playbook.ya?ml$",
+      "^playbook\\.ya?ml$",
     ],
   },
   "kubernetes": {
@@ -68,7 +68,7 @@
     "ignorePaths": [
       "flux-system/",
       ".github/**",
-      "^playbook.ya?ml$",
+      "^playbook\\.ya?ml$",
     ],
   },
 
