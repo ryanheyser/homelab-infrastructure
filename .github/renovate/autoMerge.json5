@@ -33,7 +33,7 @@
     //   ]
     // },
     {
-      "datasources": ["helm"],
+      "datasources": ["helm", "ansible"],
       "automerge": true,
       "requiredStatusChecks": null,
       "schedule": "after 1am and before 5am",
@@ -42,7 +42,13 @@
         "grafana",
         "thanos",
         "reloader",
-        "kube-prometheus-stack"
+        "kube-prometheus-stack",
+        "vault",
+        "secrets-store-csi-driver",
+        "metallb",
+        "coredns",
+        "traefik",
+        "patch-operator"
       ]
     },
     {
@@ -56,7 +62,7 @@
     },
     {
       "description": "Auto merge GitHub Releases",
-      "matchDatasources": ["github-releases"],
+      "matchDatasources": ["github-releases","ansible"],
       "automerge": true,
       "ignoreTests": true,
       "automergeType": "branch",
@@ -87,7 +93,7 @@
       "matchPackagePattern": ["ghcr.io/onedr0p"]
     },
     {
-      "datasources": ["helm"],
+      "datasources": ["helm","ansible"],
       "automerge": true,
       "automergeType": "branch",
       "requiredStatusChecks": null,
