@@ -50,14 +50,14 @@
     "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
-      "vars\\.ya?ml",
+      "**/vars\\.ya?ml",
     ],
   },
   "flux": {
     "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
-      "vars\\.ya?ml",
+      "**/vars\\.ya?ml",
     ],
   },
   "kubernetes": {
@@ -65,7 +65,7 @@
     "ignorePaths": [
       "flux-system/",
       ".github/**",
-      "vars\\.ya?ml",
+      "**/vars\\.ya?ml",
     ],
   },
 
