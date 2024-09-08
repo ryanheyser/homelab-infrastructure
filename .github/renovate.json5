@@ -38,15 +38,21 @@
     ".taskfiles/**",
   ],
   "ansible": {
-    "fileMatch": ["./.+\\.ya?ml$"],
+    "fileMatch": ["\\.ya?ml$"],
+    "ignorePaths": [
+      ".github/**"
+    ],
   },
   "helm-values": {
-    "fileMatch": ["./.+\\.ya?ml$"]
+    "fileMatch": ["\\.ya?ml$"],
+    "ignorePaths": [
+      ".github/**"
+    ],
   },
   "flux": {
-    "fileMatch": ["./.+\\.ya?ml$"],
+    "fileMatch": ["\\.ya?ml$"],
     "ignorePaths": [
-      ".github"
+      ".github/**"
     ],
   },
   "kubernetes": {
