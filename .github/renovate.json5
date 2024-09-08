@@ -40,7 +40,7 @@
   "ansible": {
     "fileMatch": [
       "\\.ya?ml$",
-      "^playbook.ya?ml",
+      "^playbook\\.ya?ml",
       ],
     "ignorePaths": [
       ".github/**",
