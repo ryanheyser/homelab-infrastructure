@@ -6,6 +6,7 @@ ignore: |
   *.sops.yml
   *.sops.yaml
   *.sops.yaml.template
+  vars.yml
   gotk-components.yaml
 extends: default
 rules:

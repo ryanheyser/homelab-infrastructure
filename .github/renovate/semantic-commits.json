@@ -32,6 +32,10 @@
       "semanticCommitScope": "helm"
     },
     {
+      "matchDatasources": ["ansible"],
+      "semanticCommitScope": "ansible"
+    },
+    {
       "matchDatasources": ["terraform-provider"],
       "semanticCommitScope": "terraform"
     },

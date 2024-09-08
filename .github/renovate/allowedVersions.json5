@@ -20,6 +20,6 @@
       "matchDatasources": ["helm"],
       "allowedVersions": "<2",
       "matchPackageNames": ["app-template"]
-    }
+    },
   ]
 }

@@ -5,7 +5,7 @@
     "commitMessageSuffix": "",
     "packageRules": [
       {
-        "matchDatasources": ["helm"],
+        "matchDatasources": ["helm","ansible"],
         "commitMessageTopic": "chart {{depName}}"
       },
       {

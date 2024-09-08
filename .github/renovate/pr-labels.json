@@ -22,6 +22,10 @@
         "addLabels": ["renovate/helm"]
       },
       {
+        "matchDatasources": ["ansible"],
+        "addLabels": ["renovate/ansible"]
+      },
+      {
         "matchDatasources": ["docker"],
         "addLabels": ["renovate/container"]
       },
