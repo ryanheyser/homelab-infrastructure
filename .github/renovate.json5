@@ -54,7 +54,7 @@
     ],
   },
   "flux": {
-    "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
+    "fileMatch": ["\\.ya?ml$","!vars\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
       "**/vars\\.ya?ml",
