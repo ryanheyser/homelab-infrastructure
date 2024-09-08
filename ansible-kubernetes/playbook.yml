@@ -795,7 +795,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         name: metallb
         release_namespace: network-system
-        # renovate: registryUrl=https://metallb.github.io/metallb
+        # renovate: datasource=ansible registryUrl=https://metallb.github.io/metallb
         chart_ref: metallb/metallb
         chart_version: 0.14.8
         # values:
