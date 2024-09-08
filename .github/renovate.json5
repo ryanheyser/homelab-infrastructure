@@ -46,8 +46,8 @@
       ".github/**",
     ],
     allowedEnv: [
-      "!\\$ANSIBLE_VAULT**"
-    ]
+      "!\\$ANSIBLE_VAULT**",
+    ],
   },
   "helm-values": {
     "fileMatch": ["\\.ya?ml$"],
