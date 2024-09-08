@@ -50,29 +50,23 @@
     "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
+      "vars\\.ya?ml",
     ],
-    "ignoreDeps": [
-      "vault"
-    ]
   },
   "flux": {
     "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
+      "vars\\.ya?ml",
     ],
-    "ignoreDeps": [
-      "vault"
-    ]
   },
   "kubernetes": {
     "fileMatch": ["\\.ya?ml$","!^vars\\.ya?ml"],
     "ignorePaths": [
       "flux-system/",
       ".github/**",
+      "vars\\.ya?ml",
     ],
-    "ignoreDeps": [
-      "vault"
-    ]
   },
 
   // "packageRules": [
