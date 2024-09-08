@@ -42,9 +42,9 @@ jobs:
         branch: helm-release-annotations
         title: "[renovate] create helmrelease annotations [ci-skip]"
         signoff: true
-        committer: "${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
-        author: "${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
+        committer: "Ryan Heyser <1079612+rumblpak@users.noreply.github.com>"
+        author: "Ryan Heyser <1079612+rumblpak@users.noreply.github.com>"
         commit-message: Create renovatebot helmrelease annotations
         body: |
-          Signed-off-by: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          Signed-off-by: Ryan Heyser <1079612+rumblpak@users.noreply.github.com>
         labels: renovate/helm-release-annotations
