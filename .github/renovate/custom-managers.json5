@@ -29,5 +29,17 @@
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
       // extractVersionTemplate: "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.*)${{/if}}",
     },
+    {
+      customType: "regex",
+      description: "Process ansible playbook",
+      fileMatch: ["playbook\\.ya?ml$"],
+      matchStrings: [
+        // # renovate: registryUrl=https://metallb.github.io/metallb
+        // chart_ref: metallb/metallb
+        // chart_version: 0.14.8
+        "#\\s*renovate:\\s*(registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
+      ],
+      datasourceTemplate: "ansible",
+    },
   ],
 }
