@@ -45,21 +45,24 @@
     "ignorePaths": [
       ".github/**",
     ],
-    "ignoreDeps": [
-      "vault"
-    ]
   },
   "helm-values": {
     "fileMatch": ["\\.ya?ml$","!^playbook\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
     ],
+    "ignoreDeps": [
+      "vault"
+    ]
   },
   "flux": {
     "fileMatch": ["\\.ya?ml$","!^playbook\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
     ],
+    "ignoreDeps": [
+      "vault"
+    ]
   },
   "kubernetes": {
     "fileMatch": ["\\.ya?ml$","!^playbook\\.ya?ml"],
@@ -67,6 +70,9 @@
       "flux-system/",
       ".github/**",
     ],
+    "ignoreDeps": [
+      "vault"
+    ]
   },
 
   // "packageRules": [
