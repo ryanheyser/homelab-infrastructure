@@ -34,7 +34,7 @@
       description: "Process ansible playbook",
       fileMatch: ["\\.ya?ml$"],
       matchStrings: [
-        "#(\\s+)?renovate:(\\s+)?*(registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
+        "#(\\s+)?renovate:(\\s+)?(registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s"
       ],
       datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}ansible{{/if}}",
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
