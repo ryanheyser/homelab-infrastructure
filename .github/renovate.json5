@@ -50,25 +50,22 @@
     ],
   },
   "helm-values": {
-    "fileMatch": ["\\.ya?ml$"],
+    "fileMatch": ["\\.ya?ml$","!playbook\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
-      "^playbook\\.ya?ml$",
     ],
   },
   "flux": {
-    "fileMatch": ["\\.ya?ml$"],
+    "fileMatch": ["\\.ya?ml$","!playbook\\.ya?ml"],
     "ignorePaths": [
       ".github/**",
-      "^playbook\\.ya?ml$",
     ],
   },
   "kubernetes": {
-    "fileMatch": ["\\.ya?ml$"],
+    "fileMatch": ["\\.ya?ml$","!playbook\\.ya?ml"],
     "ignorePaths": [
       "flux-system/",
       ".github/**",
-      "^playbook\\.ya?ml$",
     ],
   },
 
