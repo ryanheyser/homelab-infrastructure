@@ -1,4 +1,19 @@
 ---
+# Load Variables
+- name: Load Variables
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Stat vars.yml
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/vars.yml"
+      register: vars_file
+    - name: Load vars
+      ansible.builtin.include_vars:
+        file: vars_file.stat.path
+      when: vars_file.stat.exists
+
 - name: Ping Hosts
   hosts: all
   tasks:
