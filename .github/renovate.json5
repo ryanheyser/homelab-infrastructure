@@ -45,6 +45,9 @@
     "ignorePaths": [
       ".github/**",
     ],
+    allowedEnv: [
+      "!\\$ANSIBLE_VAULT**"
+    ]
   },
   "helm-values": {
     "fileMatch": ["\\.ya?ml$"],
