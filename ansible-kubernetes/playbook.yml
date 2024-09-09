@@ -1267,6 +1267,7 @@
     - name: Flux bootstrap
       environment:
         GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
+        KUBECONFIG: "{{ kubeconfig.stat.path }}"
       ansible.builtin.command: |
         flux bootstrap github \
           --owner=ryanheyser \
@@ -1275,8 +1276,6 @@
           --private=false \
           --personal \
           --network-policy=false
-      environment:
-        KUBECONFIG: "{{ kubeconfig.stat.path }}"
       register: flux_bootstrap_out
       changed_when: true
       failed_when:
