@@ -38,17 +38,17 @@
     ".taskfiles/**",
     "vars.ya?ml",
   ],
-  "ansible": {
-    "fileMatch": [
-      "\\.ya?ml$",
-      "playbook\\.ya?ml",
-      ],
-    "ignorePaths": [
-      ".github/**",
-    ],
-  },
+  // "ansible": {
+  //   "fileMatch": [
+  //     "\\.ya?ml$",
+  //     "playbook\\.ya?ml",
+  //     ],
+  //   "ignorePaths": [
+  //     ".github/**",
+  //   ],
+  // },
   "helm-values": {
-    "fileMatch": ["helm_values/.+\\.ya?ml$","playbook\\.ya?ml"],
+    "fileMatch": ["helm_values/.+\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
       "vars\\.ya?ml",
