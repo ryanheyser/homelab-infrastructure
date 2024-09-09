@@ -19,7 +19,7 @@
     "github>ryanheyser/homelab-infrastructure//.github/renovate/groups.json5",
     "github>ryanheyser/homelab-infrastructure//.github/renovate/grafanaDashboards.json5",
     "github>ryanheyser/homelab-infrastructure//.github/renovate/autoMerge.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/disabledDatasources.json5",   
+    "github>ryanheyser/homelab-infrastructure//.github/renovate/disabledDatasources.json5"
   ],
   "enabled": true,
   "timezone": "America/New_York",
@@ -33,27 +33,27 @@
   "platformCommit": true,
   "gitAuthor": "Ryan Heyser <rumblpak@users.noreply.github.com>",
   "commitBody": "Signed-off-by: Ryan Heyser <rumblpak@users.noreply.github.com>",
-  ignorePaths: [
+  "ignorePaths": [
     "setup/**",
     ".taskfiles/**",
-    "vars.ya?ml",
+    "vars.ya?ml"
   ],
   "ansible": {
     "fileMatch": [
-      "playbook\\.ya?ml",
+      "playbook\\.ya?ml"
       ],
     "ignorePaths": [
       ".github/**",
       "vars\\.ya?ml"
-    ],
+    ]
   },
   "helm-values": {
     "fileMatch": ["helm_values/.+\\.ya?ml$"],
     "ignorePaths": [
       ".github/**",
-      "vars\\.ya?ml",
-    ],
-  },
+      "vars\\.ya?ml"
+    ]
+  }
   // "helmv3": {
   //   "fileMatch": ["playbook\\.ya?ml"],
   //   "ignorePaths": [
