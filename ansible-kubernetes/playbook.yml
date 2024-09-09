@@ -100,7 +100,7 @@
           - ansible
       become: true
       changed_when: true
-    - name: Install sops
+    - name: Install sops on localhost
       ansible.builtin.include_role:
         name: community.sops.install
       vars:
@@ -109,12 +109,17 @@
         sops_become_on_install: true
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
-    - name: Set hostname on remote hosts
-      ansible.builtin.hostname:
-        name: "{{ ansible_host }}"
+    - name: Install sops 
+      ansible.builtin.include_role:
+        name: community.sops.install
       vars:
         sops_github_token: "{{ github_token }}"
         sops_become_on_install: true
+      when: >-
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+    - name: Set hostname on remote hosts
+      ansible.builtin.hostname:
+        name: "{{ ansible_fqdn }}"
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
 
