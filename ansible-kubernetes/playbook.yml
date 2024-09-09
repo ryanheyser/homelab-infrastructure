@@ -792,10 +792,10 @@
     - name: Deploy Metallb chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
+        # renovate: registryUrl=https://metallb.github.io/metallb
         kubeconfig: "{{ home }}/.kube/config"
         name: metallb
         release_namespace: network-system
-        # renovate: datasource=ansible registryUrl=https://metallb.github.io/metallb
         chart_ref: metallb/metallb
         chart_version: 0.14.8
         # values:

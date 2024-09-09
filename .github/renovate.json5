@@ -54,6 +54,13 @@
       "vars\\.ya?ml",
     ],
   },
+  "helm": {
+    "fileMatch": ["playbook\\.ya?ml"],
+    "ignorePaths": [
+      ".github/**",
+      "vars\\.ya?ml",
+    ],
+  },
   // "flux": {
   //   "fileMatch": ["\\.ya?ml$"],
   //   "ignorePaths": [
