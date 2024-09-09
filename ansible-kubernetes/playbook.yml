@@ -103,7 +103,7 @@
     - name: Install sops on localhost
       ansible.builtin.include_role:
         name: community.sops.install
-      vars_from:
+        vars_from:
         - "{{ vars_file.stat.path }}"
       vars:
         sops_install_on_localhost: true
@@ -115,7 +115,7 @@
     - name: Install sops 
       ansible.builtin.include_role:
         name: community.sops.install
-      vars_from:
+        vars_from:
         - "{{ vars_file.stat.path }}"
       vars:
         sops_github_token: "{{ github_token }}"
