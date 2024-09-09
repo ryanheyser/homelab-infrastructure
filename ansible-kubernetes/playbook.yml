@@ -1243,11 +1243,11 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-    kubeconfig: "{{ home }}/.kube/config"
+    # kubeconfig: "{{ home }}/.kube/config"
   tasks:
     - name: Flux pre-checks
       ansible.builtin.command: |
-        KUBECONFIG="{{ kubeconfig }}" flux check --pre
+        KUBECONFIG="{{ kubeconfig.stat.path }}" flux check --pre
       become: true
       register: flux_precheck_out
       changed_when: true
@@ -1266,7 +1266,7 @@
       environment:
         GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
       ansible.builtin.command: |
-        KUBECONFIG="{{ kubeconfig }}" flux bootstrap github \
+        KUBECONFIG="{{ kubeconfig.stat.path }}" flux bootstrap github \
           --owner=ryanheyser \
           --repository=homelab-ops \
           --branch main \
