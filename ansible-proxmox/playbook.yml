@@ -92,7 +92,7 @@
       ansible.builtin.include_role:
         name: community.sops.install
       vars_files:
-        - "{{ vars_file.stat.path }}"
+        - "{{ playbook_dir }}/vars.yml"
       vars:
         sops_install_on_localhost: true
         sops_become_on_install: true
