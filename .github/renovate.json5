@@ -54,7 +54,7 @@
       "vars\\.ya?ml",
     ],
   },
-  "helm": {
+  "helmv3": {
     "fileMatch": ["playbook\\.ya?ml"],
     "ignorePaths": [
       ".github/**",

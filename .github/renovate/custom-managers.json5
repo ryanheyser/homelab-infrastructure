@@ -39,7 +39,7 @@
         "chart_ref:(\\s+)?(?<depName>.*?)",
         "chart_version:(\\s+)?(?<versioning>.*?)",
       ],
-      datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
+      datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}helmv3{{/if}}",
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
       // extractVersionTemplate: "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.*)${{/if}}",
     },
