@@ -11,7 +11,7 @@
       register: vars_file
     - name: Load vars
       ansible.builtin.include_vars:
-        file: vars_file.stat.path
+        file: "{{ vars_file.stat.path }}"
       when: vars_file.stat.exists
 
 - name: Ping Hosts
