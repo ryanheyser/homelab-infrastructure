@@ -36,7 +36,7 @@
   ignorePaths: [
     "setup/**",
     ".taskfiles/**",
-    "vars.yml",
+    "vars.ya?ml",
   ],
   "ansible": {
     "fileMatch": [
