@@ -45,14 +45,21 @@
   connection: ssh
   gather_facts: true
   tasks:
-    - name: Setup | apt update
-      ansible.builtin.command: apt update -y
-      become: true
-      changed_when: true
-    - name: Setup | apt upgrade
-      ansible.builtin.command: apt upgrade -y
-      become: true
-      changed_when: true
+    # - name: Setup | apt update
+    #   ansible.builtin.command: apt update -y
+    #   become: true
+    #   changed_when: true
+    # - name: Setup | apt upgrade
+    #   ansible.builtin.command: apt upgrade -y
+    #   become: true
+    #   changed_when: true
+    - name: Setup | Apt Update/Upgrade
+      ansible.builting.apt:
+        update_cache: yes
+        upgrade: yes
+        autoclean: yes
+        autoremove: yes
+        state: latest
     - name: Setup | install required packages
       ansible.builtin.apt:
         state: 'present'
