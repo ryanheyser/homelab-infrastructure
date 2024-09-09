@@ -103,20 +103,26 @@
     - name: Install sops on localhost
       ansible.builtin.include_role:
         name: community.sops.install
+      vars_files:
+        - "{{ vars_file.stat.path }}"
       vars:
         sops_install_on_localhost: true
         sops_github_token: "{{ github_token }}"
         sops_become_on_install: true
       when: >-
-        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0) and
+        vars_file.stat.exists
     - name: Install sops 
       ansible.builtin.include_role:
         name: community.sops.install
+      vars_files:
+        - "{{ vars_file.stat.path }}"
       vars:
         sops_github_token: "{{ github_token }}"
         sops_become_on_install: true
       when: >-
-        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0) and
+        vars_file.stat.exists
     - name: Set hostname on remote hosts
       ansible.builtin.hostname:
         name: "{{ ansible_fqdn }}"
