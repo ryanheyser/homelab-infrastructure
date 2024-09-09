@@ -30,6 +30,8 @@
 - name: Setup All Hosts
   hosts: proxmox
   connection: ssh
+  vars_files:
+    - "{{ vars_file.stat.path }}"
   tasks:
     - name: Setup | apt update
       ansible.builtin.command: apt update -y
