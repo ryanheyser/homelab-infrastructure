@@ -1275,7 +1275,8 @@
           --repository=homelab-ops \
           --branch main \
           --private=false \
-          --network-policy=false
+          --network-policy=false \
+          --token-auth=false
       register: flux_bootstrap_out
       changed_when: true
       failed_when:
