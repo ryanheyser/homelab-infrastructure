@@ -1275,7 +1275,6 @@
           --repository=homelab-ops \
           --branch main \
           --private=false \
-          --personal \
           --network-policy=false
       register: flux_bootstrap_out
       changed_when: true
