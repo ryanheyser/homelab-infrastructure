@@ -894,9 +894,10 @@
         kind: Namespace
         state: patched
         definition:
-          annotations:
-            # cni.projectcalico.org/ipv4pools: '["system"]'
-            metallb.universe.tf/address-pool: "system"
+          metadata:
+            annotations:
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
 - name: Coredns Install
   hosts: localhost
   vars:
