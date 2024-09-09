@@ -38,15 +38,15 @@
     ".taskfiles/**",
     "vars.ya?ml",
   ],
-  // "ansible": {
-  //   "fileMatch": [
-  //     "\\.ya?ml$",
-  //     "playbook\\.ya?ml",
-  //     ],
-  //   "ignorePaths": [
-  //     ".github/**",
-  //   ],
-  // },
+  "ansible": {
+    "fileMatch": [
+      "playbook\\.ya?ml",
+      ],
+    "ignorePaths": [
+      ".github/**",
+      "vars\\.ya?ml"
+    ],
+  },
   "helm-values": {
     "fileMatch": ["helm_values/.+\\.ya?ml$"],
     "ignorePaths": [
@@ -54,13 +54,13 @@
       "vars\\.ya?ml",
     ],
   },
-  "helmv3": {
-    "fileMatch": ["playbook\\.ya?ml"],
-    "ignorePaths": [
-      ".github/**",
-      "vars\\.ya?ml",
-    ],
-  },
+  // "helmv3": {
+  //   "fileMatch": ["playbook\\.ya?ml"],
+  //   "ignorePaths": [
+  //     ".github/**",
+  //     "vars\\.ya?ml",
+  //   ],
+  // },
   // "flux": {
   //   "fileMatch": ["\\.ya?ml$"],
   //   "ignorePaths": [
