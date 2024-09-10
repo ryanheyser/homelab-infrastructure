@@ -269,7 +269,7 @@
         - 10.255.0.0/16
         rke2_service_cidr:
         - 10.254.0.0/16
-        rke2_node_name: "{{ ansible_fqdn }}"
+        rke2_node_name: "{{ ip }}"
         rke2_cluster_group_name: kubernetes
         rke2_servers_group_name: controlnodes
         rke2_agents_group_name: workernodes
@@ -297,12 +297,13 @@
         - rke2-coredns
         - rke2-ingress-nginx
         rke2_server_options:
+        - "bind-address: {{ ansible_host }}"
         - "write-kubeconfig-mode: 0644"
         - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000"
-        - "node-label: [ node-role.kubernetes.io/control-plane=true, topology.kubernetes.io/region=us-east-1, topology.kubernetes.io/zone=us-east-1a ]"
+        - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         rke2_agent_options:
-        - "node-label: [ topology.kubernetes.io/region=us-east-1, topology.kubernetes.io/zone=us-east-1a ]"
+        - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         # k3s_become: true
         # k3s_state: installed
         # # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
