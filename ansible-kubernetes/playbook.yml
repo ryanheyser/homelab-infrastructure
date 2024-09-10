@@ -330,9 +330,9 @@
         - "write-kubeconfig-mode: 0644"
         # - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000 --heartbeat-interval 5000"
-        - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
-        rke2_agent_options:
-        - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+        # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+        # rke2_agent_options:
+        # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         # k3s_become: true
         # k3s_state: installed
         # # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
