@@ -266,9 +266,9 @@
         - multus
         - calico
         rke2_cluster_cidr:
-        - 10.254.0.0/16
-        rke2_service_cidr:
         - 10.255.0.0/16
+        rke2_service_cidr:
+        - 10.254.0.0/16
         rke2_node_name: "{{ ansible_fqdn }}"
         rke2_cluster_group_name: kubernetes
         rke2_servers_group_name: controlnodes
