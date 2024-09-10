@@ -16,7 +16,9 @@
     - name: Test
       ansible.builtin.debug:
         msg: |
-          {{ (hostvars[x].ansible_host) for x in groups['controlnodes'] }}
+          {% for x in groups['controlnodes'] %}
+          {{ hostvars[x].ansible_host }}
+          {% endfor %}
 
 - name: Ping Hosts
   hosts: all
