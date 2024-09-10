@@ -17,7 +17,7 @@
       ansible.builtin.debug:
         msg: |
           {% for x in groups['controlnodes'] %}
-          {{ ('https://' + ((hostvars[x].ansible_host|default(x))) + ':5001') }}
+          {{ ('https://' + ((hostvars[x].ansible_host|default(x))) + ':5001') | join(',') | list | to_yaml(indent=12) }}
           {% endfor %}
 
 - name: Ping Hosts
