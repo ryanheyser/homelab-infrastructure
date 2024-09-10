@@ -233,8 +233,8 @@
         packageinstall.rc == 0 and
         not packageinstall is skipped
 
-# rke2
-- name: RKE2 | install kubernetes
+# k3s
+- name: K3s | install kubernetes
   hosts: kubernetes
   tasks:
     - name: Check docker secrets encrypted file
@@ -248,135 +248,82 @@
           docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
       when: dockersecretsfile.stat.exists
       failed_when: not dockersecretsfile.stat.exists
-    - name: Deploy | Install RKE2
+    - name: Deploy | Install K3s
       vars:
-        rke2_ha_mode: true
-        rke2_api_ip: 10.0.1.5
-        rke2_ha_mode_keepalived: true
-        rke2_bind_address: "{{ ansible_host }}"
-        rke2_api_cidr: 18
-        rke2_additional_sans:
-        - kubernetes.homelab.heyser.xyz
-        - kubernetes.homelab.heyser.lan
-        rke2_cluster_domain: homelab.heyser.xyz
-        rke2_download_kubeconf: true
-        rke2_server_node_taints:
-        - "node-role.kubernetes.io/control-plane:NoSchedule"
-        rke2_cni:
-        - multus
-        - calico
-        rke2_cluster_cidr:
-        - 10.254.0.0/16
-        rke2_service_cidr:
-        - 10.255.0.0/16
-        rke2_node_name: "{{ ansible_fqdn }}"
-        rke2_cluster_group_name: kubernetes
-        rke2_servers_group_name: controlnodes
-        rke2_agents_group_name: workernodes
-        rke2_download_kubeconf_path: "{{ playbook_dir }}"
-        rke2_cis_profile: "cis-1.23"
-        rke2_custom_registry_configs:
-          - endpoint: docker.io
-            config:
+        k3s_become: true
+        k3s_state: installed
+        # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
+        k3s_registration_address: kubernetes.homelab.heyser.xyz
+        # Set a specific release version or false for stable, latest for latest
+        k3s_release_version: false
+        k3s_build_cluster: true
+        k3s_etcd_datastore: true
+        k3s_use_unsupported_config: true
+        k3s_use_experimental: true
+        k3s_install_hard_links: true
+        k3s_registries:
+          mirrors:
+            docker.io:
+            index.docker.io:
+            registry-1.docker.io:
+          configs:
+            docker.io:
               auth:
                 username: "{{ (docker | from_yaml).docker_user }}"
                 password: "{{ (docker | from_yaml).docker_token }}"
-          - endpoint: index.docker.io
-            config:
+            index.docker.io:
               auth:
                 username: "{{ (docker | from_yaml).docker_user }}"
                 password: "{{ (docker | from_yaml).docker_token }}"
-          - endpoint: registry-1.docker.io
-            config:
+            registry-1.docker.io:
               auth:
                 username: "{{ (docker | from_yaml).docker_user }}"
                 password: "{{ (docker | from_yaml).docker_token }}"
-        rke2_disable_cloud_controller: true
-        rke2_disable:
-        - rke2-canal
-        - rke2-coredns
-        - rke2-ingress-nginx
-        rke2_server_options:
-        - "write-kubeconfig-mode: 0644"
-        - "embedded-registry: true"
-        - "etcd-arg: --election-timeout 10000"
-        - "node-label: [ node-role.kubernetes.io/control-plane=true, topology.kubernetes.io/region=us-east-1, topology.kubernetes.io/zone=us-east-1a ]"
-        rke2_agent_options:
-        - "node-label: [ topology.kubernetes.io/region=us-east-1, topology.kubernetes.io/zone=us-east-1a ]"
-        # k3s_become: true
-        # k3s_state: installed
-        # # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
-        # k3s_registration_address: kubernetes.homelab.heyser.xyz
-        # # Set a specific release version or false for stable, latest for latest
-        # k3s_release_version: false
-        # k3s_build_cluster: true
-        # k3s_etcd_datastore: true
-        # k3s_use_unsupported_config: true
-        # k3s_use_experimental: true
-        # k3s_install_hard_links: true
-        # k3s_registries:
-        #   mirrors:
-        #     docker.io:
-        #     index.docker.io:
-        #     registry-1.docker.io:
-        #   configs:
-        #     docker.io:
-        #       auth:
-        #         username: "{{ (docker | from_yaml).docker_user }}"
-        #         password: "{{ (docker | from_yaml).docker_token }}"
-        #     index.docker.io:
-        #       auth:
-        #         username: "{{ (docker | from_yaml).docker_user }}"
-        #         password: "{{ (docker | from_yaml).docker_token }}"
-        #     registry-1.docker.io:
-        #       auth:
-        #         username: "{{ (docker | from_yaml).docker_user }}"
-        #         password: "{{ (docker | from_yaml).docker_token }}"
-        # k3s_server:
-        #   # listen-port: 6443
-        #   bind-address: "{{ ansible_host }}"
-        #   # bind-address: 0.0.0.0
-        #   cluster-cidr: 10.254.0.0/16
-        #   service-cidr: 10.255.0.0/16
-        #   # advertise-address: 10.255.0.1
-        #   # advertise-port: 443
-        #   no-flannel: true
-        #   flannel-backend: 'none'
-        #   secrets-encryption: true
-        #   etcd-expose-metrics: true
-        #   disable-network-policy: true
-        #   disable-kube-proxy: false
-        #   embedded-registry: true
-        #   write-kubeconfig-mode: '0644'
-        #   etcd-arg: "--election-timeout 10000"
-        #   node-taint:
-        #     - "node-role.kubernetes.io/control-plane:NoSchedule"
-        #   node-label:
-        #     - "node-role.kubernetes.io/control-plane=true"
-        #     - "topology.kubernetes.io/region=us-east-1"
-        #     - "topology.kubernetes.io/zone=us-east-1a"
-        #     - "route-reflector=true"
-        #   tls-san:
-        #     - "kubernetes.homelab.heyser.xyz"
-        #   disable:
-        #     - traefik
-        #     - coredns
-        #     - servicelb
-        # k3s_agent:
-        #   node-label:
-        #     - "topology.kubernetes.io/region=us-east-1"
-        #     - "topology.kubernetes.io/zone=us-east-1a"
-        #     - "route-reflector=true"
+        k3s_server:
+          # listen-port: 6443
+          bind-address: "{{ ansible_host }}"
+          # bind-address: 0.0.0.0
+          cluster-cidr: 10.254.0.0/16
+          service-cidr: 10.255.0.0/16
+          # advertise-address: 10.255.0.1
+          # advertise-port: 443
+          no-flannel: true
+          flannel-backend: 'none'
+          secrets-encryption: true
+          etcd-expose-metrics: true
+          disable-network-policy: true
+          disable-kube-proxy: false
+          embedded-registry: true
+          write-kubeconfig-mode: '0644'
+          etcd-arg: "--election-timeout 10000"
+          node-taint:
+            - "node-role.kubernetes.io/control-plane:NoSchedule"
+          node-label:
+            - "node-role.kubernetes.io/control-plane=true"
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
+          tls-san:
+            - "kubernetes.homelab.heyser.xyz"
+          disable:
+            - traefik
+            - coredns
+            - servicelb
+        k3s_agent:
+          node-label:
+            - "topology.kubernetes.io/region=us-east-1"
+            - "topology.kubernetes.io/zone=us-east-1a"
+            - "route-reflector=true"
       ansible.builtin.import_role:
-        name: lablabs.rke2
+        name: xanmanning.k3s
           #when: >-
           #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
-      register: installrke2
+      register: installk3s
     # - name: Cleanup | Remove multus-shim if exists
     #   ansible.builtin.file:
     #     path: "/opt/cni/bin/multus-shim"
     #     state: absent
-- name: Post rke2 install
+- name: Post k3s install
   hosts: controlnodes
   gather_facts: false
   strategy: linear
@@ -386,30 +333,30 @@
       run_once: true
       become: true
       ansible.builtin.fetch:
-        src: /etc/rancher/rke2/rke2.yaml
-        dest: "{{ playbook_dir }}/rke2.yaml"
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ playbook_dir }}/k3s.yaml"
         flat: true
           # when: >-
-          #installrke2 is defined
-- name: Post rke2 install p2
+          #installk3s is defined
+- name: Post k3s install p2
   hosts: localhost
   gather_facts: false
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
-    - name: Check if rke2.yaml File Exists
+    - name: Check if k3s.yaml File Exists
       ansible.builtin.stat:
-        path: "{{ playbook_dir }}/rke2.yaml"
-      register: rke2_yaml
+        path: "{{ playbook_dir }}/k3s.yaml"
+      register: k3s_yaml
         # when: >-
-        # installrke2 is defined
+        # installk3s is defined
     - name: Create system kube directory
       ansible.builtin.file:
-        path: "/etc/rancher/rke2"
+        path: "/etc/rancher/k3s"
         state: directory
         mode: '0755'
           #when: >-
-          #installrke2 is defined
+          #installk3s is defined
     - name: Create user kube directory
       vars:
         home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
@@ -418,26 +365,26 @@
         state: directory
         mode: '0755'
           #when: >-
-          #installrke2 is defined
+          #installk3s is defined
     - name: Copy Kubeconfig to system
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/rke2.yaml"
-        dest: "/etc/rancher/rke2/"
+        src: "{{ playbook_dir }}/k3s.yaml"
+        dest: "/etc/rancher/k3s/"
         force: true
         mode: '0644'
       when: >-
-        rke2_yaml.stat.exists
+        k3s_yaml.stat.exists
     - name: Copy Kubeconfig to user default
       vars:
         home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
       ansible.builtin.command: |
-        /usr/bin/cp "{{ playbook_dir }}/rke2.yaml" "{{ home }}/.kube/config"
+        /usr/bin/cp "{{ playbook_dir }}/k3s.yaml" "{{ home }}/.kube/config"
       changed_when: true
       when: >-
-        rke2_yaml.stat.exists
-      #installrke2 is defined and
+        k3s_yaml.stat.exists
+      #installk3s is defined and
 
-- name: Post rke2 install p3
+- name: Post k3s install p3
   hosts: kubernetes
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
@@ -541,153 +488,242 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
-    # - name: Get Latest Calico Release
+    - name: Get Latest Calico Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/projectcalico/calico/releases/latest
+        return_content: true
+      register: calico_release_json
+      failed_when: calico_release_json is failed
+    - name: Get Latest Multus Release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/k8snetworkplumbingwg/multus-cni/releases/latest
+        return_content: true
+      register: multus_release_json
+      failed_when: multus_release_json is failed
+    - name: Download tigera operator manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/tigera-operator.yaml
+        dest: "{{ playbook_dir }}/tigera-operator.yaml"
+        mode: '0664'
+      register: tigeraoperatormanifest
+    - name: Download tigera apiserver manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_release_json.json.tag_name }}/manifests/apiserver.yaml
+        dest: "{{ playbook_dir }}/apiserver.yaml"
+        mode: '0664'
+      register: tigeraapiservermanifest
+    - name: Download multus daemonset thick manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/{{ multus_release_json.json.tag_name }}/deployments/multus-daemonset-thick.yml
+        dest: "{{ playbook_dir }}/multus-daemonset-thick.yml"
+        mode: '0664'
+      register: multusdaemonsetmanifest
+    - name: Download calicoctl to the cluster.
+      ansible.builtin.get_url:
+        url: https://github.com/projectcalico/calico/releases/download/{{ calico_release_json.json.tag_name }}/calicoctl-linux-amd64
+        dest: "/usr/local/bin/kubectl-calico"
+        mode: '0777'
+      register: calicoctl
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Apply tigera operator manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/tigera-operator.yaml"
+    - name: Apply multus daemonset manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/multus-daemonset-thick.yml"
+      register: multusdaemonsetmanifestapply      
+    - name: Wait for apply tigera operator manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: tigera-operator
+        label_selectors:
+          - k8s-app = tigera-operator
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
+    - name: Create Installation Configuration for Tigera Operator
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        # apply: true
+        # server_side_apply: 
+        #   field_manager: ansible
+        definition:
+          kind: Installation
+          apiVersion: operator.tigera.io/v1
+          metadata:
+            name: default
+          spec:
+            serviceCIDRs:
+              - 10.254.0.0/16
+            controlPlaneTolerations: 
+              - key: "node-role.kubernetes.io/control-plan"
+                operator: "Exists"
+                effect: "NoSchedule"
+            calicoNetwork:
+              # linuxDataplane: "BPF"
+              bgp: "Enabled"
+              # mtu: 9000
+              nodeAddressAutodetectionV4:
+                cidrs:
+                - 10.0.0.0/18
+              containerIPForwarding: "Enabled"
+              ipPools:
+              - name: default
+                cidr: 10.255.0.0/16
+    - name: Create APIServer for Tigera Operator
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        apply: true
+        server_side_apply: 
+          field_manager: ansible
+        definition:
+          apiVersion: operator.tigera.io/v1
+          kind: APIServer
+          metadata:
+            name: default
+          spec: {}
+    # - name: Wait until HTTP status is 401
     #   ansible.builtin.uri:
-    #     url: https://api.github.com/repos/projectcalico/calico/releases/latest
-    #     return_content: true
-    #   register: calico_release_json
-    #   failed_when: calico_release_json is failed
-#     - name: Create APIServer for Tigera Operator
-#       when: kubeconfig.stat.exists
-#       kubernetes.core.k8s:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         state: present
-#         apply: true
-#         server_side_apply: 
-#           field_manager: ansible
-#         definition:
-#           apiVersion: operator.tigera.io/v1
-#           kind: APIServer
-#           metadata:
-#             name: default
-#           spec: {}
-#     # - name: Wait until HTTP status is 401
-#     #   ansible.builtin.uri:
-#     #     url: "https://{{ hostvars[groups['controlnodes'][0]]['ansible_host'] }}:6443"
-#     #     return_content: yes
-#     #     validate_certs: no
-#     #     status_code:
-#     #       - 401
-#     #   until: uri_output.status == 401
-#     #   retries: 20 # Retries for 20 * 15 seconds = 300 seconds = 5 minutes
-#     #   delay: 15 # Every 15 seconds
-#     #   register: uri_output
-#     - name: Wait for create calico-kube-controllers to complete
-#       kubernetes.core.k8s_info:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         kind: Deployment
-#         namespace: calico-system
-#         label_selectors:
-#           - k8s-app = calico-kube-controllers
-#         wait: true
-#         wait_condition:
-#           type: "Available"
-#           status: "True"
-#         wait_sleep: 5
-#         wait_timeout: 300
-#       register: calicokubecontrollersstatus
-#       until: calicokubecontrollersstatus.resources[0].status.readyReplicas | int > 0
-#       retries: 20
-#       delay: 15
-#     - name: Create calico-apiserver namespace
-#       when: kubeconfig.stat.exists
-#       kubernetes.core.k8s:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         name: calico-apiserver
-#         api_version: v1
-#         kind: Namespace
-#         state: present
-#         definition:
-#           metadata:
-#             # annotations:
-#             #   cni.projectcalico.org/ipv4pools: '["system"]'
-#             labels:
-#               name: calico-apiserver
-#     - name: Apply tigera apiserver manifest to the cluster.
-#       kubernetes.core.k8s:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         state: present
-#         src: "{{ playbook_dir }}/apiserver.yaml"
-#     - name: Wait for apply tigera apiserver manifest to complete
-#       kubernetes.core.k8s_info:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         kind: Deployment
-#         namespace: calico-apiserver
-#         label_selectors:
-#           - k8s-app = calico-apiserver
-#         wait: true
-#         wait_condition:
-#           type: "Available"
-#           status: "True"
-#         wait_sleep: 30
-#         wait_timeout: 600
-#       register: calicoapiserverstatus
-#       until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
-#       retries: 20
-#       delay: 15
-#     - name: Wait for apiservice apiserver to be available
-#       kubernetes.core.k8s_info:
-#         kubeconfig: "{{ home }}/.kube/config"
-#         kind: APIService
-#         name: v3.projectcalico.org
-#         wait: true
-#         wait_condition:
-#           type: "Available"
-#           status: "True"
-#         wait_sleep: 30
-#         wait_timeout: 600
-#       register: calicoapiservicestatus
-#       until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
-#       retries: 20
-#       delay: 15
-#     # - name: Create Default IPPool Config
-#     #   when: kubeconfig.stat.exists
-#     #   kubernetes.core.k8s:
-#     #     kubeconfig: "{{ home }}/.kube/config"
-#     #     state: present
-#     #     apply: true
-#     #     server_side_apply:
-#     #       field_manager: ansible
-#     #     definition:
-#     #       apiVersion: projectcalico.org/v3
-#     #       kind: IPPool
-#     #       metadata:
-#     #         name: default
-#     #         namespace: kube-system
-#     #       spec:
-#     #         cidr: 10.0.101.0/24
-#     #         ipipMode: Never
-#     #         disabled: false
-#     #         disableBGPExport: false
-#     #         natOutgoing: false
-#     #         nodeSelector: all()
-#     #         allowedUses:
-#     #         - Workload
-#     #         - Tunnel
-#     # - name: Create System IPPool Config
-#     #   when: kubeconfig.stat.exists
-#     #   kubernetes.core.k8s:
-#     #     kubeconfig: "{{ home }}/.kube/config"
-#     #     state: present
-#     #     apply: true
-#     #     server_side_apply:
-#     #       field_manager: ansible
-#     #     definition:
-#     #       apiVersion: projectcalico.org/v3
-#     #       kind: IPPool
-#     #       metadata:
-#     #         name: system
-#     #         namespace: kube-system
-#     #       spec:
-#     #         cidr: 10.0.100.0/24
-#     #         ipipMode: Never
-#     #         disabled: false
-#     #         disableBGPExport: false
-#     #         natOutgoing: false
-#     #         nodeSelector: all()
-#     #         allowedUses:
-#     #         - Workload
-#     #         - Tunnel
+    #     url: "https://{{ hostvars[groups['controlnodes'][0]]['ansible_host'] }}:6443"
+    #     return_content: yes
+    #     validate_certs: no
+    #     status_code:
+    #       - 401
+    #   until: uri_output.status == 401
+    #   retries: 20 # Retries for 20 * 15 seconds = 300 seconds = 5 minutes
+    #   delay: 15 # Every 15 seconds
+    #   register: uri_output
+    - name: Wait for create calico-kube-controllers to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: calico-system
+        label_selectors:
+          - k8s-app = calico-kube-controllers
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 5
+        wait_timeout: 300
+      register: calicokubecontrollersstatus
+      until: calicokubecontrollersstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
+    - name: Create calico-apiserver namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: calico-apiserver
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          metadata:
+            # annotations:
+            #   cni.projectcalico.org/ipv4pools: '["system"]'
+            labels:
+              name: calico-apiserver
+    - name: Apply tigera apiserver manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/apiserver.yaml"
+    - name: Wait for apply tigera apiserver manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: calico-apiserver
+        label_selectors:
+          - k8s-app = calico-apiserver
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: calicoapiserverstatus
+      until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
+    - name: Wait for apiservice apiserver to be available
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: APIService
+        name: v3.projectcalico.org
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: calicoapiservicestatus
+      until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
+      retries: 20
+      delay: 15
+    # - name: Create Default IPPool Config
+    #   when: kubeconfig.stat.exists
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     state: present
+    #     apply: true
+    #     server_side_apply:
+    #       field_manager: ansible
+    #     definition:
+    #       apiVersion: projectcalico.org/v3
+    #       kind: IPPool
+    #       metadata:
+    #         name: default
+    #         namespace: kube-system
+    #       spec:
+    #         cidr: 10.0.101.0/24
+    #         ipipMode: Never
+    #         disabled: false
+    #         disableBGPExport: false
+    #         natOutgoing: false
+    #         nodeSelector: all()
+    #         allowedUses:
+    #         - Workload
+    #         - Tunnel
+    # - name: Create System IPPool Config
+    #   when: kubeconfig.stat.exists
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     state: present
+    #     apply: true
+    #     server_side_apply:
+    #       field_manager: ansible
+    #     definition:
+    #       apiVersion: projectcalico.org/v3
+    #       kind: IPPool
+    #       metadata:
+    #         name: system
+    #         namespace: kube-system
+    #       spec:
+    #         cidr: 10.0.100.0/24
+    #         ipipMode: Never
+    #         disabled: false
+    #         disableBGPExport: false
+    #         natOutgoing: false
+    #         nodeSelector: all()
+    #         allowedUses:
+    #         - Workload
+    #         - Tunnel
     - name: Create Global BGP Config
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -726,93 +762,6 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
-
-# Coredns
-- name: Coredns Pre-steps
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    - name: Add coredns repository
-      when: kubeconfig.stat.exists
-      kubernetes.core.helm_repository:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: coredns
-        repo_url: https://coredns.github.io/helm
-    - name: Create network-system namespace
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: network-system
-        api_version: v1
-        kind: Namespace
-        state: patched
-        definition:
-          metadata:
-            annotations:
-              # cni.projectcalico.org/ipv4pools: '["system"]'
-              metallb.universe.tf/address-pool: "system"
-- name: Coredns Install
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    - name: Deploy Coredns chart
-      when: kubeconfig.stat.exists
-      kubernetes.core.helm:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: coredns
-        release_namespace: kube-system
-        # renovate: registryUrl=https://coredns.github.io/helm
-        chart_ref: coredns/coredns
-        chart_version: 1.32.0
-        values:
-          service:
-            clusterIP: 10.254.0.10
-          autoscaler:
-            enabled: true
-            min: 2
-            max: 5
-            tolerations:
-            - node-role.kubernetes.io/control-plane:NoSchedule
-          servers:
-          - zones:
-            - zone: .
-            port: 53
-            plugins:
-            - name: errors
-            # Serves a /health endpoint on :8080, required for livenessProbe
-            - name: health
-              configBlock: |-
-                lameduck 5s
-            # Serves a /ready endpoint on :8181, required for readinessProbe
-            - name: ready
-            # Required to query kubernetes API for data
-            - name: kubernetes
-              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-              configBlock: |-
-                pods insecure
-                fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-                ttl 30
-            - name: forward
-              parameters: . 10.0.100.3 10.0.0.1
-              configBlock: |-
-                force_tcp
-                except "cluster.local" "svc.cluster.local" ".svc"
-                policy sequential
-            - name: cache
-              parameters: 30
-            - name: loop
-            - name: reload
-            - name: loadbalance
 
 # Metallb
 - name: Metallb Pre-steps
@@ -918,6 +867,93 @@
           spec:
             addresses:
             - 10.0.100.0/24
+
+# Coredns
+- name: Coredns Pre-steps
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Add coredns repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: coredns
+        repo_url: https://coredns.github.io/helm
+    - name: Create network-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: network-system
+        api_version: v1
+        kind: Namespace
+        state: patched
+        definition:
+          metadata:
+            annotations:
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
+- name: Coredns Install
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Deploy Coredns chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: coredns
+        release_namespace: kube-system
+        # renovate: registryUrl=https://coredns.github.io/helm
+        chart_ref: coredns/coredns
+        chart_version: 1.32.0
+        values:
+          service:
+            clusterIP: 10.254.0.10
+          autoscaler:
+            enabled: true
+            min: 2
+            max: 5
+            tolerations:
+            - node-role.kubernetes.io/control-plane:NoSchedule
+          servers:
+          - zones:
+            - zone: .
+            port: 53
+            plugins:
+            - name: errors
+            # Serves a /health endpoint on :8080, required for livenessProbe
+            - name: health
+              configBlock: |-
+                lameduck 5s
+            # Serves a /ready endpoint on :8181, required for readinessProbe
+            - name: ready
+            # Required to query kubernetes API for data
+            - name: kubernetes
+              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+              configBlock: |-
+                pods insecure
+                fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+                ttl 30
+            - name: forward
+              parameters: . 10.0.100.3 10.0.0.1
+              configBlock: |-
+                force_tcp
+                except "cluster.local" "svc.cluster.local" ".svc"
+                policy sequential
+            - name: cache
+              parameters: 30
+            - name: loop
+            - name: reload
+            - name: loadbalance
 
 # Traefik
 - name: Traefik Pre-steps
