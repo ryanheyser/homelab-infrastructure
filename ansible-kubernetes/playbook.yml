@@ -16,7 +16,7 @@
     - name: Test
       ansible.builtin.debug:
         msg: |
-          {% for x in groups['controlnodes'] %}
+          {% for x in groups['controlnodes'] | list %}
           {{ hostvars[x].ansible_host }}
           {% endfor %}
 
