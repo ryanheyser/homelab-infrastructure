@@ -13,14 +13,6 @@
       ansible.builtin.include_vars:
         file: "{{ vars_file.stat.path }}"
       when: vars_file.stat.exists
-    - name: Test
-      ansible.builtin.debug:
-        msg: |
-          {% set var = [] %}
-          {% for x in groups['controlnodes'] %}
-            {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
-          {% endfor %}
-          {{ var | to_yaml(indent=12)}}
 
 - name: Ping Hosts
   hosts: all
@@ -299,14 +291,26 @@
         rke2_cis_profile: "cis-1.23"
         rke2_custom_registry_mirrors:
         - name: docker.io
-          endpoint: 
-            "{{ (('https://' + (hostvars[x].ansible_host|default(x)) + ':5001') for x in groups['controlnodes']) | join(',') | list }}"
+          endpoint: |
+            {% set var = [] %}
+            {% for x in groups['controlnodes'] %}
+              {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
+            {% endfor %}
+            {{ var | to_yaml }}
         - name: index.docker.io
-          endpoint: 
-            "{{ (('https://' + (hostvars[x].ansible_host|default(x)) + ':5001') for x in groups['controlnodes']) | join(',') | list }}"
+          endpoint: |
+            {% set var = [] %}
+            {% for x in groups['controlnodes'] %}
+              {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
+            {% endfor %}
+            {{ var | to_yaml }}
         - name: registry-1.docker.io
-          endpoint: 
-            "{{ (('https://' + (hostvars[x].ansible_host|default(x)) + ':5001') for x in groups['controlnodes']) | join(',') | list }}"
+          endpoint: |
+            {% set var = [] %}
+            {% for x in groups['controlnodes'] %}
+              {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
+            {% endfor %}
+            {{ var | to_yaml }}
         rke2_custom_registry_configs:
         - endpoint: docker.io
           config:
