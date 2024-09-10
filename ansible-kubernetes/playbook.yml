@@ -15,7 +15,10 @@
       when: vars_file.stat.exists
     - name: Test
       ansible.builtin.debug:
-        msg: "{{ (('https://' + ((hostvars[x].ansible_host|default(x))) + ':5001') for x in groups['controlnodes']) | join(',') | list }}"
+        msg: |
+          {% for x in groups['controlnodes'] %}
+          {{ ('https://' + ((hostvars[x].ansible_host|default(x))) + ':5001') }}
+          {% endfor %}
 
 - name: Ping Hosts
   hosts: all
