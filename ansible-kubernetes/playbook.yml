@@ -569,7 +569,7 @@
             serviceCIDRs:
               - 10.255.0.0/16
             controlPlaneTolerations: 
-              - node-role.kubernetes.io/control-plane=NoSchedule
+              - "node-role\.kubernetes\.io/control-plan:NoSchedule"
             calicoNetwork:
               # linuxDataplane: "BPF"
               bgp: "Enabled"
