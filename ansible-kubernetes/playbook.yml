@@ -21,7 +21,7 @@
             {% set var= (var) + ('https://' + ((hostvars[x].ansible_host)) + ':5001') + (',') %}
           {% endfor %}
           {% set var=(var) + ']'%}
-          {{ var | to_yaml }}
+          {{ var | list | to_yaml }}
 
 - name: Ping Hosts
   hosts: all
