@@ -16,7 +16,7 @@
     - name: Test
       ansible.builtin.debug:
         msg: |
-          {{ hostvars[groups['controlnodes']].ansible_host }}
+          {{ (hostvars[x].ansible_host) for x in groups['controlnodes'] }}
           # {% set var = '[' %}
           # {% for x in groups['controlnodes'] %}
           #   {% set var %} 
