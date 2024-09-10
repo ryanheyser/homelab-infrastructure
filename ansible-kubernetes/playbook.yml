@@ -282,8 +282,8 @@
         - kubernetes.homelab.heyser.lan
         rke2_cluster_domain: homelab.heyser.xyz
         rke2_download_kubeconf: true
-        rke2_server_node_taints:
-        - "node-role.kubernetes.io/control-plane:NoSchedule"
+        # rke2_server_node_taints:
+        # - "node-role.kubernetes.io/control-plane:NoSchedule"
         rke2_cni:
         - multus
         - calico
@@ -328,7 +328,7 @@
         rke2_server_options:
         - "bind-address: {{ ansible_host }}"
         - "write-kubeconfig-mode: 0644"
-        - "embedded-registry: true"
+        # - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000 --heartbeat-interval 5000"
         - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         rke2_agent_options:
