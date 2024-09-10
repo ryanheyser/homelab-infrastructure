@@ -292,13 +292,13 @@
         rke2_custom_registry_mirrors:
         - name: docker.io
           endpoint: 
-            "https://{{ groups['controlnodes'].ansible_host | list | to_yaml(indent=12) }}:5001"
+            "https://{{ ((hostvars[x].ansible_host|default(x)) for x in groups['controlnodes']) | join ',' | list | to_yaml(indent=12) }}:5001"
         - name: index.docker.io
           endpoint: 
-            "https://{{ groups['controlnodes'].ansible_host | list | to_yaml(indent=12) }}:5001"
+            "https://{{ ((hostvars[x].ansible_host|default(x)) for x in groups['controlnodes']) | join ',' | list | to_yaml(indent=12) }}:5001"
         - name: registry-1.docker.io
           endpoint: 
-            "https://{{ groups['controlnodes'].ansible_host | list | to_yaml(indent=12) }}:5001"
+            "https://{{ ((hostvars[x].ansible_host|default(x)) for x in groups['controlnodes']) | join ',' | list | to_yaml(indent=12) }}:5001"
         rke2_custom_registry_configs:
         - endpoint: docker.io
           config:
