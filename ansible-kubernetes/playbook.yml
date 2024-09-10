@@ -17,14 +17,6 @@
       ansible.builtin.debug:
         msg: |
           {{ (hostvars[x].ansible_host) for x in groups['controlnodes'] }}
-          # {% set var = '[' %}
-          # {% for x in groups['controlnodes'] %}
-          #   {% set var %} 
-          #     {{ var + 'https://' + hostvars[x].ansible_host + ':5001' + ',' }}
-          #   {% endset %}
-          # {% endfor %}
-          # {% set var = var + ']' %}
-          # {{ var }}
 
 - name: Ping Hosts
   hosts: all
