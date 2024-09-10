@@ -248,6 +248,19 @@
           docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
       when: dockersecretsfile.stat.exists
       failed_when: not dockersecretsfile.stat.exists
+    - name: Disable Service | ufw
+      ansible.builtin.systemd_service:
+        name: ufw
+        state: stopped
+        enabled: false
+    - name: Disable Service | apparmor
+      ansible.builtin.systemd_service:
+        name: apparmor
+        state: stopped
+        enabled: false
+    - name: Reload Services | systemctl daemon reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
     - name: Deploy | Install RKE2
       vars:
         rke2_ha_mode: true
@@ -307,6 +320,7 @@
         - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000 --heartbeat-interval 5000"
         - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+        - "selinux"
         rke2_agent_options:
         - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         # k3s_become: true
