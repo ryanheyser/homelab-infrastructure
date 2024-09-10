@@ -296,29 +296,29 @@
         rke2_agents_group_name: workernodes
         rke2_download_kubeconf_path: "{{ playbook_dir }}"
         rke2_cis_profile: "cis-1.23"
-        rke2_custom_registry_mirrors:
-        - name: docker.io
-          endpoint: "{{ registry_hosts }}"
-        - name: index.docker.io
-          endpoint: "{{ registry_hosts }}"
-        - name: registry-1.docker.io
-          endpoint: "{{ registry_hosts }}"
-        rke2_custom_registry_configs:
-        - endpoint: docker.io
-          config:
-            auth:
-              username: "{{ (docker | from_yaml).docker_user }}"
-              password: "{{ (docker | from_yaml).docker_token }}"
-        - endpoint: index.docker.io
-          config:
-            auth:
-              username: "{{ (docker | from_yaml).docker_user }}"
-              password: "{{ (docker | from_yaml).docker_token }}"
-        - endpoint: registry-1.docker.io
-          config:
-            auth:
-              username: "{{ (docker | from_yaml).docker_user }}"
-              password: "{{ (docker | from_yaml).docker_token }}"
+        # rke2_custom_registry_mirrors:
+        # - name: docker.io
+        #   endpoint: "{{ registry_hosts }}"
+        # - name: index.docker.io
+        #   endpoint: "{{ registry_hosts }}"
+        # - name: registry-1.docker.io
+        #   endpoint: "{{ registry_hosts }}"
+        # rke2_custom_registry_configs:
+        # - endpoint: docker.io
+        #   config:
+        #     auth:
+        #       username: "{{ (docker | from_yaml).docker_user }}"
+        #       password: "{{ (docker | from_yaml).docker_token }}"
+        # - endpoint: index.docker.io
+        #   config:
+        #     auth:
+        #       username: "{{ (docker | from_yaml).docker_user }}"
+        #       password: "{{ (docker | from_yaml).docker_token }}"
+        # - endpoint: registry-1.docker.io
+        #   config:
+        #     auth:
+        #       username: "{{ (docker | from_yaml).docker_user }}"
+        #       password: "{{ (docker | from_yaml).docker_token }}"
         rke2_disable_cloud_controller: true
         rke2_disable:
         - rke2-canal
