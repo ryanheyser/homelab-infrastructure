@@ -16,14 +16,15 @@
     - name: Test
       ansible.builtin.debug:
         msg: |
-          {% set var = '[' %}
-          {% for x in groups['controlnodes'] %}
-            {% set var %} 
-              {{ var + 'https://' + hostvars[x].ansible_host + ':5001' + ',' }}
-            {% endset %}
-          {% endfor %}
-          {% set var = var + ']' %}
-          {{ var }}
+          {{ hostvars[groups['controlnodes']].ansible_host }}
+          # {% set var = '[' %}
+          # {% for x in groups['controlnodes'] %}
+          #   {% set var %} 
+          #     {{ var + 'https://' + hostvars[x].ansible_host + ':5001' + ',' }}
+          #   {% endset %}
+          # {% endfor %}
+          # {% set var = var + ']' %}
+          # {{ var }}
 
 - name: Ping Hosts
   hosts: all
