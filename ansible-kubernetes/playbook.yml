@@ -251,6 +251,7 @@
     - name: Deploy | Install RKE2
       vars:
         rke2_ha_mode: true
+        rke2_interface: ens18
         rke2_api_ip: 10.0.1.5
         rke2_ha_mode_keepalived: true
         rke2_bind_address: "{{ ansible_host }}"
