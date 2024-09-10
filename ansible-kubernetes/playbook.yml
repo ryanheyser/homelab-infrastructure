@@ -294,7 +294,11 @@
           endpoint: 
             "{{ groups['controlnodes'] | list | to_yaml(indent=12) }}"
         - name: index.docker.io
+          endpoint: 
+            "{{ groups['controlnodes'] | list | to_yaml(indent=12) }}"
         - name: registry-1.docker.io
+          endpoint: 
+            "{{ groups['controlnodes'] | list | to_yaml(indent=12) }}"
         rke2_custom_registry_configs:
         - endpoint: docker.io
           config:
