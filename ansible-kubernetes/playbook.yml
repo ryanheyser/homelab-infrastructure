@@ -20,7 +20,7 @@
           {% for x in groups['controlnodes'] %}
             {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
           {% endfor %}
-          {{ var }}
+          {{ var | to_yaml(indent=12)}}
 
 - name: Ping Hosts
   hosts: all
