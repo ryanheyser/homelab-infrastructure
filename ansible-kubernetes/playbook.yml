@@ -567,7 +567,7 @@
             name: default
           spec:
             serviceCIDRs:
-              - 10.255.0.0/16
+              - 10.254.0.0/16
             controlPlaneTolerations: 
               - key: "node-role.kubernetes.io/control-plan"
                 operator: "Exists"
@@ -582,7 +582,7 @@
               containerIPForwarding: "Enabled"
               ipPools:
               - name: default
-                cidr: 10.254.0.0/16
+                cidr: 10.255.0.0/16
     - name: Create APIServer for Tigera Operator
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
