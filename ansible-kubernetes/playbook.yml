@@ -17,11 +17,11 @@
       ansible.builtin.debug:
         msg: |
           {% set var = '[' %}
-          {% for x in groups['controlnodes'] -%}
-            {% set var= (var) + 'https://' + (({{ hostvars[x].ansible_host }})) + ':5001') + (',') %}
+          {% for x in groups['controlnodes'] %}
+            {% set var = var + 'https://' + ({{ hostvars[x].ansible_host }}) + ':5001') + (',') %}
           {% endfor %}
-          {% set var=(var) + ']'%}
-          {{ var | list | to_yaml }}
+          {% set var=(var) + ']' %}
+          {{ var }}
 
 - name: Ping Hosts
   hosts: all
