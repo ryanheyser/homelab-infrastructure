@@ -296,7 +296,7 @@
         rke2_servers_group_name: controlnodes
         rke2_agents_group_name: workernodes
         rke2_download_kubeconf_path: "{{ playbook_dir }}"
-        rke2_cis_profile: "cis-1.23"
+        rke2_cis_profile: "cis"
         # rke2_custom_registry_mirrors:
         # - name: docker.io
         #   endpoint: "{{ registry_hosts }}"
