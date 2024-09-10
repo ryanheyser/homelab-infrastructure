@@ -579,7 +579,7 @@
               nodeAddressAutodetectionV4:
                 cidrs:
                 - 10.0.0.0/18
-              containerIPForwarrding: "Enabled"
+              containerIPForwarding: "Enabled"
               ipPools:
               - name: default
                 cidr: 10.254.0.0/16
