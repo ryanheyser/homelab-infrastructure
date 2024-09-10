@@ -13,6 +13,9 @@
       ansible.builtin.include_vars:
         file: "{{ vars_file.stat.path }}"
       when: vars_file.stat.exists
+    - name: Test
+      ansible.builtin.debug:
+        msg: "{{ (('https://' + (hostvars[x].ansible_host|default(x)) + ':5001') for x in groups['controlnodes']) | join(',') | list }}"
 
 - name: Ping Hosts
   hosts: all
