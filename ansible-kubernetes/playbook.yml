@@ -18,7 +18,7 @@
         msg: |
           {% set var = '[' %}
           {% for x in groups['controlnodes'] %}
-            {% set var = var + 'https://' + ({{ hostvars[x].ansible_host }}) + ':5001') + (',') %}
+            {% set var = var + 'https://' + ( hostvars[x].ansible_host ) + ':5001') + (',') %}
           {% endfor %}
           {% set var=(var) + ']' %}
           {{ var }}
