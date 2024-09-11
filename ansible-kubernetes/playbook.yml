@@ -278,6 +278,7 @@
         rke2_bind_address: "{{ ansible_host }}"
         rke2_api_cidr: 18
         rke2_additional_sans:
+        - 10.0.1.5
         - kubernetes.homelab.heyser.xyz
         - kubernetes.homelab.heyser.lan
         rke2_cluster_domain: homelab.heyser.xyz
@@ -327,6 +328,8 @@
         - rke2-ingress-nginx
         rke2_server_options:
         - "bind-address: {{ ansible_host }}"
+        - "cloud-provider-name: external"
+        - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
         # - "node-external-ip: 10.0.1.5"
         - "write-kubeconfig-mode: 0644"
