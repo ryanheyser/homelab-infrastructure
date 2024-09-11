@@ -273,9 +273,10 @@
         rke2_version:  v1.30.4+rke2r1
         rke2_ha_mode: true
         rke2_interface: ens18
-        rke2_api_ip: 10.0.1.5
+        rke2_api_ip: "10.0.1.5"
         rke2_ha_mode_keepalived: true
-        rke2_bind_address: "{{ ansible_host }}"
+        # rke2_bind_address: "{{ ansible_host }}"
+        rke2_bind_address: "10.0.1.5"
         rke2_api_cidr: 18
         rke2_additional_sans:
         - 10.0.1.5
@@ -327,11 +328,12 @@
         - rke2-coredns
         - rke2-ingress-nginx
         rke2_server_options:
-        - "bind-address: {{ ansible_host }}"
-        - "cloud-provider-name: external"
-        - "disable-cloud-controller: true"
+        # - "bind-address: {{ ansible_host }}"
+        - "bind-address: 10.0.1.5"
+        # - "cloud-provider-name: none"
+        # - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
-        - "node-external-ip: 10.0.1.5"
+        # - "node-external-ip: 10.0.1.5"
         - "write-kubeconfig-mode: 0644"
         # - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000 --heartbeat-interval 5000"
