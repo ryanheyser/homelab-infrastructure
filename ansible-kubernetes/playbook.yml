@@ -496,7 +496,7 @@
       kubernetes.core.k8s_taint:
         kubeconfig: "{{ home }}/.kube/config"
         state: present
-        name: {{ item }}
+        name: "{{ item }}"
         taints:
         - effect: NoSchedule
           key: node-role.kubernetes.io/control-plane
@@ -507,7 +507,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         kind: Noded
         state: patched
-        name: {{ item }}
+        name: "{{ item }}"
         definition:
           metadata:
             labels:
@@ -521,7 +521,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         kind: Noded
         state: patched
-        name: {{ item }}
+        name: "{{ item }}"
         definition:
           metadata:
             labels:
