@@ -94,6 +94,17 @@
     #   # when: >-
     #   # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     #   register: installk3s
+    - name: Check for rke2-killall.sh
+      ansible.builtin.stat:
+        path: "/usr/local/bin/rke2-killall.sh"
+      register: rke2killall
+    - name: Cleanup | Run RKE2 Killall
+      ansible.builtin.command: rke2-killall.sh
+      when: rke2killall.stat.exists
+    - name: Cleanup | Reset Cluster Remove Server From Config
+      ansible.builtin.command: sudo sed -i '/server:/d' /etc/rancher/rke2/config.yaml
+    - name: Cleanup | Reset Cluster
+      ansible.builtin.command: sudo rke2 server --cluster-reset
     - name: Check for rke2-uninstall.sh
       ansible.builtin.stat:
         path: "/usr/local/bin/rke2-uninstall.sh"
