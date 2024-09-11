@@ -328,7 +328,7 @@
         rke2_server_options:
         # - "bind-address: {{ ansible_host }}"
         - "node-ip: {{ ansible_host }}"
-        - "node-external-ip: 10.0.1.5"
+        # - "node-external-ip: 10.0.1.5"
         - "write-kubeconfig-mode: 0644"
         # - "embedded-registry: true"
         - "etcd-arg: --election-timeout 10000 --heartbeat-interval 5000"
