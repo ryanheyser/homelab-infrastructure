@@ -105,6 +105,7 @@
       vars:
         ansible_user: ansible
       delegate_to: "{{ item }}"
+      become: true
       ansible.builtin.file:
         path: "/var/lib/rancher/rke2/server/db/reset-flag"
         state: absent
