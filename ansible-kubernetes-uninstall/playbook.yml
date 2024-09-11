@@ -101,6 +101,14 @@
     - name: Cleanup | Run RKE2 Killall
       ansible.builtin.command: rke2-killall.sh
       when: rke2killall.stat.exists
+    - name: Cleanup | Remove reset-flag if exists
+      vars:
+        ansible_user: ansible
+      delegate_to: "{{ item }}"
+      ansible.builtin.file:
+        path: "/var/lib/rancher/rke2/server/db/reset-flag"
+        state: absent
+      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Cleanup | Reset Cluster Remove Server From Config
       vars:
         ansible_user: ansible
