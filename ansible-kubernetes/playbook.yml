@@ -664,7 +664,7 @@
 #       until: calicokubecontrollersstatus.resources[0].status.readyReplicas | int > 0
 #       retries: 20
 #       delay: 15
-      - name: Create calico-apiserver namespace
+    - name: Create calico-apiserver namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
