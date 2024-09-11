@@ -102,10 +102,14 @@
       ansible.builtin.command: rke2-killall.sh
       when: rke2killall.stat.exists
     - name: Cleanup | Reset Cluster Remove Server From Config
+      vars:
+        ansible_user: ansible
       delegate_to: "{{ item }}"
       ansible.builtin.command: sudo sed -i '/server:/d' /etc/rancher/rke2/config.yaml
       loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Cleanup | Reset Cluster
+      vars:
+        ansible_user: ansible
       delegate_to: "{{ item }}"
       ansible.builtin.command: sudo rke2 server --cluster-reset
       loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
