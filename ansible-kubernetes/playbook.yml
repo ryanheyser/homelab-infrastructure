@@ -505,7 +505,7 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
-        kind: Noded
+        kind: Node
         state: patched
         name: "{{ item }}"
         definition:
@@ -519,7 +519,7 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
-        kind: Noded
+        kind: Node
         state: patched
         name: "{{ item }}"
         definition:
