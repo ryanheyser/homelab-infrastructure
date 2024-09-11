@@ -102,29 +102,17 @@
       ansible.builtin.command: rke2-killall.sh
       when: rke2killall.stat.exists
     - name: Cleanup | Remove reset-flag if exists
-      hosts: "{{ item }}"
-      vars:
-        ansible_user: ansible
-      delegate_to: "localhost"
       become: true
       ansible.builtin.file:
         path: "/var/lib/rancher/rke2/server/db/reset-flag"
         state: absent
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      when: inventory_hostname in groups["controlnodes"]
     - name: Cleanup | Reset Cluster Remove Server From Config
-      hosts: "{{ item }}"
-      vars:
-        ansible_user: ansible
-      delegate_to: "localhost"
       ansible.builtin.command: sudo sed -i '/server:/d' /etc/rancher/rke2/config.yaml
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      when: inventory_hostname in groups["controlnodes"]
     - name: Cleanup | Reset Cluster
-      hosts: "{{ item }}"
-      vars:
-        ansible_user: ansible
-      delegate_to: "localhost"
       ansible.builtin.command: sudo rke2 server --cluster-reset
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      when: inventory_hostname in groups["controlnodes"]
     - name: Check for rke2-uninstall.sh
       ansible.builtin.stat:
         path: "/usr/local/bin/rke2-uninstall.sh"
