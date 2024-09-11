@@ -114,12 +114,12 @@
     - name: Cleanup | Reset Cluster Remove Server From Config
       ansible.builtin.command: sudo sed -i '/server:/d' /etc/rancher/rke2/config.yaml
       when: |
-        inventory_hostname in groups["controlnodes"] and \
+        inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
     - name: Cleanup | Reset Cluster Remove node-external-ip
       ansible.builtin.command: sudo sed -i '/node-external-ip:/d' /etc/rancher/rke2/config.yaml
       when: |
-        inventory_hostname in groups["controlnodes"] and \
+        inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
