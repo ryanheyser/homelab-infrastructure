@@ -94,8 +94,13 @@
     #   # when: >-
     #   # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     #   register: installk3s
+    - name: Check for rke2-uninstall.sh
+      ansible.builtin.stat:
+        path: "/usr/local/bin/rke2-uninstall.sh"
+      register: rke2uninstall
     - name: Cleanup | Run RKE2 Uninstall
       ansible.builtin.command: rke2-uninstall.sh
+      when: rke2uninstall.stat.exists
     - name: Cleanup | Remove multus-shim if exists
       ansible.builtin.file:
         path: "/opt/cni/bin/multus-shim"
