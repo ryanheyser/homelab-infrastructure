@@ -511,9 +511,9 @@
         definition:
           metadata:
             labels:
-              node-role.kubernetes.io/control-plane: true
-              topology.kubernetes.io/region: us-east-1
-              topology.kubernetes.io/zone: us-east-1a
+              node-role.kubernetes.io/control-plane: "true"
+              topology.kubernetes.io/region: "us-east-1"
+              topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Add labels to worker nodes
       delegate_to: localhost
@@ -525,8 +525,8 @@
         definition:
           metadata:
             labels:
-              topology.kubernetes.io/region: us-east-1
-              topology.kubernetes.io/zone: us-east-1a
+              topology.kubernetes.io/region: "us-east-1"
+              topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     # - name: Patch nodes to add route-reflector
     #   delegate_to: localhost
