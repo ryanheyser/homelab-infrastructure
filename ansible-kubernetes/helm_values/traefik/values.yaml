@@ -5,7 +5,7 @@ deployment:
   replicas: null
 logs:
   general:
-    level: INFO
+    level: DEBUG
     format: json
   access:
     enabled: true
