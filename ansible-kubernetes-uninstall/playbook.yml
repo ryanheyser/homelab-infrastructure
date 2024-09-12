@@ -127,7 +127,7 @@
         path: "/var/lib/rancher/rke2/server/token"
       register: rke2servertoken
       when: inventory_hostname in groups["controlnodes"]
-    - name: Cleanup | Remove reset-flag if exists
+    - name: Cleanup | Remove rke2 server token if exists
       become: true
       ansible.builtin.file:
         path: "/var/lib/rancher/rke2/server/token"
