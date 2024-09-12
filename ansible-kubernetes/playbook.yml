@@ -331,7 +331,7 @@
         # - "bind-address: {{ ansible_host }}"
         # - "bind-address: 10.0.1.5"
         # - "cloud-provider-name: none"
-        - "kubelet-arg: --cluster-dns 10.254.0.10"
+        # - "kubelet-arg: --cluster-dns 10.254.0.10"
         - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
         # - "node-external-ip: 10.0.1.5"
