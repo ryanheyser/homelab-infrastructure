@@ -853,7 +853,6 @@
               pod-security.kubernetes.io/enforce: privileged
               pod-security.kubernetes.io/audit: privileged
               pod-security.kubernetes.io/warn: privileged
-    
 
 # Coredns
 - name: Coredns Pre-steps
@@ -936,6 +935,23 @@
             - name: loop
             - name: reload
             - name: loadbalance
+    - name: Wait for apply coredns manifest to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: network-system
+        label_selectors:
+          - k8s-app = coredns
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: corednsstatus
+      until: corednsstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
 
 # Metallb
 - name: Metallb Pre-steps
