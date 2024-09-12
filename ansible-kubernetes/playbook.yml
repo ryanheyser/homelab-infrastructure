@@ -434,6 +434,7 @@
         path: "{{ playbook_dir }}/rke2.yaml"
       register: rke2_yaml
     - name: Update server config
+      delegate_to: localhost
       ansible.builtin.command: |
         kubectl config set-cluster default --server=https://10.0.1.5:6443
       environment:
