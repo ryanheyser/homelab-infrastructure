@@ -892,6 +892,9 @@
         reset_values: false
         reuse_values: true
         values:
+          tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
           service:
             clusterIP: 10.254.0.10
           serviceAccount:
