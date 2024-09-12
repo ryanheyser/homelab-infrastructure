@@ -121,6 +121,20 @@
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
+    - name: Check for rke2 server token
+      become: true
+      ansible.builtin.stat:
+        path: "/var/lib/rancher/rke2/server/token"
+      register: rke2servertoken
+      when: inventory_hostname in groups["controlnodes"]
+    - name: Cleanup | Remove reset-flag if exists
+      become: true
+      ansible.builtin.file:
+        path: "/var/lib/rancher/rke2/server/token"
+        state: absent
+      when: |
+        inventory_hostname in groups["controlnodes"] and
+        rke2servertoken.stat.exists
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
       when: inventory_hostname in groups["controlnodes"]
