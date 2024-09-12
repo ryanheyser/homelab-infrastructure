@@ -1,3 +1,6 @@
+globalArguments:
+- "--global.checknewversion"
+- "--global.sendanonymoususage=false"
 deployment:
   replicas: null
 logs:
