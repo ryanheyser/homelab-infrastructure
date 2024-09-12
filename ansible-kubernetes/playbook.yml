@@ -939,7 +939,7 @@
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Deployment
-        namespace: network-system
+        namespace: kube-system
         label_selectors:
           - k8s-app = coredns
         wait: true
