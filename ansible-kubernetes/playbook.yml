@@ -861,12 +861,12 @@
         kubeconfig: "{{ home }}/.kube/config"
         state: patched
         name: default
+        api_version: operator.tigera.io/v1
+        kind: Installation
         # apply: true
         # server_side_apply: 
         #   field_manager: ansible
         definition:
-          kind: Installation
-          apiVersion: operator.tigera.io/v1
           metadata:
             name: default
           spec:
