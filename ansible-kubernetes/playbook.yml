@@ -329,7 +329,7 @@
         - rke2-ingress-nginx
         rke2_server_options:
         # - "bind-address: {{ ansible_host }}"
-        - "bind-address: 10.0.1.5"
+        # - "bind-address: 10.0.1.5"
         # - "cloud-provider-name: none"
         # - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
@@ -428,6 +428,22 @@
         flat: true
           # when: >-
           #installrke2 is defined
+    - name: Check if rke2.yaml File Exists
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/rke2.yaml"
+      register: rke2_yaml
+    - name: Update server config
+      ansible.builtin.command: |
+        kubectl config set-cluster default --server=https://10.0.1.5:6443
+      environment:
+        KUBECONFIG: "{{ rke2_yaml.stat.path }}"
+      become: true
+      register: kubectl_precheck_out
+      changed_when: true
+      when: rke2_yaml.stat.exists
+      failed_when:
+        - kubectl_precheck_out.rc != 0
 - name: Post rke2 install p2
   hosts: localhost
   gather_facts: false
