@@ -894,6 +894,8 @@
         values:
           service:
             clusterIP: 10.254.0.10
+          serviceAccount:
+            create: true
           autoscaler:
             enabled: true
             min: 2
