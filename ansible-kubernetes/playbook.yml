@@ -904,7 +904,8 @@
             min: 2
             max: 5
             tolerations:
-            - node-role.kubernetes.io/control-plane:NoSchedule
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
           servers:
           - zones:
             - zone: .
