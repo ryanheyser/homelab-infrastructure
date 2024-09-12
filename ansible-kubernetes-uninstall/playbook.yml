@@ -124,6 +124,12 @@
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
       when: inventory_hostname in groups["controlnodes"]
+    - name: Cleanup | Unmask Agent Service
+      ansible.builtin.command: sudo systemctl unmask rke2-agent.service
+      when: inventory_hostname in groups["controlnodes"]
+    - name: Cleanup | Unmask Server Service
+      ansible.builtin.command: sudo systemctl unmask rke2-server.service
+      when: inventory_hostname in groups["workernodes"]
     - name: Check for rke2-uninstall.sh
       ansible.builtin.stat:
         path: "/usr/local/bin/rke2-uninstall.sh"
