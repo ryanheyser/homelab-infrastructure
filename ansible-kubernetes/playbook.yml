@@ -949,8 +949,6 @@
         # server_side_apply: 
         #   field_manager: ansible
         definition:
-          metadata:
-            name: default
           spec:
             serviceCIDRs:
               - 10.254.0.0/16
@@ -961,6 +959,7 @@
               nodeAddressAutodetectionV4:
                 cidrs:
                 - 10.0.0.0/18
+                firstFound: false
               containerIPForwarding: "Enabled"
 
 # # Coredns
