@@ -974,6 +974,7 @@
               bgp: "Enabled"
               # mtu: 9000
               nodeAddressAutodetectionV4:
+                kubernetes: NodeInternalIP
                 cidrs:
                 - 10.0.0.0/18
                 firstFound: false
@@ -1226,17 +1227,42 @@
         kubeconfig: "{{ home }}/.kube/config"
         name: traefik
         repo_url: https://helm.traefik.io/traefik
-    - name: Create network-system namespace
+    - name: Create network-system network policy
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
-        name: network-system
-        api_version: v1
-        kind: Namespace
+        name: traefik-network-policy
+        namespace: network-system
+        api_version: networking.k8s.io/v1
+        kind: NetworkPolicy
         state: present
         definition:
-          annotations:
-            # cni.projectcalico.org/ipv4pools: '["system"]'
+          metadata:
+            annotations:
+              np.rke2.io/dns: resolved
+          spec:
+            podSelector:
+              matchLabels:
+                app.kubernetes.io/instance: traefik-network-system
+            egress:
+            - ports:
+              - port: 80
+                protocol: TCP
+              - port: 443
+                protocol: TCP
+              - port: 53
+                protocol: TCP
+              - port: 53
+                protocol: TCP
+            ingress:
+            - ports:
+              - port: 80
+                protocol: TCP
+              - port: 443
+                protocol: TCP
+            policyTypes:
+            - Ingress
+            - Egress
     - name: Create Traefik IP Reservation
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
