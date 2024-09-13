@@ -343,13 +343,13 @@
         rke2_disable_cloud_controller: true
         rke2_disable:
         - rke2-canal
-        - rke2-coredns
+        # - rke2-coredns
         - rke2-ingress-nginx
         rke2_server_options:
         # - "bind-address: {{ ansible_host }}"
         # - "bind-address: 10.0.1.5"
         # - "cloud-provider-name: none"
-        - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+        # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
         - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
         # - "node-external-ip: 10.0.1.5"
@@ -357,8 +357,8 @@
         # - "embedded-registry: true"
         - "etcd-arg: [ '--election-timeout 10000', '--heartbeat-interval 5000' ]"
         # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
-        rke2_agent_options:
-        - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+        # rke2_agent_options:
+        # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
         # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
         # k3s_become: true
         # k3s_state: installed
@@ -580,6 +580,9 @@
               topology.kubernetes.io/region: "us-east-1"
               topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+    - name: Exit Early
+      ansible.builtin.fail:
+        msg: Failing to diagnose
     # - name: Patch nodes to add route-reflector
     #   delegate_to: localhost
     #   kubernetes.core.k8s:
