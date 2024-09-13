@@ -450,11 +450,13 @@
           #installrke2 is defined
     - name: Check if rke2.yaml File Exists
       delegate_to: localhost
+      run_once: true
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/rke2.yaml"
       register: rke2_yaml
     - name: Update server config
       delegate_to: localhost
+      run_once: true
       ansible.builtin.command: |
         kubectl config set-cluster default --server=https://10.0.1.5:6443
       environment:
@@ -518,11 +520,13 @@
   tasks:
     - name: Check for kubeconfig
       delegate_to: localhost
+      run_once: true
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
     - name: Wait for all nodes
       delegate_to: localhost
+      run_once: true
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Node
@@ -534,6 +538,7 @@
         wait_sleep: 5
         wait_timeout: 300
     - name: Add taint to controlplane nodes
+      run_once: true
       delegate_to: localhost
       kubernetes.core.k8s_taint:
         kubeconfig: "{{ home }}/.kube/config"
@@ -544,6 +549,7 @@
           key: node-role.kubernetes.io/control-plane
       loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
+      run_once: true
       delegate_to: localhost
       kubernetes.core.k8s_taint:
         kubeconfig: "{{ home }}/.kube/config"
@@ -554,6 +560,7 @@
           key: node.cloudprovider.kubernetes.io/uninitialized
       loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Add labels to controlplane nodes
+      run_once: true
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -568,6 +575,7 @@
               topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Add labels to worker nodes
+      run_once: true
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -581,6 +589,7 @@
               topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
     - name: Configure Coredns
+      run_once: true
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -980,6 +989,7 @@
         path: "{{ home }}/.kube/config"
       register: kubeconfig
     - name: Create coredns network policy
+      run_once: true
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -1005,6 +1015,7 @@
             policyTypes:
             - Ingress
     - name: Deploy Coredns chart
+      run_once: true
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
         kubeconfig: "{{ home }}/.kube/config"
