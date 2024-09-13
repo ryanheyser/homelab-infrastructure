@@ -641,9 +641,9 @@
                 - name: loop
                 - name: reload
                 - name: loadbalance
-    - name: Exit Early
-      ansible.builtin.fail:
-        msg: Failing to diagnose
+    # - name: Exit Early
+    #   ansible.builtin.fail:
+    #     msg: Failing to diagnose
     # - name: Patch nodes to add route-reflector
     #   delegate_to: localhost
     #   kubernetes.core.k8s:
@@ -963,131 +963,131 @@
                 - 10.0.0.0/18
               containerIPForwarding: "Enabled"
 
-# Coredns
-- name: Coredns Pre-steps
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    - name: Add coredns repository
-      when: kubeconfig.stat.exists
-      kubernetes.core.helm_repository:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: coredns
-        repo_url: https://coredns.github.io/helm
-- name: Coredns Install
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    - name: Create coredns network policy
-      run_once: true
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: coredns-network-dns-policy
-        namespace: kube-system
-        api_version: networking.k8s.io/v1
-        kind: NetworkPolicy
-        state: present
-        definition:
-          metadata:
-            annotations:
-              np.rke2.io/dns: resolved
-          spec:
-            ingress:
-            - ports:
-              - port: 53
-                protocol: TCP
-              - port: 53
-                protocol: UDP
-            podSelector:
-              matchLabels:
-                k8s-app: coredns
-            policyTypes:
-            - Ingress
-    - name: Deploy Coredns chart
-      run_once: true
-      when: kubeconfig.stat.exists
-      kubernetes.core.helm:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: coredns
-        release_namespace: kube-system
-        # renovate: registryUrl=https://coredns.github.io/helm
-        chart_ref: coredns/coredns
-        chart_version: 1.32.0
-        reset_values: false
-        reuse_values: true
-        values:
-          tolerations:
-          - key: node-role.kubernetes.io/control-plane
-            effect: NoSchedule
-          service:
-            clusterIP: 10.254.0.10
-          serviceAccount:
-            create: true
-          autoscaler:
-            enabled: true
-            min: 2
-            max: 5
-            tolerations:
-            - key: node-role.kubernetes.io/control-plane
-              effect: NoSchedule
-          servers:
-          - zones:
-            - zone: .
-            port: 53
-            plugins:
-            - name: errors
-            # Serves a /health endpoint on :8080, required for livenessProbe
-            - name: health
-              configBlock: |-
-                lameduck 5s
-            # Serves a /ready endpoint on :8181, required for readinessProbe
-            - name: ready
-            # Required to query kubernetes API for data
-            - name: kubernetes
-              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-              configBlock: |-
-                pods insecure
-                fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-                ttl 30
-            - name: forward
-              parameters: . 10.0.100.3 10.0.0.1
-              configBlock: |-
-                force_tcp
-                except "cluster.local" "svc.cluster.local" ".svc"
-                policy sequential
-            - name: cache
-              parameters: 30
-            - name: loop
-            - name: reload
-            - name: loadbalance
-    - name: Wait for apply coredns manifest to complete
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ home }}/.kube/config"
-        kind: Deployment
-        namespace: kube-system
-        label_selectors:
-          - k8s-app = coredns
-        wait: true
-        wait_condition:
-          type: "Available"
-          status: "True"
-        wait_sleep: 30
-        wait_timeout: 600
-      register: corednsstatus
-      until: corednsstatus.resources[0].status.readyReplicas | int > 0
-      retries: 20
-      delay: 15
+# # Coredns
+# - name: Coredns Pre-steps
+#   hosts: localhost
+#   vars:
+#     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+#   tasks:
+#     - name: Check for kubeconfig
+#       ansible.builtin.stat:
+#         path: "{{ home }}/.kube/config"
+#       register: kubeconfig
+#     - name: Add coredns repository
+#       when: kubeconfig.stat.exists
+#       kubernetes.core.helm_repository:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: coredns
+#         repo_url: https://coredns.github.io/helm
+# - name: Coredns Install
+#   hosts: localhost
+#   vars:
+#     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+#   tasks:
+#     - name: Check for kubeconfig
+#       ansible.builtin.stat:
+#         path: "{{ home }}/.kube/config"
+#       register: kubeconfig
+#     - name: Create coredns network policy
+#       run_once: true
+#       when: kubeconfig.stat.exists
+#       kubernetes.core.k8s:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: coredns-network-dns-policy
+#         namespace: kube-system
+#         api_version: networking.k8s.io/v1
+#         kind: NetworkPolicy
+#         state: present
+#         definition:
+#           metadata:
+#             annotations:
+#               np.rke2.io/dns: resolved
+#           spec:
+#             ingress:
+#             - ports:
+#               - port: 53
+#                 protocol: TCP
+#               - port: 53
+#                 protocol: UDP
+#             podSelector:
+#               matchLabels:
+#                 k8s-app: coredns
+#             policyTypes:
+#             - Ingress
+#     - name: Deploy Coredns chart
+#       run_once: true
+#       when: kubeconfig.stat.exists
+#       kubernetes.core.helm:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         name: coredns
+#         release_namespace: kube-system
+#         # renovate: registryUrl=https://coredns.github.io/helm
+#         chart_ref: coredns/coredns
+#         chart_version: 1.32.0
+#         reset_values: false
+#         reuse_values: true
+#         values:
+#           tolerations:
+#           - key: node-role.kubernetes.io/control-plane
+#             effect: NoSchedule
+#           service:
+#             clusterIP: 10.254.0.10
+#           serviceAccount:
+#             create: true
+#           autoscaler:
+#             enabled: true
+#             min: 2
+#             max: 5
+#             tolerations:
+#             - key: node-role.kubernetes.io/control-plane
+#               effect: NoSchedule
+#           servers:
+#           - zones:
+#             - zone: .
+#             port: 53
+#             plugins:
+#             - name: errors
+#             # Serves a /health endpoint on :8080, required for livenessProbe
+#             - name: health
+#               configBlock: |-
+#                 lameduck 5s
+#             # Serves a /ready endpoint on :8181, required for readinessProbe
+#             - name: ready
+#             # Required to query kubernetes API for data
+#             - name: kubernetes
+#               parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+#               configBlock: |-
+#                 pods insecure
+#                 fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+#                 ttl 30
+#             - name: forward
+#               parameters: . 10.0.100.3 10.0.0.1
+#               configBlock: |-
+#                 force_tcp
+#                 except "cluster.local" "svc.cluster.local" ".svc"
+#                 policy sequential
+#             - name: cache
+#               parameters: 30
+#             - name: loop
+#             - name: reload
+#             - name: loadbalance
+#     - name: Wait for apply coredns manifest to complete
+#       kubernetes.core.k8s_info:
+#         kubeconfig: "{{ home }}/.kube/config"
+#         kind: Deployment
+#         namespace: kube-system
+#         label_selectors:
+#           - k8s-app = coredns
+#         wait: true
+#         wait_condition:
+#           type: "Available"
+#           status: "True"
+#         wait_sleep: 30
+#         wait_timeout: 600
+#       register: corednsstatus
+#       until: corednsstatus.resources[0].status.readyReplicas | int > 0
+#       retries: 20
+#       delay: 15
 
 # Metallb
 - name: Metallb Pre-steps
