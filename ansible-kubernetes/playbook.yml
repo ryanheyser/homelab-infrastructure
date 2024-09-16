@@ -304,10 +304,10 @@
         rke2_download_kubeconf: true
         # rke2_server_node_taints:
         # - "node-role.kubernetes.io/control-plane:NoSchedule"
-        rke2_cni: 'none'
-        # rke2_cni:
-        # - multus
-        # - calico
+        # rke2_cni: 'none'
+        rke2_cni:
+        - multus
+        - calico
         rke2_cluster_cidr:
         - 10.255.0.0/16
         rke2_service_cidr:
@@ -344,7 +344,6 @@
         rke2_disable_cloud_controller: true
         rke2_disable:
         - rke2-canal
-        - rke2-coredns
         - rke2-ingress-nginx
         rke2_server_options:
         # - "bind-address: {{ ansible_host }}"
@@ -665,16 +664,16 @@
               pod-security.kubernetes.io/enforce: privileged
               pod-security.kubernetes.io/audit: privileged
               pod-security.kubernetes.io/warn: privileged
-    - name: Configure RKE2-Multus
-      run_once: true
-      delegate_to: localhost
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        api_version: helm.cattle.io/v1
-        kind: HelmChartConfig
-        name: rke2-multus
-        namespace: kube-system
-        state: present
+    # - name: Configure RKE2-Multus
+    #   run_once: true
+    #   delegate_to: localhost
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     api_version: helm.cattle.io/v1
+    #     kind: HelmChartConfig
+    #     name: rke2-multus
+    #     namespace: kube-system
+    #     state: present
     - name: Configure RKE2-Calico
       run_once: true
       delegate_to: localhost
