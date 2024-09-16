@@ -703,9 +703,6 @@
         name: rke2-multus
         namespace: kube-system
         state: present
-        definition:
-          spec:
-            valuesContent: ""
     # - name: Patch Installation Configuration for Tigera Operator
     #   when: kubeconfig.stat.exists
     #   kubernetes.core.k8s:
