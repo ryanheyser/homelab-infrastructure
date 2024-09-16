@@ -525,19 +525,19 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
-    - name: Wait for all nodes
-      delegate_to: localhost
-      run_once: true
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ home }}/.kube/config"
-        kind: Node
-        name: "{{ ansible_host }}"
-        wait: true
-        wait_condition:
-          type: "Ready"
-          status: "True"
-        wait_sleep: 5
-        wait_timeout: 300
+    # - name: Wait for all nodes
+    #   delegate_to: localhost
+    #   run_once: true
+    #   kubernetes.core.k8s_info:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     kind: Node
+    #     name: "{{ ansible_host }}"
+    #     wait: true
+    #     wait_condition:
+    #       type: "Ready"
+    #       status: "True"
+    #     wait_sleep: 5
+    #     wait_timeout: 300
     - name: Add taint to controlplane nodes
       run_once: true
       delegate_to: localhost
