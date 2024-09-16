@@ -304,8 +304,8 @@
         rke2_download_kubeconf: true
         # rke2_server_node_taints:
         # - "node-role.kubernetes.io/control-plane:NoSchedule"
-        rke2_cni:
-        - multus
+        # rke2_cni:
+        # - multus
         # - calico
         rke2_cluster_cidr:
         - 10.255.0.0/16
