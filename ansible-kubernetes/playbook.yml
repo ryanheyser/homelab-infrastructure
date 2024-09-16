@@ -588,58 +588,6 @@
               topology.kubernetes.io/region: "us-east-1"
               topology.kubernetes.io/zone: "us-east-1a"
       loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
-    - name: Configure Coredns
-      run_once: true
-      delegate_to: localhost
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        api_version: helm.cattle.io/v1
-        kind: HelmChartConfig
-        name: rke2-coredns
-        namespace: kube-system
-        state: present
-        definition:
-          spec:
-            valuesContent: |-
-              # nodelocal:
-              #   enabled: true
-              service:
-                clusterIP: 10.254.0.10
-              autoscaler:
-                enabled: true
-                min: 2
-                max: 5
-              servers:
-              - zones:
-                - zone: .
-                port: 53
-                plugins:
-                - name: errors
-                # Serves a /health endpoint on :8080, required for livenessProbe
-                - name: health
-                  configBlock: |-
-                    lameduck 5s
-                # Serves a /ready endpoint on :8181, required for readinessProbe
-                - name: ready
-                # Required to query kubernetes API for data
-                - name: kubernetes
-                  parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-                  configBlock: |-
-                    pods insecure
-                    fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
-                    ttl 30
-                - name: prometheus
-                  parameters: 0.0.0.0:9153
-                - name: forward
-                  parameters: . 10.0.100.3 10.0.0.1
-                  configBlock: |-
-                    except "cluster.local" "svc.cluster.local" ".svc"
-                    policy sequential
-                - name: cache
-                  parameters: 30
-                - name: loop
-                - name: reload
-                - name: loadbalance
     # - name: Exit Early
     #   ansible.builtin.fail:
     #     msg: Failing to diagnose
@@ -654,70 +602,6 @@
     #       metadata:
     #         annotations:
     #           projectcalico.org/RouteReflectorClusterID: 244.0.0.1
-
-# Reflector
-- name: Reflector
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check for kubeconfig
-      ansible.builtin.stat:
-        path: "{{ home }}/.kube/config"
-      register: kubeconfig
-    - name: Download reflector manifest to the cluster.
-      ansible.builtin.get_url:
-        url: https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml
-        dest: "{{ playbook_dir }}/reflector.yaml"
-        mode: '0664'
-      register: reflector
-    - name: Apply reflector manifest to the cluster.
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        src: "{{ playbook_dir }}/reflector.yaml"
-      register: reflectorapply      
-    
-# Docker Registry Credentials
-- name: Create docker hub registry credential
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  tasks:
-    - name: Check docker secrets encrypted file
-      ansible.builtin.stat:
-        path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
-      register: dockersecretsfile
-    - name: Unencrypt Docker Secrets
-      ansible.builtin.set_fact:
-          docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
-      when: dockersecretsfile.stat.exists
-      failed_when: not dockersecretsfile.stat.exists
-    - name: Format docker config
-      ansible.builtin.command: |
-        echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}"}}}'
-      register: dockercfg
-      changed_when: true
-      failed_when:
-        - dockercfg.rc != 0
-        - dockercfg.stdout == ""
-    - name: Create Secret
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: docker-registry-credentials
-            namespace: kube-system
-            annotations:
-              reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-              reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-          type: kubernetes.io/dockercfg
-          data:
-            .dockercfg: "{{ dockercfg.stdout | b64encode }}"
 
 # CNI
 - name: Configure CNI
@@ -978,6 +862,122 @@
                 - 10.0.0.0/18
                 firstFound: false
               containerIPForwarding: "Enabled"
+    - name: Configure Coredns
+      run_once: true
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        api_version: helm.cattle.io/v1
+        kind: HelmChartConfig
+        name: rke2-coredns
+        namespace: kube-system
+        state: present
+        definition:
+          spec:
+            valuesContent: |-
+              # nodelocal:
+              #   enabled: true
+              service:
+                clusterIP: 10.254.0.10
+              autoscaler:
+                enabled: true
+                min: 2
+                max: 5
+              servers:
+              - zones:
+                - zone: .
+                port: 53
+                plugins:
+                - name: errors
+                # Serves a /health endpoint on :8080, required for livenessProbe
+                - name: health
+                  configBlock: |-
+                    lameduck 5s
+                # Serves a /ready endpoint on :8181, required for readinessProbe
+                - name: ready
+                # Required to query kubernetes API for data
+                - name: kubernetes
+                  parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+                  configBlock: |-
+                    pods insecure
+                    fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+                    ttl 30
+                - name: prometheus
+                  parameters: 0.0.0.0:9153
+                - name: forward
+                  parameters: . 10.0.100.3 10.0.0.1
+                  configBlock: |-
+                    except "cluster.local" "svc.cluster.local" ".svc"
+                    policy sequential
+                - name: cache
+                  parameters: 30
+                - name: loop
+                - name: reload
+                - name: loadbalance
+
+# Reflector
+- name: Reflector
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Download reflector manifest to the cluster.
+      ansible.builtin.get_url:
+        url: https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml
+        dest: "{{ playbook_dir }}/reflector.yaml"
+        mode: '0664'
+      register: reflector
+    - name: Apply reflector manifest to the cluster.
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        src: "{{ playbook_dir }}/reflector.yaml"
+      register: reflectorapply      
+    
+# Docker Registry Credentials
+- name: Create docker hub registry credential
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Check docker secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
+      register: dockersecretsfile
+    - name: Unencrypt Docker Secrets
+      ansible.builtin.set_fact:
+          docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: dockersecretsfile.stat.exists
+      failed_when: not dockersecretsfile.stat.exists
+    - name: Format docker config
+      ansible.builtin.command: |
+        echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}"}}}'
+      register: dockercfg
+      changed_when: true
+      failed_when:
+        - dockercfg.rc != 0
+        - dockercfg.stdout == ""
+    - name: Create Secret
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: docker-registry-credentials
+            namespace: kube-system
+            annotations:
+              reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+              reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+          type: kubernetes.io/dockercfg
+          data:
+            .dockercfg: "{{ dockercfg.stdout | b64encode }}"
 
 # # Coredns
 # - name: Coredns Pre-steps
