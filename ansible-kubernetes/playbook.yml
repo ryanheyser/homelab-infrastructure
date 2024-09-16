@@ -609,6 +609,10 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Check for kubeconfig
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
     - name: Get Latest Calico Release
       ansible.builtin.uri:
         url: https://api.github.com/repos/projectcalico/calico/releases/latest
