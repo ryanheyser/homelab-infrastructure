@@ -426,7 +426,7 @@
         #     - "topology.kubernetes.io/zone=us-east-1a"
         #     - "route-reflector=true"
       ansible.builtin.import_role:
-        name: lablabs.rke2
+        name: "lablabs.rke2"
           #when: >-
           #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
       register: installrke2
