@@ -300,7 +300,7 @@
         rke2_additional_sans:
         - kubernetes.homelab.heyser.xyz
         - kubernetes.homelab.heyser.lan
-        rke2_cluster_domain: homelab.heyser.xyz
+        # rke2_cluster_domain: homelab.heyser.xyz
         rke2_download_kubeconf: true
         # rke2_server_node_taints:
         # - "node-role.kubernetes.io/control-plane:NoSchedule"
@@ -633,7 +633,6 @@
                 - name: forward
                   parameters: . 10.0.100.3 10.0.0.1
                   configBlock: |-
-                    force_tcp
                     except "cluster.local" "svc.cluster.local" ".svc"
                     policy sequential
                 - name: cache

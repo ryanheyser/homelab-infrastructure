@@ -158,7 +158,6 @@
     - name: Reload Services | systemctl daemon reload
       ansible.builtin.systemd_service:
         daemon_reload: true
-    
     # - name: Cleanup | Remove multus-shim if exists
     #   ansible.builtin.file:
     #     path: "/opt/cni/bin/multus-shim"
