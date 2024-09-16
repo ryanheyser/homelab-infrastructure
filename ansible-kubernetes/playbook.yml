@@ -613,6 +613,31 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
+    - name: Patch Installation Configuration for Tigera Operator
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: patched
+        name: default
+        api_version: operator.tigera.io/v1
+        kind: Installation
+        # apply: true
+        # server_side_apply: 
+        #   field_manager: ansible
+        definition:
+          spec:
+            serviceCIDRs:
+              - 10.254.0.0/16
+            calicoNetwork:
+              # linuxDataplane: "BPF"
+              bgp: "Enabled"
+              # mtu: 9000
+              nodeAddressAutodetectionV4:
+                kubernetes: NodeInternalIP
+                cidrs:
+                - 10.0.0.0/18
+                firstFound: false
+              containerIPForwarding: "Enabled"
     - name: Get Latest Calico Release
       ansible.builtin.uri:
         url: https://api.github.com/repos/projectcalico/calico/releases/latest
@@ -841,31 +866,6 @@
               pod-security.kubernetes.io/enforce: privileged
               pod-security.kubernetes.io/audit: privileged
               pod-security.kubernetes.io/warn: privileged
-    - name: Patch Installation Configuration for Tigera Operator
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: patched
-        name: default
-        api_version: operator.tigera.io/v1
-        kind: Installation
-        # apply: true
-        # server_side_apply: 
-        #   field_manager: ansible
-        definition:
-          spec:
-            serviceCIDRs:
-              - 10.254.0.0/16
-            calicoNetwork:
-              # linuxDataplane: "BPF"
-              bgp: "Enabled"
-              # mtu: 9000
-              nodeAddressAutodetectionV4:
-                kubernetes: NodeInternalIP
-                cidrs:
-                - 10.0.0.0/18
-                firstFound: false
-              containerIPForwarding: "Enabled"
     - name: Configure Coredns
       run_once: true
       delegate_to: localhost
