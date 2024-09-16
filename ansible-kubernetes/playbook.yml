@@ -306,7 +306,7 @@
         # - "node-role.kubernetes.io/control-plane:NoSchedule"
         rke2_cni:
         - multus
-        - calico
+        # - calico
         rke2_cluster_cidr:
         - 10.255.0.0/16
         rke2_service_cidr:
@@ -343,7 +343,7 @@
         rke2_disable_cloud_controller: true
         rke2_disable:
         - rke2-canal
-        # - rke2-coredns
+        - rke2-coredns
         - rke2-ingress-nginx
         rke2_server_options:
         # - "bind-address: {{ ansible_host }}"
@@ -613,6 +613,57 @@
       ansible.builtin.stat:
         path: "{{ home }}/.kube/config"
       register: kubeconfig
+    - name: Create calico-apiserver namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: calico-apiserver
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          metadata:
+            annotations:
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+              pod-security.kubernetes.io/audit: privileged
+              pod-security.kubernetes.io/warn: privileged
+    - name: Patch calico-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: calico-system
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          metadata:
+            annotations:
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+              pod-security.kubernetes.io/audit: privileged
+              pod-security.kubernetes.io/warn: privileged
+    - name: Create network-system namespace
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: network-system
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          metadata:
+            annotations:
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+              pod-security.kubernetes.io/audit: privileged
+              pod-security.kubernetes.io/warn: privileged
     - name: Configure RKE2-Calico
       run_once: true
       delegate_to: localhost
@@ -722,40 +773,6 @@
 #       until: calicokubecontrollersstatus.resources[0].status.readyReplicas | int > 0
 #       retries: 20
 #       delay: 15
-    - name: Create calico-apiserver namespace
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: calico-apiserver
-        api_version: v1
-        kind: Namespace
-        state: present
-        definition:
-          metadata:
-            annotations:
-              # cni.projectcalico.org/ipv4pools: '["system"]'
-              metallb.universe.tf/address-pool: "system"
-            labels:
-              pod-security.kubernetes.io/enforce: privileged
-              pod-security.kubernetes.io/audit: privileged
-              pod-security.kubernetes.io/warn: privileged
-    - name: Patch calico-system namespace
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: calico-system
-        api_version: v1
-        kind: Namespace
-        state: patched
-        definition:
-          metadata:
-            annotations:
-              # cni.projectcalico.org/ipv4pools: '["system"]'
-              metallb.universe.tf/address-pool: "system"
-            labels:
-              pod-security.kubernetes.io/enforce: privileged
-              pod-security.kubernetes.io/audit: privileged
-              pod-security.kubernetes.io/warn: privileged
     - name: Apply tigera apiserver manifest to the cluster.
       kubernetes.core.k8s:
         kubeconfig: "{{ home }}/.kube/config"
@@ -879,23 +896,6 @@
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
-    - name: Create network-system namespace
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        name: network-system
-        api_version: v1
-        kind: Namespace
-        state: present
-        definition:
-          metadata:
-            annotations:
-              # cni.projectcalico.org/ipv4pools: '["system"]'
-              metallb.universe.tf/address-pool: "system"
-            labels:
-              pod-security.kubernetes.io/enforce: privileged
-              pod-security.kubernetes.io/audit: privileged
-              pod-security.kubernetes.io/warn: privileged
     - name: Configure Coredns
       run_once: true
       delegate_to: localhost
