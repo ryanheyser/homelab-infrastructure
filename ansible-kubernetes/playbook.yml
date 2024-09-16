@@ -629,6 +629,7 @@
             serviceCIDRs:
               - 10.254.0.0/16
             calicoNetwork:
+              multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
               bgp: "Enabled"
               # mtu: 9000
