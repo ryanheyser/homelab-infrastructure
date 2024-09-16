@@ -693,6 +693,19 @@
                     - 10.0.0.0/18
                     firstFound: false
                   containerIPForwarding: "Enabled"
+    - name: Configure RKE2-Multus
+      run_once: true
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        api_version: helm.cattle.io/v1
+        kind: HelmChartConfig
+        name: rke2-multus
+        namespace: kube-system
+        state: present
+        definition:
+          spec:
+            valuesContent: ""
     # - name: Patch Installation Configuration for Tigera Operator
     #   when: kubeconfig.stat.exists
     #   kubernetes.core.k8s:
