@@ -626,6 +626,8 @@
         definition:
           spec:
             valuesContent: |-
+              apiServer:
+                enabled: true
               installation:
                 serviceCIDRs:
                 - 10.254.0.0/16
@@ -678,20 +680,20 @@
         dest: "{{ playbook_dir }}/apiserver.yaml"
         mode: '0664'
       register: tigeraapiservermanifest
-    - name: Create APIServer for Tigera Operator
-      when: kubeconfig.stat.exists
-      kubernetes.core.k8s:
-        kubeconfig: "{{ home }}/.kube/config"
-        state: present
-        apply: true
-        server_side_apply: 
-          field_manager: ansible
-        definition:
-          apiVersion: operator.tigera.io/v1
-          kind: APIServer
-          metadata:
-            name: default
-          spec: {}
+    # - name: Create APIServer for Tigera Operator
+    #   when: kubeconfig.stat.exists
+    #   kubernetes.core.k8s:
+    #     kubeconfig: "{{ home }}/.kube/config"
+    #     state: present
+    #     apply: true
+    #     server_side_apply: 
+    #       field_manager: ansible
+    #     definition:
+    #       apiVersion: operator.tigera.io/v1
+    #       kind: APIServer
+    #       metadata:
+    #         name: default
+    #       spec: {}
 #     # - name: Wait until HTTP status is 401
 #     #   ansible.builtin.uri:
 #     #     url: "https://{{ hostvars[groups['controlnodes'][0]]['ansible_host'] }}:6443"
