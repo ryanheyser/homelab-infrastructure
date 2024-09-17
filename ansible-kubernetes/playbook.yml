@@ -1608,6 +1608,12 @@
         kubeconfig: "{{ home }}/.kube/config"
         name: hashicorp
         repo_url: https://helm.releases.hashicorp.com
+    - name: Add secrets-store-csi repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: secrets-store-csi-driver
+        repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
     - name: Create vault-system namespace
       when: kubeconfig.stat.exists
       kubernetes.core.k8s:
@@ -1629,7 +1635,7 @@
         chart_ref: hashicorp/vault
         chart_version: 0.28.1
         values_files:
-          - "{{ playbook_dir }}/ansible/helm_values/vault/values.yaml"
+          - "{{ playbook_dir }}/helm_values/vault/values.yaml"
     - name: Deploy csi-secrets-store chart
       when: kubeconfig.stat.exists
       kubernetes.core.helm:
@@ -1640,7 +1646,7 @@
         chart_ref: secrets-store-csi-driver/secrets-store-csi-driver
         chart_version: 1.4.5
         values_files:
-          - "{{ playbook_dir }}/ansible/helm_values/vault/csivalues.yaml"
+          - "{{ playbook_dir }}/helm_values/vault/csivalues.yaml"
     - name: Check if Vault Operator Init File Exists
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
