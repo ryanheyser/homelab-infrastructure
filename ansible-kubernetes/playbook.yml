@@ -1656,7 +1656,7 @@
         name: nfs-subdir-external-provisioner
         release_namespace: storage-system
         # renovate: registryUrl=https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
-        chart_ref: hashicorp/vault
+        chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
         chart_version: 4.0.18
         values:
           replicaCount: 3
