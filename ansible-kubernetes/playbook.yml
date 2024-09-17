@@ -1595,49 +1595,6 @@
 #               imagePullSecrets:
 #                 - name: docker-registry-credentials
 
-# Flux
-- name: Bootstrap Flux
-  hosts: localhost
-  vars:
-    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-    # kubeconfig: "{{ home }}/.kube/config"
-  tasks:
-    - name: Flux pre-checks
-      ansible.builtin.command: |
-        flux check --pre
-      environment:
-        KUBECONFIG: "{{ kubeconfig.stat.path }}"
-      become: true
-      register: flux_precheck_out
-      changed_when: true
-      failed_when:
-        - flux_precheck_out.rc != 0
-    - name: Check github secrets encrypted file
-      ansible.builtin.stat:
-        path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
-      register: githubsecretsfile
-    - name: Unencrypt Docker Secrets
-      ansible.builtin.set_fact:
-          github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
-      when: githubsecretsfile.stat.exists
-      failed_when: not githubsecretsfile.stat.exists
-    - name: Flux bootstrap
-      environment:
-        GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
-        KUBECONFIG: "{{ kubeconfig.stat.path }}"
-      ansible.builtin.command: |
-        flux bootstrap github \
-          --owner=ryanheyser \
-          --repository=homelab-ops \
-          --branch main \
-          --private=false \
-          --network-policy=false \
-          --token-auth=false
-      register: flux_bootstrap_out
-      changed_when: true
-      failed_when:
-        - flux_bootstrap_out.rc != 0
-
 # Vault
 - name: Install Vault
   hosts: localhost
@@ -1928,3 +1885,118 @@
         vault_operator_init.stdout is defined
       failed_when: >-
         {{(vault_operator_init.stdout | from_json).root_token | b64encode}} == ""
+
+# External Secrets
+- name: Bootstrap Flux
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    # kubeconfig: "{{ home }}/.kube/config"
+  tasks:
+    - name: Check for kubeconfig
+      delegate_to: localhost
+      run_once: true
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
+    - name: Add External Secrets repository
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm_repository:
+        kubeconfig: "{{ home }}/.kube/config"
+        name: external-secrets
+        repo_url: https://charts.external-secrets.io
+    - name: Deploy External-Secrets chart
+      when: kubeconfig.stat.exists
+      kubernetes.core.helm:
+        # renovate: registryUrl=https://charts.external-secrets.io
+        kubeconfig: "{{ home }}/.kube/config"
+        name: external-secrets
+        release_namespace: kube-system
+        chart_ref: external-secrets/external-secrets
+        chart_version: 0.10.3
+        values:
+          installCRDs: true
+          replicaCount: 3
+          leaderElect: true
+          tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    - external-secrets
+                topologyKey: "kubernetes.io/hostname"
+          # serviceMonitor:
+          #   enabled: true
+          # webhook:
+          #   serviceMonitor:
+          #     enabled: true
+          # certController:
+          #   serviceMonitor:
+          #     enabled: true
+    - name: Wait for external-secrets to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: kube-system
+        label_selectors:
+          - app.kubernetes.io/name = external-secrets
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: externalsecretsstatus
+      until: externalsecretsstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
+
+# Flux
+- name: Bootstrap Flux
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    # kubeconfig: "{{ home }}/.kube/config"
+  tasks:
+    - name: Flux pre-checks
+      ansible.builtin.command: |
+        flux check --pre
+      environment:
+        KUBECONFIG: "{{ kubeconfig.stat.path }}"
+      become: true
+      register: flux_precheck_out
+      changed_when: true
+      failed_when:
+        - flux_precheck_out.rc != 0
+    - name: Check github secrets encrypted file
+      ansible.builtin.stat:
+        path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
+      register: githubsecretsfile
+    - name: Unencrypt Docker Secrets
+      ansible.builtin.set_fact:
+          github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+      when: githubsecretsfile.stat.exists
+      failed_when: not githubsecretsfile.stat.exists
+    - name: Flux bootstrap
+      environment:
+        GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
+        KUBECONFIG: "{{ kubeconfig.stat.path }}"
+      ansible.builtin.command: |
+        flux bootstrap github \
+          --owner=ryanheyser \
+          --repository=homelab-ops \
+          --branch main \
+          --private=false \
+          --network-policy=false \
+          --token-auth=false
+      register: flux_bootstrap_out
+      changed_when: true
+      failed_when:
+        - flux_bootstrap_out.rc != 0
+
