@@ -1705,7 +1705,7 @@
         wait_sleep: 30
         wait_timeout: 600
       register: nfsstatus
-      until: nfsstatus.resources[0].status.readyReplicas | int > 0
+      until: nfsstatus.resources.status.readyReplicas | int > 0
       retries: 20
       delay: 15
 
