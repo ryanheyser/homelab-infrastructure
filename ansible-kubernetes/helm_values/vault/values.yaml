@@ -8,8 +8,8 @@ injector:
     secretName: null
   strategy:
     rollingUpdate:
-      maxSurge: "1"
-      maxUnavailable: "1"
+      maxSurge: "25%"
+      maxUnavailable: "25%"
     type: RollingUpdate
 server:
   logLevel: "info"
@@ -95,7 +95,7 @@ csi:
   enabled: true
   daemonSet:
     updateStrategy:
-      maxSurge: "1"
-      maxUnavailable: "1"
+      maxSurge: "25%"
+      maxUnavailable: "25%"
   agent:
     logFormat: json
