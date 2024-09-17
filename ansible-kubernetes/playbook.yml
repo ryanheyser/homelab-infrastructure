@@ -53,11 +53,11 @@
     #   ansible.builtin.command: apt upgrade -y
     #   become: true
     #   changed_when: true
-    - name: Cleanup | Remove hashicorp apt if exists
-      become: true
-      ansible.builtin.file:
-        path: "/etc/apt/sources.list.d/apt_releases_hashicorp_com.list"
-        state: absent
+    # - name: Cleanup | Remove hashicorp apt if exists
+    #   become: true
+    #   ansible.builtin.file:
+    #     path: "/etc/apt/sources.list.d/apt_releases_hashicorp_com.list"
+    #     state: absent
     - name: Setup | Apt Update/Upgrade
       ansible.builtin.apt:
         update_cache: "yes"
@@ -112,7 +112,7 @@
     - name: Setup | install ansible ppa
       ansible.builtin.apt_repository:
         repo: ppa:ansible/ansible
-    - name: Setup | install ansible packages
+    - name: Setup | install extra packages
       ansible.builtin.apt:
         state: 'present'
         update_cache: true
