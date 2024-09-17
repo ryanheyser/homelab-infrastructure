@@ -101,10 +101,15 @@
         url: https://apt.releases.hashicorp.com/gpg
         return_content: true
       register: hashicorpgpg
+    - name: Setup | Check to see if hashicorp gpg exists
+      ansible.builtin.stat:
+        path: "/usr/share/keyrings/hashicorp-archive-keyring.gpg"
+      register: hashicorp_gpg_file
     - name: Setup | Add Hashicorp GPG to system
       become: true
       ansible.builtin.shell: |
         echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      when: not hashicorp_gpg_file.stat.exists
     - name: Setup | Add Hashicorp apt source
       ansible.builtin.apt_repository:
         repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
