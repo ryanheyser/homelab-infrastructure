@@ -1689,6 +1689,23 @@
                     values:
                     - nfs-subdir-external-provisioner
                 topologyKey: "kubernetes.io/hostname"
+    - name: Wait for nfs-subdir-external-provisioner to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Deployment
+        namespace: storage-system
+        label_selectors:
+          - meta.helm.sh/release-name = nfs-subdir-external-provisioner
+        wait: true
+        wait_condition:
+          type: "Available"
+          status: "True"
+        wait_sleep: 30
+        wait_timeout: 600
+      register: nfsstatus
+      until: nfsstatus.resources[0].status.readyReplicas | int > 0
+      retries: 20
+      delay: 15
 
 # Vault
 - name: Install Vault
@@ -1750,6 +1767,17 @@
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
       register: vault_operator_init_file
+    - name: Wait for vault to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: StatefulSet
+        namespace: storage-system
+        label_selectors:
+        - app.kubernetes.io/name = vault
+      register: nfsstatus
+      until: nfsstatus.resources[0].status.availableReplicas | int > 0
+      retries: 20
+      delay: 15
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
