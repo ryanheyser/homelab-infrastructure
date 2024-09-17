@@ -1774,12 +1774,17 @@
     - name: Wait for vault to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
-        kind: StatefulSet
+        kind: Pod
         namespace: storage-system
         label_selectors:
         - app.kubernetes.io/name = vault
-      register: nfsstatus
-      until: nfsstatus.resources[0].status.availableReplicas | int > 0
+        - apps.kubernetes.io/pod-index = "0"
+        wait: true
+        wait_condition:
+          type: "Ready"
+          status: "True"
+      register: vaultstatus
+      until: vaultstatus.resources[0].status.phase == "Running"
       retries: 20
       delay: 15
     - name: Initialize Vault
