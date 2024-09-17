@@ -70,6 +70,7 @@
           - build-essential 
           - curl 
           - dnsutils
+          - gpg
           - linux-generic
           - linux-headers-generic 
           - mtr-tiny 
@@ -85,10 +86,24 @@
           - python3-virtualenv
           - software-properties-common 
           - tcpdump 
-          - vim 
+          - vim
+          - wget 
           - zstd
       become: true
       changed_when: true
+    - name: Setup | Get Hashicorp GPG
+      ansible.builtin.uri:
+        url: https://apt.releases.hashicorp.com/gpg
+        return_content: true
+      register: hashicorpgpg
+    - name: Setup | Add Hashicorp GPG to system
+      become: true
+      ansible.builtin.command: |
+        echo {{ hashicorpgpg.content }} | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    - name: Setup | Add Hashicorp apt source
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        state: present
     - name: Setup | install ansible ppa
       ansible.builtin.apt_repository:
         repo: ppa:ansible/ansible
@@ -98,6 +113,7 @@
         update_cache: true
         pkg:
           - ansible
+          - vault
       become: true
       changed_when: true
     - name: Install sops on localhost
