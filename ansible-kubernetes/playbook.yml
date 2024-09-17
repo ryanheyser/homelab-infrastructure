@@ -1675,7 +1675,7 @@
           storageClass:
             defaultClass: true
             name: "nfs-dynamic"
-            pathPattern: "/mnt/${.PVC.annotations.nfs.io/storage-path}"
+            pathPattern: "${.PVC.annotations.nfs.io/storage-path}"
             accesssModes: "ReadWriteMany"
             archiveOnDelete: false
             provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner"
