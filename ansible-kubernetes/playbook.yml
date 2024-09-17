@@ -1682,7 +1682,7 @@
         command: vault operator init -format=json -key-shares=10 -key-threshold=3 -recovery-shares=10 -recovery-threshold=3
       register: vault_operator_init
       when: >-
-        vault_operator_init_file.stat.exists and
+        not vault_operator_init_file.stat.exists and
         kubeconfig.stat.exists
     - name: Write Vault Configuration to File
       # noqa: run-once[task]
