@@ -1664,7 +1664,7 @@
           nfs:
             server: "10.0.0.8"
             path: "/kracko"
-            mountoptions:
+            mountOptions:
             - "vers=4"
             - "minorversion=1"
             - "local_lock=posix"
