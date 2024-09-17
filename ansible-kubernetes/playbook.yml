@@ -1697,7 +1697,7 @@
         kind: Deployment
         namespace: storage-system
         label_selectors:
-          - meta.helm.sh/release-name = nfs-subdir-external-provisioner
+          - app = nfs-subdir-external-provisioner
         wait: true
         wait_condition:
           type: "Available"
