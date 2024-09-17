@@ -1645,7 +1645,8 @@
         definition:
           metadata:
             annotations:
-              cni.projectcalico.org/ipv4pools: '["system"]'
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
             labels:
               pod-security.kubernetes.io/enforce: privileged
               pod-security.kubernetes.io/audit: privileged
@@ -1738,7 +1739,8 @@
         definition:
           metadata:
             annotations:
-              cni.projectcalico.org/ipv4pools: '["system"]'
+              # cni.projectcalico.org/ipv4pools: '["system"]'
+              metallb.universe.tf/address-pool: "system"
             labels:
               pod-security.kubernetes.io/enforce: privileged
               pod-security.kubernetes.io/audit: privileged
