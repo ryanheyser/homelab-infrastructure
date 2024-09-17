@@ -923,6 +923,19 @@
               #   enabled: true
               service:
                 clusterIP: 10.254.0.10
+                externalTrafficPolicy: Local
+                annotations:
+                  metallb.universe.tf/allow-shared-ip: coredns
+              rbac:
+                create: true
+              prometheus:
+                service:
+                  enabled: false
+                  annotations:
+                    prometheus.io/scrape: "true"
+                    prometheus.io/port: "9153"
+                monitor:
+                  enabled: false
               autoscaler:
                 enabled: true
                 min: 2
@@ -958,6 +971,14 @@
                 - name: loop
                 - name: reload
                 - name: loadbalance
+              zoneFiles:
+              - filename: heyser.xyz
+                domain: heyser.xyz
+                contents: |
+                  heyser.xyz.   IN SOA  kyrie.ns.cloudflare.com. dns.cloudflare.com. 2325026458 10000 2400 604800 1800
+                  heyser.xyz. IN A   10.0.100.1
+                  homelab.heyser.xyz. IN A   10.0.100.1
+                  *.homelab.heyser.xyz. IN A   10.0.100.1
 
 # Reflector
 - name: Reflector
