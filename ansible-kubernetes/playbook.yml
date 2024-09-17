@@ -103,8 +103,8 @@
       register: hashicorpgpg
     - name: Setup | Add Hashicorp GPG to system
       become: true
-      ansible.builtin.shell: 
-        cmd: "echo {{ hashicorpgpg.content }} | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg"
+      ansible.builtin.shell: |
+        echo {{ hashicorpgpg.content }} | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
     - name: Setup | Add Hashicorp apt source
       ansible.builtin.apt_repository:
         repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
