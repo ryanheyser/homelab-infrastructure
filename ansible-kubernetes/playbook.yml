@@ -1783,10 +1783,6 @@
         wait_condition:
           type: "PodScheduled"
           status: "True"
-      register: vaultstatus
-      until: vaultstatus.resources[0].status.started == "true"
-      retries: 20
-      delay: 15
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
