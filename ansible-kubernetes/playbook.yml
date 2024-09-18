@@ -1790,7 +1790,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
-        command: vault operator init -format=json -key-shares=10 -key-threshold=3 -recovery-shares=10 -recovery-threshold=3
+        command: vault operator init -format=json -key-shares=10 -key-threshold=3
       register: vault_operator_init
       when: >-
         not vault_operator_init_file.stat.exists and
