@@ -44,8 +44,8 @@ server:
       nfs.io/storage-path: "containers/kubernetes/vault/audit"
     storageClass: "nfs-dynamic"
     accessMode: ReadWriteMany
-  extraEnvironmentVars:
-    VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
+  # extraEnvironmentVars:
+  #   VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
   # extraVolumes:
   #   - type: secret
   #     name: tls-server
