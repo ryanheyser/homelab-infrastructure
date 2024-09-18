@@ -1775,7 +1775,7 @@
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Pod
-        namespace: storage-system
+        namespace: vault-system
         label_selectors:
         - app.kubernetes.io/name = vault
         - apps.kubernetes.io/pod-index = "0"
@@ -1783,6 +1783,10 @@
         wait_condition:
           type: "Ready"
           status: "True"
+      register: vaultstatus
+      until: vaultstatus.resources[0].status.phase == "Running"
+      retries: 20
+      delay: 15
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
