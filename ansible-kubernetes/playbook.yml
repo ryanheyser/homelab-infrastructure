@@ -1784,7 +1784,7 @@
           type: "Ready"
           status: "True"
       register: vaultstatus
-      until: vaultstatus.resources[0].status.phase == "Running"
+      until: vaultstatus.resources.status.phase == "Running"
       retries: 20
       delay: 15
     - name: Initialize Vault
