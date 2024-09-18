@@ -1783,10 +1783,6 @@
         wait_condition:
           type: "Ready"
           status: "True"
-      register: vaultstatus
-      until: vaultstatus.resources.status.phase == "Running"
-      retries: 20
-      delay: 15
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
