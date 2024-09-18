@@ -949,7 +949,9 @@
               #   enabled: true
               service:
                 clusterIP: 10.254.0.10
-                externalTrafficPolicy: Local
+                loadBalancerIP: 10.0.100.2
+                externalTrafficPolicy: Cluster
+                serviceType: LoadBalancer
                 annotations:
                   metallb.universe.tf/allow-shared-ip: coredns
               rbac:
@@ -1300,6 +1302,24 @@
           spec:
             addresses:
             - 10.0.100.0/24
+    - name: Create Coredns IP Reservation
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        state: present
+        apply: true
+        server_side_apply:
+          field_manager: ansible
+          force_conflicts: true
+        definition:
+          apiVersion: projectcalico.org/v3
+          kind: IPReservation
+          metadata:
+            name: coredns-ipv4-reservation
+            namespace: kube-system
+          spec:
+            reservedCIDRs:
+              - 10.0.100.2
 
 # Traefik
 - name: Traefik Pre-steps
@@ -1790,7 +1810,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: vault-0
-        command: vault operator init -format=json -key-shares=10 -key-threshold=3
+        command: vault operator init -format=json -key-shares=10 -key-threshold=3 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak" -recovery-pgp-keys="keybase:rumblpak"
       register: vault_operator_init
       when: >-
         not vault_operator_init_file.stat.exists and
