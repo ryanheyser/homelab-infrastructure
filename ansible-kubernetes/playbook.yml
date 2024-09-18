@@ -950,7 +950,7 @@
               service:
                 clusterIP: 10.254.0.10
                 loadBalancerIP: 10.0.100.2
-                externalTrafficPolicy: Cluster
+                externalTrafficPolicy: Local
                 serviceType: LoadBalancer
                 annotations:
                   metallb.universe.tf/allow-shared-ip: coredns
