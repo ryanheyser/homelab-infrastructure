@@ -100,16 +100,16 @@
       register: rke2killall
     - name: Cleanup | Stop Agent Service
       ansible.builtin.command: sudo systemctl stop rke2-agent.service
-      when: inventory_hostname in groups["controlnodes"]
+      when: inventory_hostname in groups["workernodes"]
     - name: Cleanup | Stop Server Service
       ansible.builtin.command: sudo systemctl stop rke2-server.service
-      when: inventory_hostname in groups["workernodes"]
+      when: inventory_hostname in groups["controlnodes"]
     - name: Cleanup | Disable Agent Service
       ansible.builtin.command: sudo systemctl disable rke2-agent.service
-      when: inventory_hostname in groups["controlnodes"]
+      when: inventory_hostname in groups["workernodes"]
     - name: Cleanup | Disable Server Service
       ansible.builtin.command: sudo systemctl disable rke2-server.service
-      when: inventory_hostname in groups["workernodes"]
+      when: inventory_hostname in groups["controlnodes"]
     - name: Cleanup | Run RKE2 Killall
       ansible.builtin.command: rke2-killall.sh
       when: rke2killall.stat.exists
