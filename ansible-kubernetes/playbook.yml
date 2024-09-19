@@ -949,9 +949,9 @@
               #   enabled: true
               service:
                 clusterIP: 10.254.0.10
-                loadBalancerIP: 10.0.100.2
+                # loadBalancerIP: 10.0.100.2
                 externalTrafficPolicy: Local
-                serviceType: LoadBalancer
+                serviceType: ClusterIP
                 annotations:
                   metallb.universe.tf/allow-shared-ip: coredns
               rbac:
