@@ -320,8 +320,8 @@
         rke2_interface: ens18
         rke2_api_ip: "10.0.1.5"
         rke2_ha_mode_keepalived: true
-        # rke2_bind_address: "{{ ansible_host }}"
-        rke2_bind_address: "10.0.1.5"
+        rke2_bind_address: "{{ ansible_host }}"
+        # rke2_bind_address: "10.0.1.5"
         rke2_api_cidr: 18
         rke2_additional_sans:
         - kubernetes.homelab.heyser.xyz
@@ -378,6 +378,7 @@
         # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
         - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
+        - "node-name: {{ ansible_hostname }}"
         # - "node-external-ip: 10.0.1.5"
         - "write-kubeconfig-mode: 0644"
         # - "embedded-registry: true"
