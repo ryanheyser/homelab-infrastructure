@@ -346,7 +346,7 @@
         - 10.255.0.0/16
         rke2_service_cidr:
         - 10.254.0.0/16
-        rke2_node_name: "{{ ansible_hostname }}"
+        # rke2_node_name: "{{ ansible_fdqn }}"
         rke2_cluster_group_name: kubernetes
         rke2_servers_group_name: controlnodes
         rke2_agents_group_name: workernodes
@@ -386,7 +386,7 @@
         # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
         - "disable-cloud-controller: true"
         - "node-ip: {{ ansible_host }}"
-        - "node-name: {{ ansible_hostname }}"
+        - "node-name: {{ ansible_fdqn }}"
         # - "node-external-ip: 10.0.1.5"
         - "write-kubeconfig-mode: 0644"
         # - "embedded-registry: true"
