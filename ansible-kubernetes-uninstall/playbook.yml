@@ -121,6 +121,11 @@
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
+    - name: Cleanup | Reset Cluster Remove bind
+      ansible.builtin.command: sudo sed -i '/bind:/d' /etc/rancher/rke2/config.yaml
+      when: |
+        inventory_hostname in groups["controlnodes"] and
+        rke2config.stat.exists
     - name: Check for rke2 server token
       become: true
       ansible.builtin.stat:
