@@ -33,19 +33,19 @@ controlnodes:
       6666633963336162650a656637333263396361643634366261323364616466613730636261363234
       6161'
   hosts:
-    10.0.1.10:
+    madoo0:
       ansible_host: 10.0.1.10
       ansible_fqdn: madoo.homelab.heyser.xyz
       ansible_hostname: madoo
       k3s_control_node: true
       rke2_type: server
-    10.0.1.11:
+    madoo:
       ansible_host: 10.0.1.11
       ansible_fqdn: magoo.homelab.heyser.xyz
       ansible_hostname: magoo
       k3s_control_node: true
       rke2_type: server
-    10.0.1.12:
+    marx:
       ansible_host: 10.0.1.12
       ansible_fqdn: marx.homelab.heyser.xyz
       ansible_hostname: marx
@@ -64,27 +64,27 @@ workernodes:
       3835'
     k3s_control_node: false
   hosts:
-    10.0.1.20:
+    peezer:
       ansible_host: 10.0.1.20
       ansible_fqdn: peezer.homelab.heyser.xyz
       ansible_hostname: peezer
       rke2_type: agent
-    10.0.1.21:
+    peloo:
       ansible_host: 10.0.1.21
       ansible_fqdn: peloo.homelab.heyser.xyz
       ansible_hostname: peloo
       rke2_type: agent
-    10.0.1.22:
+    peran:
       ansible_host: 10.0.1.22
       ansible_fqdn: peran.homelab.heyser.xyz
       ansible_hostname: peran
       rke2_type: agent
-    10.0.1.23:
+    perara:
       ansible_host: 10.0.1.23
       ansible_fqdn: perara.homelab.heyser.xyz
       ansible_hostname: perara
       rke2_type: agent
-    10.0.1.24:
+    phanta:
       ansible_host: 10.0.1.24
       ansible_fqdn: phanta.homelab.heyser.xyz
       ansible_hostname: phanta
