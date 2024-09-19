@@ -950,7 +950,7 @@
               service:
                 clusterIP: 10.254.0.10
                 # loadBalancerIP: 10.0.100.2
-                externalTrafficPolicy: Local
+                # externalTrafficPolicy: Local
                 serviceType: ClusterIP
                 annotations:
                   metallb.universe.tf/allow-shared-ip: coredns
@@ -1007,6 +1007,9 @@
                   heyser.xyz. IN A   10.0.100.1
                   homelab.heyser.xyz. IN A   10.0.100.1
                   *.homelab.heyser.xyz. IN A   10.0.100.1
+    - name: Exit Early
+      ansible.builtin.fail:
+        msg: Failing to diagnose
 
 # Reflector
 - name: Reflector
