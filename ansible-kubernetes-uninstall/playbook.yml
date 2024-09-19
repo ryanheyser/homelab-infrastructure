@@ -158,6 +158,8 @@
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
       when: inventory_hostname in groups["controlnodes"]
+      register: clusterreset
+      failed_when: clusterreset.rc > 0
     - name: Cleanup | Unmask Agent Service
       ansible.builtin.command: sudo systemctl unmask rke2-agent.service
       when: inventory_hostname in groups["controlnodes"]
