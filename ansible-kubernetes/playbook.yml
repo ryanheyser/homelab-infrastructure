@@ -152,6 +152,13 @@
         name: "{{ ansible_fqdn }}"
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+    - name: Check if reboot required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+    - name: Reboot if required
+      ansible.builtin.reboot:
+      when: reboot_required_file.stat.exists == true
 
 - name: Setup Kubernetes Hosts
   hosts: kubernetes
