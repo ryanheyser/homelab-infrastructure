@@ -33,13 +33,13 @@ controlnodes:
       6666633963336162650a656637333263396361643634366261323364616466613730636261363234
       6161'
   hosts:
-    madoo0:
+    madoo:
       ansible_host: 10.0.1.10
       ansible_fqdn: madoo.homelab.heyser.xyz
       ansible_hostname: madoo
       k3s_control_node: true
       rke2_type: server
-    madoo:
+    magoo:
       ansible_host: 10.0.1.11
       ansible_fqdn: magoo.homelab.heyser.xyz
       ansible_hostname: magoo
