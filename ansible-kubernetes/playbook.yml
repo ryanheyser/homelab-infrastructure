@@ -375,7 +375,7 @@
         #     auth:
         #       username: "{{ (docker | from_yaml).docker_user }}"
         #       password: "{{ (docker | from_yaml).docker_token }}"
-        rke2_disable_cloud_controller: true
+        # rke2_disable_cloud_controller: true
         rke2_disable:
         - rke2-canal
         - rke2-ingress-nginx
