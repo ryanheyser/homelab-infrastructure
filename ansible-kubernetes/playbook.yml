@@ -254,11 +254,11 @@
           - name: homelab.heyser.lan
             type: primary
             primaries:
-              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list }}"
           - name: homelab.heyser.lan
             type: secondary
             primaries:
-              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list }}"
       ansible.builtin.import_role:
         name: "bertvv.bind"
       when: >-
@@ -582,7 +582,7 @@
         taints:
         - effect: NoSchedule
           key: node-role.kubernetes.io/control-plane
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
     - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
       run_once: true
       delegate_to: localhost
@@ -593,7 +593,7 @@
         taints:
         - effect: NoSchedule
           key: node.cloudprovider.kubernetes.io/uninitialized
-      loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
     - name: Add labels to controlplane nodes
       run_once: true
       delegate_to: localhost
@@ -608,7 +608,7 @@
               node-role.kubernetes.io/control-plane: "true"
               topology.kubernetes.io/region: "us-east-1"
               topology.kubernetes.io/zone: "us-east-1a"
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
     - name: Add labels to worker nodes
       run_once: true
       delegate_to: localhost
@@ -622,7 +622,7 @@
             labels:
               topology.kubernetes.io/region: "us-east-1"
               topology.kubernetes.io/zone: "us-east-1a"
-      loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+      loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
     # - name: Exit Early
     #   ansible.builtin.fail:
     #     msg: Failing to diagnose
