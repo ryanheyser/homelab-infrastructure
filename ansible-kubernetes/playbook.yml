@@ -582,7 +582,8 @@
         taints:
         - effect: NoSchedule
           key: node-role.kubernetes.io/control-plane
-      loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      loop: "{{ groups.controlnodes | inventory_hostname | list | flatten(1) }}"
     - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
       run_once: true
       delegate_to: localhost
@@ -593,7 +594,8 @@
         taints:
         - effect: NoSchedule
           key: node.cloudprovider.kubernetes.io/uninitialized
-      loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      # loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      loop: "{{ groups.controlnodes | inventory_hostname | list | flatten(1) }}"
     - name: Add labels to controlplane nodes
       run_once: true
       delegate_to: localhost
