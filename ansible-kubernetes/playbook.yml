@@ -254,11 +254,11 @@
           - name: homelab.heyser.lan
             type: primary
             primaries:
-              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list }}"
+              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
           - name: homelab.heyser.lan
             type: secondary
             primaries:
-              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list }}"
+              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
       ansible.builtin.import_role:
         name: "bertvv.bind"
       when: >-
