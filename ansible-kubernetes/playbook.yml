@@ -1021,9 +1021,43 @@
                   heyser.xyz. IN A   10.0.100.1
                   homelab.heyser.xyz. IN A   10.0.100.1
                   *.homelab.heyser.xyz. IN A   10.0.100.1
-    - name: Exit Early
-      ansible.builtin.fail:
-        msg: Failing to diagnose
+    - name: Create Coredns LoadBalancer
+      when: kubeconfig.stat.exists
+      kubernetes.core.k8s:
+        kubeconfig: "{{ home }}/.kube/config"
+        api_version: v1
+        kind: Service
+        name: rke2-coredns-rke2-coredns-lb
+        namespace: kube-system
+        state: present
+        # apply: true
+        # server_side_apply:
+        #   field_manager: ansible
+        definition:
+          metadata:
+            annotations:
+              metallb.universe.tf/allow-shared-ip: coredns
+              metallb.universe.tf/address-pool: system
+          spec:
+            selector:
+              app.kubernetes.io/instance: rke2-coredns
+              app.kubernetes.io/name: rke2-coredns
+              k8s-app: kube-dns
+            ports:
+            - name: udp-53
+              port: 53
+              protocol: UDP
+              targetPort: 53
+            - name: tcp-53
+              port: 53
+              protocol: TCP
+              targetPort: 53
+            externalTrafficPolicy: Cluster
+            loadBalancerIP: 10.0.100.2
+            type: LoadBalancer
+    # - name: Exit Early
+    #   ansible.builtin.fail:
+    #     msg: Failing to diagnose
 
 # Reflector
 - name: Reflector
