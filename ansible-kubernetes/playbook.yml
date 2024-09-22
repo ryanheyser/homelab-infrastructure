@@ -1787,6 +1787,12 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
+    - name: Check for kubeconfig
+      delegate_to: localhost
+      run_once: true
+      ansible.builtin.stat:
+        path: "{{ home }}/.kube/config"
+      register: kubeconfig
     - name: Add hashicorp repository
       when: kubeconfig.stat.exists
       kubernetes.core.helm_repository:
