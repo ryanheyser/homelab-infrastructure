@@ -1891,7 +1891,7 @@
         kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
         pod: "{{ item }}"
-        command: vault operator init -format=json -key-shares=10 -key-threshold=3 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak" -recovery-pgp-keys="keybase:rumblpak"
+        command: vault operator init -format=json -key-shares=10 -key-threshold=3 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak"
       register: vault_operator_init
       loop:
         - vault-0
