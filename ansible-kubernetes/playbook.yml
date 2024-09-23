@@ -1860,15 +1860,43 @@
         wait_condition:
           type: "PodScheduled"
           status: "True"
+    - name: Wait for vault to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Pod
+        namespace: vault-system
+        label_selectors:
+        - app.kubernetes.io/name = vault
+        - apps.kubernetes.io/pod-index = "1"
+        wait: true
+        wait_condition:
+          type: "PodScheduled"
+          status: "True"
+    - name: Wait for vault to complete
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ home }}/.kube/config"
+        kind: Pod
+        namespace: vault-system
+        label_selectors:
+        - app.kubernetes.io/name = vault
+        - apps.kubernetes.io/pod-index = "2"
+        wait: true
+        wait_condition:
+          type: "PodScheduled"
+          status: "True"
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
       kubernetes.core.k8s_exec:
         kubeconfig: "{{ home }}/.kube/config"
         namespace: vault-system
-        pod: vault-0
+        pod: "{{ item }}"
         command: vault operator init -format=json -key-shares=10 -key-threshold=3 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak" -recovery-pgp-keys="keybase:rumblpak"
       register: vault_operator_init
+      loop:
+        - vault-0
+        - vault-1
+        - vault-2
       when: >-
         (not vault_operator_init_file.stat.exists) and
         kubeconfig.stat.exists
