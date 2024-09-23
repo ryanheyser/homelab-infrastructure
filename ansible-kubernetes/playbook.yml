@@ -1876,7 +1876,7 @@
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.copy:
-        content: "{{ vault_operator_init.s)tdout }}"
+        content: "{{ vault_operator_init.stdout }}"
         dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
         mode: preserve
       when: >-
