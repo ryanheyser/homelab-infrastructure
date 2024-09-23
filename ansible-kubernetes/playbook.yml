@@ -1870,18 +1870,18 @@
         command: vault operator init -format=json -key-shares=10 -key-threshold=3 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak" -recovery-pgp-keys="keybase:rumblpak"
       register: vault_operator_init
       when: >-
-        not vault_operator_init_file.stat.exists and
+        (not vault_operator_init_file.stat.exists) and
         kubeconfig.stat.exists
     - name: Write Vault Configuration to File
       # noqa: run-once[task]
       run_once: true
       ansible.builtin.copy:
-        content: "{{ vault_operator_init.stdout }}"
+        content: "{{ vault_operator_init.s)tdout }}"
         dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
         mode: preserve
       when: >-
         vault_operator_init is defined and
-        not vault_operator_init is skipped
+        (not vault_operator_init is skipped)
       register: vault_operator_init_config
     - name: Write Vault Configuration to Encrypted File
       # noqa: run-once[task]
@@ -1892,7 +1892,7 @@
         age: age_public_key.stdout
       when: >-
         vault_operator_init_config is defined and
-        not vault_operator_init_config is skipped
+        (not vault_operator_init_config is skipped)
     - name: Read Vault Configuration from File
       # noqa: run-once[task]
       run_once: true
