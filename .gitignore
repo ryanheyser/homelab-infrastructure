@@ -11,6 +11,8 @@ vault-operator-init-*.key*
 *_id_rsa
 !*_id_rsa.pub
 *.iso
+*.asc
+!*.asc.enc
 user-data
 SHA256SUMS
 apiserver.yaml
