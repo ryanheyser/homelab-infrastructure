@@ -1893,6 +1893,7 @@
         pod: "{{ item }}"
         command: vault operator init -format=json -key-shares=2 -key-threshold=2 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak,keybase:rheyser"
       register: vault_operator_init
+      ignore_unreachable: true
       loop:
         - vault-0
         - vault-1
