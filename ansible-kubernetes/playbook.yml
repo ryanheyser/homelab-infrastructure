@@ -738,7 +738,6 @@
                   bgp: "Enabled"
                   # mtu: 9000
                   nodeAddressAutodetectionV4:
-                    kubernetes: NodeInternalIP
                     cidrs:
                     - 10.0.0.0/18
                     firstFound: false
