@@ -920,7 +920,7 @@
           kind: BGPConfiguration
           metadata:
             name: default
-            namespace: kube-system
+            namespace: calico-system
           spec:
             asNumber: 65001
             serviceLoadBalancerIPs:
@@ -941,7 +941,7 @@
           kind: BGPPeer
           metadata:
             name: bgppeer
-            namespace: kube-system
+            namespace: calico-system
           spec:
             peerIP: 10.0.0.1
             asNumber: 65000
@@ -958,7 +958,7 @@
           kind: CalicoNodeStatus
           metadata:
             name: "{{ item }}-node-status"
-            namespace: kube-system
+            namespace: calico-system
           spec:
             classes:
             - Agent
