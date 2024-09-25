@@ -957,7 +957,7 @@
           apiVersion: projectcalico.org/v3
           kind: CalicoNodeStatus
           metadata:
-            name: "{{ item }}-NodeStatus"
+            name: "{{ item }}-node-status"
             namespace: kube-system
           spec:
             classes:
