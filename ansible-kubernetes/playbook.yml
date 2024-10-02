@@ -2,4 +2,4 @@
   hosts: all
   tasks:
     - name: Load Primary Task
-      ansible.builtin.include_tasks: main.yml
+      ansible.builtin.include_tasks: tasks/main.yml

@@ -1,5 +1,3 @@
----
-# Load Variables
 - name: Load Variables
   hosts: all
   vars:
