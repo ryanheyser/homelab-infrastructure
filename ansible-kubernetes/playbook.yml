@@ -1870,7 +1870,7 @@
       ansible.builtin.stat:
         path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
       register: vault_operator_init_file
-    - name: Wait for vault to complete
+    - name: Wait for vault-0 to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Pod
@@ -1882,7 +1882,7 @@
         wait_condition:
           type: "PodScheduled"
           status: "True"
-    - name: Wait for vault to complete
+    - name: Wait for vault-1 to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Pod
@@ -1894,7 +1894,7 @@
         wait_condition:
           type: "PodScheduled"
           status: "True"
-    - name: Wait for vault to complete
+    - name: Wait for vault-2 to complete
       kubernetes.core.k8s_info:
         kubeconfig: "{{ home }}/.kube/config"
         kind: Pod
@@ -1906,6 +1906,9 @@
         wait_condition:
           type: "PodScheduled"
           status: "True"
+    - name: Pause for Vault Stability
+      ansible.builtin.pause:
+        seconds: 30
     - name: Initialize Vault
       # noqa: run-once[task]
       run_once: true
@@ -1916,13 +1919,12 @@
         command: vault operator init -format=json -key-shares=2 -key-threshold=2 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak,keybase:rheyser"
       register: vault_operator_init
       ignore_unreachable: true
-      loop:
-        - vault-0
-        - vault-1
-        - vault-2
       when: >-
         (not vault_operator_init_file.stat.exists) and
         kubeconfig.stat.exists
+    - name: Pause for Vault Stability
+      ansible.builtin.pause:
+        seconds: 30
     - name: Write Vault Configuration to File
       # noqa: run-once[task]
       run_once: true
