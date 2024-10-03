@@ -149,7 +149,7 @@
         vars_file.stat.exists
     - name: Set hostname on remote hosts
       ansible.builtin.hostname:
-        name: "{{ ansible_fqdn }}"
+        name: "{{ inventory_hostname }}"
       when: >-
         not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     - name: Check if reboot required
