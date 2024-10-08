@@ -1,0 +1,16 @@
+- name: Check for kubeconfig
+  ansible.builtin.stat:
+    path: "{{ home }}/.kube/config"
+  register: kubeconfig
+- name: Download reflector manifest to the cluster.
+  ansible.builtin.get_url:
+    url: https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml
+    dest: "{{ playbook_dir }}/reflector.yaml"
+    mode: '0664'
+  register: reflector
+- name: Apply reflector manifest to the cluster.
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    src: "{{ playbook_dir }}/reflector.yaml"
+  register: reflectorapply

@@ -1,0 +1,89 @@
+- name: Check for kubeconfig
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.stat:
+    path: "{{ home }}/.kube/config"
+  register: kubeconfig
+# - name: Wait for all nodes
+#   delegate_to: localhost
+#   run_once: true
+#   kubernetes.core.k8s_info:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     kind: Node
+#     name: "{{ ansible_host }}"
+#     wait: true
+#     wait_condition:
+#       type: "Ready"
+#       status: "True"
+#     wait_sleep: 5
+#     wait_timeout: 300
+- name: Add taint to controlplane nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s_taint:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    name: "{{ item }}"
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+  loop: "{{ groups.controlnodes | list | flatten(1) }}"
+  # loop: "{{ inventory_hostname in groups.controlnodes }}"
+- name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s_taint:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: absent
+    name: "{{ item }}"
+    taints:
+    - effect: NoSchedule
+      key: node.cloudprovider.kubernetes.io/uninitialized
+  # loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+  loop: "{{ groups.controlnodes | list | flatten(1) }}"
+- name: Add labels to controlplane nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Node
+    state: patched
+    name: "{{ item }}"
+    definition:
+      metadata:
+        labels:
+          node-role.kubernetes.io/control-plane: "true"
+          topology.kubernetes.io/region: "us-east-1"
+          topology.kubernetes.io/zone: "us-east-1a"
+  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+  loop: "{{ groups.controlnodes | list | flatten(1) }}"
+- name: Add labels to worker nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Node
+    state: patched
+    name: "{{ item }}"
+    definition:
+      metadata:
+        labels:
+          topology.kubernetes.io/region: "us-east-1"
+          topology.kubernetes.io/zone: "us-east-1a"
+  # loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+  loop: "{{ groups.workernodes | list | flatten(1) }}"
+# - name: Exit Early
+#   ansible.builtin.fail:
+#     msg: Failing to diagnose
+# - name: Patch nodes to add route-reflector
+#   delegate_to: localhost
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: patched
+#     kind: Node
+#     name: "{{ ansible_host }}"
+#     definition:
+#       metadata:
+#         annotations:
+#           projectcalico.org/RouteReflectorClusterID: 244.0.0.1

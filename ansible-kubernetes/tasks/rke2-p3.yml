@@ -1,0 +1,39 @@
+- name: Check if rke2.yaml File Exists
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/rke2.yaml"
+  register: rke2_yaml
+    # when: >-
+    # installrke2 is defined
+- name: Create system kube directory
+  ansible.builtin.file:
+    path: "/etc/rancher/rke2"
+    state: directory
+    mode: '0755'
+      #when: >-
+      #installrke2 is defined
+- name: Create user kube directory
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  ansible.builtin.file:
+    path: "{{ home }}/.kube"
+    state: directory
+    mode: '0755'
+      #when: >-
+      #installrke2 is defined
+- name: Copy Kubeconfig to system
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/rke2.yaml"
+    dest: "/etc/rancher/rke2/"
+    force: true
+    mode: '0644'
+  when: >-
+    rke2_yaml.stat.exists
+- name: Copy Kubeconfig to user default
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  ansible.builtin.command: |
+    /usr/bin/cp "{{ playbook_dir }}/rke2.yaml" "{{ home }}/.kube/config"
+  changed_when: true
+  when: >-
+    rke2_yaml.stat.exists
+  #installrke2 is defined and

@@ -1,0 +1,18 @@
+- name: Setup | upgrade all packages
+  ansible.builtin.apt:
+    state: latest # noqa package-latest
+    update_cache: true
+    name: '*'
+  become: true
+- name: Setup | install required packages
+  ansible.builtin.apt:
+    state: 'present'
+    update_cache: true
+    pkg:
+      - bind9 
+      - bind9-utils 
+      - bind9-dnsutils 
+      - containernetworking-plugins
+  become: true
+  changed_when: true
+  register: packageinstall

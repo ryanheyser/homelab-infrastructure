@@ -1,0 +1,80 @@
+- name: Add nfs-subdir-external-provisioner repository
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm_repository:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: nfs-subdir-external-provisioner
+    repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+- name: Create storage-system namespace
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: storage-system
+    api_version: v1
+    kind: Namespace
+    state: present
+    definition:
+      metadata:
+        annotations:
+          # cni.projectcalico.org/ipv4pools: '["system"]'
+          metallb.universe.tf/address-pool: "system"
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/warn: privileged
+- name: Deploy nfs-subdir-external-provisioner chart
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: nfs-subdir-external-provisioner
+    release_namespace: storage-system
+    # renovate: registryUrl=https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+    chart_version: 4.0.18
+    values:
+      replicaCount: 3
+      strategyType: RollingUpdate
+      nfs:
+        server: "10.0.0.8"
+        path: "/mnt/kracko"
+        mountOptions:
+        - "vers=4"
+        - "minorversion=1"
+        - "local_lock=posix"
+        - "proto=tcp"
+        - "noresvport"
+        - "ac"
+      storageClass:
+        defaultClass: true
+        name: "nfs-dynamic"
+        pathPattern: "${.PVC.annotations.nfs.io/storage-path}"
+        accesssModes: "ReadWriteMany"
+        archiveOnDelete: false
+        provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner"
+        reclaimPolicy: "Retain"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nfs-subdir-external-provisioner
+            topologyKey: "kubernetes.io/hostname"
+- name: Wait for nfs-subdir-external-provisioner to complete
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Deployment
+    namespace: storage-system
+    label_selectors:
+      - app = nfs-subdir-external-provisioner
+    wait: true
+    wait_condition:
+      type: "Available"
+      status: "True"
+    wait_sleep: 30
+    wait_timeout: 600
+  # register: nfsstatus
+  # until: nfsstatus.resources[0].status.readyReplicas | int > 0
+  # retries: 20
+  # delay: 15

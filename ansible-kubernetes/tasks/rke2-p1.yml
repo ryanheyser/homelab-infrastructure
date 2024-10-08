@@ -1,0 +1,191 @@
+- name: Check docker secrets encrypted file
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
+  register: dockersecretsfile
+- name: Unencrypt Docker Secrets
+  delegate_to: localhost
+  ansible.builtin.set_fact:
+      docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+  when: dockersecretsfile.stat.exists
+  failed_when: not dockersecretsfile.stat.exists
+- name: Disable Service | ufw
+  ansible.builtin.systemd_service:
+    name: ufw
+    state: stopped
+    enabled: false
+- name: Disable Service | apparmor
+  ansible.builtin.systemd_service:
+    name: apparmor
+    state: stopped
+    enabled: false
+- name: Reload Services | systemctl daemon reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+- name: Create kubernetes directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/kubernetes
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+- name: Create KubeletConfig File
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/kubernetes/kubeletconfig.yml
+    mode: '0644'
+    owner: root
+    group: root
+    content: |
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      kind: KubeletConfiguration
+      clusterDNS: [ 10.254.0.10 ]
+- name: Deploy | Install RKE2
+  vars:
+    rke2_version:  v1.31.1+rke2r1
+    rke2_ha_mode: true
+    rke2_interface: ens18
+    rke2_api_ip: "10.0.1.5"
+    rke2_ha_mode_keepalived: true
+    # rke2_bind_address: "{{ ansible_host }}"
+    # rke2_bind_address: "10.0.1.5"
+    # rke2_bind_address: "0.0.0.0"
+    rke2_api_cidr: 18
+    rke2_additional_sans:
+    - kubernetes.homelab.heyser.xyz
+    - kubernetes.homelab.heyser.lan
+    # rke2_cluster_domain: homelab.heyser.xyz
+    rke2_download_kubeconf: true
+    # rke2_server_node_taints:
+    # - "node-role.kubernetes.io/control-plane:NoSchedule"
+    # rke2_cni: 'none'
+    rke2_cni:
+    - multus
+    - calico
+    rke2_cluster_cidr:
+    - 10.255.0.0/16
+    rke2_service_cidr:
+    - 10.254.0.0/16
+    rke2_node_name: "{{ inventory_hostname }}"
+    rke2_cluster_group_name: kubernetes
+    rke2_servers_group_name: controlnodes
+    rke2_agents_group_name: workernodes
+    rke2_download_kubeconf_path: "{{ playbook_dir }}"
+    # rke2_cis_profile: "cis"
+    # rke2_custom_registry_mirrors:
+    # - name: docker.io
+    #   endpoint: "{{ registry_hosts }}"
+    # - name: index.docker.io
+    #   endpoint: "{{ registry_hosts }}"
+    # - name: registry-1.docker.io
+    #   endpoint: "{{ registry_hosts }}"
+    # rke2_custom_registry_configs:
+    # - endpoint: docker.io
+    #   config:
+    #     auth:
+    #       username: "{{ (docker | from_yaml).docker_user }}"
+    #       password: "{{ (docker | from_yaml).docker_token }}"
+    # - endpoint: index.docker.io
+    #   config:
+    #     auth:
+    #       username: "{{ (docker | from_yaml).docker_user }}"
+    #       password: "{{ (docker | from_yaml).docker_token }}"
+    # - endpoint: registry-1.docker.io
+    #   config:
+    #     auth:
+    #       username: "{{ (docker | from_yaml).docker_user }}"
+    #       password: "{{ (docker | from_yaml).docker_token }}"
+    # rke2_disable_cloud_controller: true
+    rke2_disable:
+    - rke2-canal
+    - rke2-ingress-nginx
+    rke2_server_options:
+    # - "bind-address: {{ ansible_host }}"
+    # - "bind-address: 10.0.1.5"
+    # - "cloud-provider-name: none"
+    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+    # - "disable-cloud-controller: true"
+    - "node-ip: {{ ansible_host }}"
+    # - "node-name: {{ inventory_hostname }}"
+    # - "node-external-ip: 10.0.1.5"
+    - "write-kubeconfig-mode: 0644"
+    # - "embedded-registry: true"
+    # - "etcd-arg: [ '--election-timeout 10000', '--heartbeat-interval 5000' ]"
+    # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+    # rke2_agent_options:
+    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+    # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+    # k3s_become: true
+    # k3s_state: installed
+    # # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
+    # k3s_registration_address: kubernetes.homelab.heyser.xyz
+    # # Set a specific release version or false for stable, latest for latest
+    # k3s_release_version: false
+    # k3s_build_cluster: true
+    # k3s_etcd_datastore: true
+    # k3s_use_unsupported_config: true
+    # k3s_use_experimental: true
+    # k3s_install_hard_links: true
+    # k3s_registries:
+    #   mirrors:
+    #     docker.io:
+    #     index.docker.io:
+    #     registry-1.docker.io:
+    #   configs:
+    #     docker.io:
+    #       auth:
+    #         username: "{{ (docker | from_yaml).docker_user }}"
+    #         password: "{{ (docker | from_yaml).docker_token }}"
+    #     index.docker.io:
+    #       auth:
+    #         username: "{{ (docker | from_yaml).docker_user }}"
+    #         password: "{{ (docker | from_yaml).docker_token }}"
+    #     registry-1.docker.io:
+    #       auth:
+    #         username: "{{ (docker | from_yaml).docker_user }}"
+    #         password: "{{ (docker | from_yaml).docker_token }}"
+    # k3s_server:
+    #   # listen-port: 6443
+    #   bind-address: "{{ ansible_host }}"
+    #   # bind-address: 0.0.0.0
+    #   cluster-cidr: 10.254.0.0/16
+    #   service-cidr: 10.255.0.0/16
+    #   # advertise-address: 10.255.0.1
+    #   # advertise-port: 443
+    #   no-flannel: true
+    #   flannel-backend: 'none'
+    #   secrets-encryption: true
+    #   etcd-expose-metrics: true
+    #   disable-network-policy: true
+    #   disable-kube-proxy: false
+    #   embedded-registry: true
+    #   write-kubeconfig-mode: '0644'
+    #   etcd-arg: "--election-timeout 10000"
+    #   node-taint:
+    #     - "node-role.kubernetes.io/control-plane:NoSchedule"
+    #   node-label:
+    #     - "node-role.kubernetes.io/control-plane=true"
+    #     - "topology.kubernetes.io/region=us-east-1"
+    #     - "topology.kubernetes.io/zone=us-east-1a"
+    #     - "route-reflector=true"
+    #   tls-san:
+    #     - "kubernetes.homelab.heyser.xyz"
+    #   disable:
+    #     - traefik
+    #     - coredns
+    #     - servicelb
+    # k3s_agent:
+    #   node-label:
+    #     - "topology.kubernetes.io/region=us-east-1"
+    #     - "topology.kubernetes.io/zone=us-east-1a"
+    #     - "route-reflector=true"
+  ansible.builtin.import_role:
+    name: "lablabs.rke2"
+      #when: >-
+      #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+  register: installrke2
+# - name: Cleanup | Remove multus-shim if exists
+#   ansible.builtin.file:
+#     path: "/opt/cni/bin/multus-shim"
+#     state: absent
