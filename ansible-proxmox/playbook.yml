@@ -2,6 +2,7 @@
 # Load Variables
 - name: Load Variables
   hosts: all
+  gather_facts: false
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
@@ -13,6 +14,18 @@
       ansible.builtin.include_vars:
         file: vars_file.stat.path
       when: vars_file.stat.exists
+
+- name: Setup SSH Access
+  hosts: all
+  tasks:
+    - name: Setup | Read SSH Key
+      ansible.builtin.set_fact:
+        ansible_ssh_key_pub: "{{ lookup('template', playbook_dir + '/secrets/ansible_id_ed25519.pub') }}"
+    - name: Setup | Add SSH Key to known hosts
+      ansible.builtin.known_hosts:
+        name: "{{ ansible_host }}"
+        key: "{{ ansible_host }} {{ ansible_ssh_key_pub }}"
+      changed_when: false
 
 - name: Ping Hosts
   hosts: all
