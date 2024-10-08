@@ -25,7 +25,7 @@
     update_cache: true
     pkg:
       - age
-      - build-essential
+      # - build-essential
       - curl
       - dnsutils
       - gpg
