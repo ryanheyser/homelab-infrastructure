@@ -61,7 +61,6 @@
 - name: Setup | Add Hashicorp GPG to system
   become: true
   ansible.builtin.shell: |
-    set -o pipefail
     echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   when: not hashicorp_gpg_file.stat.exists
   changed_when: true
