@@ -88,18 +88,6 @@
         apt install ansible
       become: true
       changed_when: true
-    - name: Setup | Install sops
-      ansible.builtin.include_role:
-        name: community.sops.install
-      vars_files:
-        - "{{ playbook_dir }}/vars.yml"
-      vars:
-        sops_install_on_localhost: true
-        sops_become_on_install: true
-        sops_github_latest_detection: "auto"
-        sops_github_token: "{{ github_token }}"
-      when: >-
-        not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     - name: Setup | Download truenas-proxmox keyring
       ansible.builtin.uri:
         url: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key
