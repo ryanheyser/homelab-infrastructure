@@ -1,0 +1,115 @@
+# - name: Setup | apt update
+#   ansible.builtin.command: apt update -y
+#   become: true
+#   changed_when: true
+# - name: Setup | apt upgrade
+#   ansible.builtin.command: apt upgrade -y
+#   become: true
+#   changed_when: true
+# - name: Cleanup | Remove hashicorp apt if exists
+#   become: true
+#   ansible.builtin.file:
+#     path: "/etc/apt/sources.list.d/apt_releases_hashicorp_com.list"
+#     state: absent
+- name: Setup | Apt Update/Upgrade
+  ansible.builtin.apt:
+    update_cache: "yes"
+    upgrade: "yes"
+    autoclean: "yes"
+    autoremove: "yes"
+    state: "latest"
+  changed_when: true
+- name: Setup | install required packages
+  ansible.builtin.apt:
+    state: 'present'
+    update_cache: true
+    pkg:
+      - age
+      - build-essential
+      - curl
+      - dnsutils
+      - gpg
+      - linux-generic
+      - linux-headers-generic
+      - mtr-tiny
+      - net-tools
+      - nfs-common
+      - open-vm-tools
+      - openssl
+      - p7zip-full
+      - pciutils
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-virtualenv
+      - software-properties-common
+      - tcpdump
+      - vim
+      - wget
+      - zstd
+  become: true
+  changed_when: true
+- name: Setup | Get Hashicorp GPG
+  ansible.builtin.uri:
+    url: https://apt.releases.hashicorp.com/gpg
+    return_content: true
+  register: hashicorpgpg
+- name: Setup | Check to see if hashicorp gpg exists
+  ansible.builtin.stat:
+    path: "/usr/share/keyrings/hashicorp-archive-keyring.gpg"
+  register: hashicorp_gpg_file
+- name: Setup | Add Hashicorp GPG to system
+  become: true
+  ansible.builtin.shell: |
+    set -o pipefail && echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  when: not hashicorp_gpg_file.stat.exists
+  changed_when: true
+- name: Setup | Add Hashicorp apt source
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
+    state: present
+- name: Setup | install ansible ppa
+  ansible.builtin.apt_repository:
+    repo: ppa:ansible/ansible
+- name: Setup | install extra packages
+  ansible.builtin.apt:
+    state: 'present'
+    update_cache: true
+    pkg:
+      - ansible
+      - vault
+  become: true
+  changed_when: true
+- name: Install sops on localhost
+  ansible.builtin.include_role:
+    name: community.sops.install
+    vars_from: "{{ vars_file.stat.path }}"
+  vars:
+    sops_install_on_localhost: true
+    sops_github_token: "{{ github_token }}"
+    sops_become_on_install: true
+  when: >-
+    not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0) and
+    vars_file.stat.exists
+- name: Install sops
+  ansible.builtin.include_role:
+    name: community.sops.install
+    vars_from: "{{ vars_file.stat.path }}"
+  vars:
+    sops_github_token: "{{ github_token }}"
+    sops_become_on_install: true
+  when: >-
+    not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0) and
+    vars_file.stat.exists
+- name: Set hostname on remote hosts
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+  when: >-
+    not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+- name: Check if reboot required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+- name: Reboot if required
+  ansible.builtin.reboot:
+  when: reboot_required_file.stat.exists
