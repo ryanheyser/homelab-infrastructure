@@ -28,8 +28,10 @@ fi
 # shasumurl="https://cdimage.ubuntu.com/ubuntu-server/jammy/daily-live/current/SHA256SUMS"
 # dlurl="https://releases.ubuntu.com/mantic/ubuntu-23.10-live-server-amd64.iso"
 # shasumurl="https://releases.ubuntu.com/mantic/SHA256SUMS"
-dlurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/noble-live-server-amd64.iso"
-shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA256SUMS"
+# dlurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/noble-live-server-amd64.iso"
+# shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA256SUMS"
+dlurl="https://mirror.pilotfiber.com/ubuntu-iso/releases/noble/ubuntu-24.04.1-live-server-amd64.iso"
+shasumurl="https://mirror.pilotfiber.com/ubuntu-iso/releases/noble/SHA256SUMS"
 fn="ubuntu-server.iso"
 shasumfn="SHA256SUMS"
 ago=`date --date "1 day ago" +%s`

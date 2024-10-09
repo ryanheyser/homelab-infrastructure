@@ -68,9 +68,9 @@
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
     state: present
-- name: Setup | install ansible ppa
-  ansible.builtin.apt_repository:
-    repo: ppa:ansible/ansible
+# - name: Setup | install ansible ppa
+#   ansible.builtin.apt_repository:
+#     repo: ppa:ansible/ansible
 - name: Setup | install extra packages
   ansible.builtin.apt:
     state: 'present'
