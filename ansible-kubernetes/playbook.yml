@@ -1,6 +1,8 @@
 ---
 - name: Ping Hosts
   hosts: all
+  tags:
+    - ping
   tasks:
     - name: Ping all hosts
       delegate_to: localhost
@@ -15,6 +17,8 @@
 
 - name: Setup SSH Access
   hosts: all
+  tags: 
+    - ssh
   tasks:
     - name: Setup | Read SSH Key
       ansible.builtin.set_fact:
@@ -28,6 +32,8 @@
 # Load Variables
 - name: Load Variables
   hosts: all
+  tags: 
+    - vars
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
@@ -44,6 +50,8 @@
   connection: ssh
   gather_facts: true
   hosts: all
+  tags:
+    - setup
   tasks:
     - name: Setup | Hosts
       ansible.builtin.include_tasks:
@@ -53,6 +61,9 @@
   hosts: kubernetes
   connection: ssh
   # vars:
+  tags:
+    - setup
+    - kubernetes
   tasks:
     - name: Setup | Hosts
       ansible.builtin.include_tasks:
@@ -61,6 +72,9 @@
 # Age/Sops
 - name: Age/Sops
   hosts: localhost
+  tags:
+    - setup
+    - kubernetes
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
@@ -82,6 +96,10 @@
 # Flux
 - name: Install Flux
   hosts: localhost
+  tags: 
+    - setup
+    - kubernetes
+    - Flux
   tasks:
     - name: Install Flux CLI
       ansible.builtin.shell:
@@ -96,6 +114,10 @@
 - name: Externaldns-key
   hosts: localhost
   strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - dns
   tasks:
     - name: Generate externaldns-key
       # noqa: run-once[task]
@@ -117,6 +139,10 @@
 # rke2
 - name: RKE2 | install kubernetes
   hosts: kubernetes
+  tags:
+    - setup
+    - kubernetes
+    - rke2
   vars:
     registry_hosts: |
       {% set var = [] %}
@@ -133,6 +159,10 @@
   hosts: controlnodes
   gather_facts: false
   strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - rke2
   tasks:
     - name: Setup | RKE2 Part 2
       ansible.builtin.include_tasks:
@@ -143,6 +173,10 @@
   gather_facts: false
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - rke2
   tasks:
     - name: Setup | RKE2 Part 3
       ansible.builtin.include_tasks:
@@ -152,6 +186,10 @@
   hosts: kubernetes
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - rke2
   tasks:
     - name: Setup | RKE2 Part 4
       ansible.builtin.include_tasks:
@@ -162,6 +200,10 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - cni
   tasks:
     - name: Setup | CNI
       ansible.builtin.include_tasks:
@@ -172,6 +214,10 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - reflector
   tasks:
     - name: Setup | Reflector
       ansible.builtin.include_tasks:
@@ -182,6 +228,10 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - docker
   tasks:
     - name: Setup | Docker
       ansible.builtin.include_tasks:
@@ -192,6 +242,10 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - metallb
   tasks:
     - name: Setup | Metallb
       ansible.builtin.include_tasks:
@@ -202,6 +256,10 @@
   hosts: localhost
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - traefik
   tasks:
     - name: Setup | Traefik
       ansible.builtin.include_tasks:
@@ -333,6 +391,10 @@
   strategy: linear
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - storage
   tasks:
     - name: Setup | Storage
       ansible.builtin.include_tasks:
@@ -342,6 +404,10 @@
 - name: Install Vault
   hosts: localhost
   strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - vault
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
@@ -355,6 +421,10 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     # kubeconfig: "{{ home }}/.kube/config"
+  tags:
+    - setup
+    - kubernetes
+    - secrets
   tasks:
     - name: Setup | External Secrets
       ansible.builtin.include_tasks:
@@ -366,6 +436,10 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     # kubeconfig: "{{ home }}/.kube/config"
+  tags:
+    - setup
+    - kubernetes
+    - flux
   tasks:
     - name: Setup | Flux
       ansible.builtin.include_tasks:
