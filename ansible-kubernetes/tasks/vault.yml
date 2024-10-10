@@ -154,7 +154,7 @@
   run_once: true
   ansible.builtin.set_fact:
     vault_operator_init: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-init-secret.key')"
-    vault_operator_init_read: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-init-secret.key')"
+    vault_operator_init_read: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-init-secret.key') }}"
   when: vault_operator_init_file.stat.exists
 - name: Check Vault Status
   when: kubeconfig.stat.exists
