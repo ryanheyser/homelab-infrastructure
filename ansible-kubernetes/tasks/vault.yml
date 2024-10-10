@@ -119,7 +119,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: vault operator init -format=json -key-shares=2 -key-threshold=2 -root-token-pgp-key="keybase:rumblpak" -pgp-keys="keybase:rumblpak,keybase:rheyser"
+    command: vault operator init -format=json -key-shares=2 -key-threshold=2 -pgp-keys="keybase:rumblpak,keybase:rheyser"
   register: vault_operator_init
   ignore_unreachable: true
   when: >-
