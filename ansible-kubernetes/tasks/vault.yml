@@ -164,6 +164,7 @@
     command: vault status -format=json
   register: vault_status
   ignore_unreachable: true
+  failed_when: vault_status.result.rc > 2
 - name: Unseal Vault 1
   when: >-
     vault_status.stdout is defined and
