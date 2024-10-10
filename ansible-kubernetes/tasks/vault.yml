@@ -171,7 +171,7 @@
   failed_when: vault_status.rc > 2
 - name: Debug
   ansible.builtin.debug:
-    msg: "{{ ( vault_operator_init.unseal_keys_b64[0] ) }}"
+    msg: "{{ ( vault_operator_init ) }}"
 - name: Unseal Vault 1
   when: >-
     vault_status.stdout is defined and
