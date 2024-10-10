@@ -174,7 +174,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[0] }} -format=json
+    command: "vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[0] }} -format=json"
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -184,7 +184,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[1] }} -format=json
+    command: "vault operator unseal {{ (vault_operator_init.stdout | from_json).unseal_keys_b64[1] }} -format=json"
 # - name: Unseal Vault 3
 #   when: >-
 #     vault_status.stdout is defined and
@@ -200,7 +200,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: vault status -format=json
+    command: "vault status -format=json"
   register: vault_status_after_unseal
   ignore_unreachable: true
   failed_when: (vault_status_after_unseal | from_json).sealed
@@ -217,7 +217,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: vault operator generate-root -init -format=json
+    command: "vault operator generate-root -init -format=json"
   register: vault_operator_root
   ignore_unreachable: true
   when: >-
