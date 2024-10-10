@@ -152,6 +152,7 @@
 - name: Read Vault Configuration from File
   # noqa: run-once[task]
   run_once: true
+  become: true
   ansible.builtin.set_fact:
     vault_operator_init: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-init-secret.key')"
     vault_operator_init_read: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-init-secret.key') }}"
