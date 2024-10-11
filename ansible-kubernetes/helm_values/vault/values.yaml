@@ -60,6 +60,7 @@ server:
       setNodeId: true
       config: |
         ui = true
+        disable_mlock = true
         listener "tcp" {
           tls_disable = 1
           address = "[::]:8200"
@@ -70,7 +71,7 @@ server:
         }
         storage "raft" {
           path = "/vault/data"
-            retry_join {
+          retry_join {
             leader_api_addr = "http://vault-0.vault-system.svc.cluster.local:8200"
             # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
             # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"

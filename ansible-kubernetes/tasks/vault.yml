@@ -118,7 +118,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     # command: vault operator init -format=json -key-shares=2 -key-threshold=2 -pgp-keys="keybase:rumblpak,keybase:rheyser"
     command: vault operator init -format=json -key-shares=5 -key-threshold=2
   register: vault_operator_init
@@ -165,7 +165,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: vault status -format=json
   register: vault_status
   ignore_unreachable: true
@@ -181,7 +181,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[0]) }}"
 - name: Unseal Vault 2
   when: >-
@@ -191,7 +191,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[1]) }}"
 # - name: Unseal Vault 3
 #   when: >-
@@ -201,13 +201,13 @@
 #   kubernetes.core.k8s_exec:
 #     kubeconfig: "{{ home }}/.kube/config"
 #     namespace: vault-system
-#     pod: vault-0
+#     pod: vault-2
 #     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[2] }}"
 - name: Check Vault Status Again
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: "vault status -format=json"
   register: vault_status_after_unseal
   ignore_unreachable: true
@@ -224,7 +224,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: "vault operator generate-root -init -format=json"
   register: vault_operator_root
   ignore_unreachable: true
@@ -259,7 +259,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: >-
       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
         -decode={{ (vault_operator_init.unseal_keys_b64[0] }} -format=json
@@ -275,7 +275,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: >-
       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
         -decode={{ (vault_operator_init.unseal_keys_b64[1] }} -format=json
@@ -291,7 +291,7 @@
 #   kubernetes.core.k8s_exec:
 #     kubeconfig: "{{ home }}/.kube/config"
 #     namespace: vault-system
-#     pod: vault-0
+#     pod: vault-2
 #     command: >-
 #       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
 #         -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
@@ -332,7 +332,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-0
+    pod: vault-2
     command: >-
       vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
         {{ (vault_operator_init.stdout | from_json).root_token }}
