@@ -136,8 +136,8 @@
     content: "{{ vault_operator_init.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
     mode: preserve
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "rumblpak"
+    group: "rumblpak"
   when: >-
     vault_operator_init is defined and
     (not vault_operator_init is skipped)
