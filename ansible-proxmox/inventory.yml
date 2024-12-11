@@ -34,13 +34,13 @@ proxmox:
     ansible_user: root
     ansible_ssh_private_key_file: "{{ playbook_dir }}/secrets/ansible_id_ed25519"
   hosts:
-    pichikuri:
+    awasuki:
       ansible_host: 10.0.0.9
-    # darkmatter:
+    # awadoron:
     #   ansible_host: 10.0.0.12
-    # miraclematter:
+    # angermasker:
     #   ansible_host: 10.0.0.13
-    orbservor:
-      ansible_host: 10.0.0.14
-    miasmoros:
-      ansible_host: 10.0.0.15
+    # acchi:
+    #   ansible_host: 10.0.0.14
+    # amprey:
+    #   ansible_host: 10.0.0.15
