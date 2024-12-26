@@ -34,7 +34,7 @@ shasumurl="https://cdimage.ubuntu.com/ubuntu-server/noble/daily-live/current/SHA
 # shasumurl="https://mirror.pilotfiber.com/ubuntu-iso/releases/noble/SHA256SUMS"
 fn="ubuntu-server.iso"
 shasumfn="SHA256SUMS"
-ago=`date --date "1 day ago" +%s`
+ago=`date --date "7 day ago" +%s`
 curl -s -I --write-out '%{http_code}' $dlurl | grep "HTTP/1.1 200 OK"
 if [[ $? -gt 0 ]]
 then

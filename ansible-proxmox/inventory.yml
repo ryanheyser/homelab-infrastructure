@@ -38,9 +38,9 @@ proxmox:
       ansible_host: 10.0.0.9
     awadoron:
       ansible_host: 10.0.0.12
-    # angermasker:
-    #   ansible_host: 10.0.0.13
-    acchi:
-      ansible_host: 10.0.0.14
+    angermasker:
+      ansible_host: 10.0.0.13
     amprey:
+      ansible_host: 10.0.0.14
+    acchi:
       ansible_host: 10.0.0.15

@@ -55,7 +55,7 @@
     release_namespace: vault-system
     # renovate: registryUrl=https://helm.releases.hashicorp.com
     chart_ref: hashicorp/vault
-    chart_version: 0.28.1
+    chart_version: 0.29.1
     values_files:
       - "{{ playbook_dir }}/helm_values/vault/values.yaml"
 - name: Deploy csi-secrets-store chart

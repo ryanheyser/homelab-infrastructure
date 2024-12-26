@@ -13,7 +13,7 @@
 #       changed_when: false
 
 - name: Setup SSH Access
-  hosts: all
+  hosts: proxmox
   tasks:
     - name: Setup | Read SSH Key
       ansible.builtin.set_fact:
@@ -43,15 +43,17 @@
 - name: Setup All Hosts
   hosts: proxmox
   connection: ssh
+  vars:
+    always_true: true
   tasks:
     - name: Setup | apt update
       ansible.builtin.command: apt update -y
       become: true
-      changed_when: true
+      changed_when: always_true
     - name: Setup | apt upgrade
       ansible.builtin.command: apt upgrade -y
       become: true
-      changed_when: true
+      changed_when: always_true
     - name: Setup | install required packages
       ansible.builtin.apt:
         state: 'present'
@@ -76,7 +78,7 @@
           - vim
           - zstd
       become: true
-      changed_when: true
+      changed_when: always_true
     - name: Setup | Upgrade proxmox
       ansible.builtin.apt:
         state: 'present'
@@ -85,8 +87,22 @@
           - proxmox-ve
           - pve-manager
       register: proxmoxupgrade
-      notify:
-        - Setup | Disable proxmox subscription notice
+    - name: Setup | Disable proxmox subscription notice
+      ansible.builtin.replace:
+        path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+        regexp: |
+          (function\(orig_cmd\) \{)
+        replace: |
+          \1\n\torig_cmd();\n\treturn;
+      become: true
+      when: proxmoxupgrade is changed
+      register: proxmoxsub
+    - name: Setup | Disable proxmox subscription notice - restart pveproxy
+      ansible.builtin.systemd_service:
+        name: pveproxy.service
+        state: restarted
+      become: true
+      when: proxmoxsub is changed
     - name: Setup | Download ansible keyring
       ansible.builtin.uri:
         url: https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367
@@ -98,31 +114,71 @@
         ubuntu=jammy echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $ubuntu main" \
           | tee /etc/apt/sources.list.d/ansible.list
       become: true
-      changed_when: true
-      notify:
-        - Setup | update apt cache
+      register: installansiblecmd
+      changed_when: installansiblecmd.rc == 0
+    - name: Setup | update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: installansiblecmd is changed
     - name: Setup | Download truenas-proxmox keyring
       ansible.builtin.uri:
         url: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/gpg.284C106104A8CE6D.key
         return_content: true
-      register: truenas_proxmox_keyring
       changed_when: true
-      notify:
-        - Setup | Setup truenas-proxmox apt repo
-        - Setup | Add truenas-proxmox key ring
+      register: truenas_proxmox_keyring
+    - name: Setup | Setup truenas-proxmox apt repo
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/ksatechnologies-repo.sources
+        mode: '0644'
+        content: |
+          # Source: KSATechnologies
+          # Site: https://cloudsmith.io
+          # Repository: KSATechnologies / truenas-proxmox
+          # Description: TrueNAS plugin for Proxmox VE - Production
+          Types: deb
+          URIs: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/deb/debian
+          Suites: any-version
+          Components: main
+          Signed-By: /usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
+      register: truenasproxmoxapt
+    - name: Setup | Add truenas-proxmox key ring
+      ansible.builtin.command: |
+        echo {{ truenas_proxmox_keyring }} | \
+          gpg --dearmor >>/usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
+      when: truenas_proxmox_keyring is changed
     - name: Setup | install packages
       ansible.builtin.apt:
         state: 'present'
+        update_cache: true
         pkg:
           - freenas-proxmox
           - ansible
       become: true
       register: truenasproxmox
-      notify:
-        - Setup | install truenas-proxmox - restart pvedaemon
-        - Setup | install truenas-proxmox - restart pveproxy
-        - Setup | install truenas-proxmox - restart pvestatd
-        - Setup | install truenas-proxmox - restart pvescheduler
+    - name: Setup | install truenas-proxmox - restart pvedaemon
+      ansible.builtin.systemd_service:
+        name: pvedaemon.service
+        state: restarted
+      become: true
+      when: truenasproxmox is changed
+    - name: Setup | install truenas-proxmox - restart pveproxy
+      ansible.builtin.systemd_service:
+        name: pveproxy.service
+        state: restarted
+      become: true
+      when: truenasproxmox is changed
+    - name: Setup | install truenas-proxmox - restart pvestatd
+      ansible.builtin.systemd_service:
+        name: pvestatd.service
+        state: restarted
+      become: true
+      when: truenasproxmox is changed
+    - name: Setup | install truenas-proxmox - restart pvescheduler
+      ansible.builtin.systemd_service:
+        name: pvescheduler.service
+        state: restarted
+      become: true
+      when: truenasproxmox is changed
     - name: Setup | Create SSH Key File Directory
       ansible.builtin.file:
         path: "/etc/pve/priv/zfs"
@@ -275,19 +331,9 @@
       ansible.builtin.replace:
         path: /etc/default/grub
         regexp: |
-          GRUB_CMDLINE_LINUX=\".*\"
+          GRUB_CMDLINE_LINUX_DEFAULT=\".*\"
         replace: >-
-          GRUB_CMDLINE_LINUX=\"
-          mitigations=off
-           iommu=pt
-           intel_iommu=igfx_off
-           i915.enable_gvt=1
-           pcie_acs_override=downstream,multifunction
-           pcie_aspm.policy=performance
-           video=efifb:off
-           video=vesa:off
-           kvm.ignore_msrs=1
-           modprobe.blacklist=radeon,nouveau,nvidia-gpu,snd_hda_codec_hdmi,i915\"
+          GRUB_CMDLINE_LINUX_DEFAULT="quiet mitigations=off iommu=pt intel_iommu=igfx_off i915.enable_gvt=1 pcie_acs_override=downstream,multifunction pcie_aspm.policy=performance pcie_port_pm=off video=efifb:off video=vesa:off kvm.ignore_msrs=1 modprobe.blacklist=radeon,nouveau,nvidia-gpu,snd_hda_codec_hdmi,i915"\n
       notify:
         - Setup | update initramfs
         - Setup | update proxmox boot
@@ -295,40 +341,14 @@
     - name: Setup | update initramfs
       ansible.builtin.command: |
         update-initramfs -u -k all
-      changed_when: true
     - name: Setup | update proxmox boot
       ansible.builtin.command: |
         proxmox-boot-tool refresh
         pve-efiboot-tool refresh
         update-grub
-      changed_when: true
     - name: Setup | update apt cache
       ansible.builtin.apt:
         update_cache: true
-    - name: Setup | Setup truenas-proxmox apt repo
-      ansible.builtin.copy:
-        dest: /etc/apt/sources.list.d/ksatechnologies-repo.sources
-        mode: '0644'
-        content: |
-          # Source: KSATechnologies
-          # Site: https://cloudsmith.io
-          # Repository: KSATechnologies / truenas-proxmox
-          # Description: TrueNAS plugin for Proxmox VE - Production
-          Types: deb
-          URIs: https://dl.cloudsmith.io/public/ksatechnologies/truenas-proxmox/deb/debian
-          Suites: any-version
-          Components: main
-          Signed-By: /usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
-      register: truenasproxmoxapt
-      changed_when: true
-    - name: Setup | Add truenas-proxmox key ring
-      ansible.builtin.command: |
-        echo {{ truenas_proxmox_keyring }} | \
-          gpg --dearmor >>/usr/share/keyrings/ksatechnologies-truenas-proxmox-keyring.gpg
-      when: truenas_proxmox_keyring
-      changed_when: true
-      notify:
-        - Setup | update apt cache
     - name: Setup | Disable proxmox subscription notice
       ansible.builtin.replace:
         path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
@@ -347,30 +367,6 @@
         state: restarted
       become: true
       when: proxmoxsub.changed
-    - name: Setup | install truenas-proxmox - restart pvedaemon
-      ansible.builtin.systemd_service:
-        name: pvedaemon.service
-        state: restarted
-      become: true
-      when: truenasproxmox.changed
-    - name: Setup | install truenas-proxmox - restart pveproxy
-      ansible.builtin.systemd_service:
-        name: pveproxy.service
-        state: restarted
-      become: true
-      when: truenasproxmox.changed
-    - name: Setup | install truenas-proxmox - restart pvestatd
-      ansible.builtin.systemd_service:
-        name: pvestatd.service
-        state: restarted
-      become: true
-      when: truenasproxmox.changed
-    - name: Setup | install truenas-proxmox - restart pvescheduler
-      ansible.builtin.systemd_service:
-        name: pvescheduler.service
-        state: restarted
-      become: true
-      when: truenasproxmox.changed
 
 # Environment Setup
 - name: Setup Hosts Environment
