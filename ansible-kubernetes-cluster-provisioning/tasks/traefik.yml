@@ -24,7 +24,7 @@
 #       spec:
 #         podSelector: {}
 #         egress:
-#         - from: 
+#         - from:
 #           - podSelector:
 #               matchLabels:
 #                 app.kubernetes.io/instance: traefik-network-system

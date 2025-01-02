@@ -1,0 +1,196 @@
+---
+- name: Ping Hosts
+  hosts: all
+  tags:
+    - ping
+  tasks:
+    - name: Ping all hosts
+      delegate_to: localhost
+      delegate_facts: true
+      check_mode: false
+      ansible.builtin.command: |
+        ping -c 2 "{{ inventory_hostname }}"
+      become: true
+      failed_when: ping_hosts.rc == 1 or ping_hosts.rc > 2
+      register: ping_hosts
+      changed_when: false
+
+- name: Setup SSH Access
+  hosts: all
+  tags:
+    - ssh
+  tasks:
+    - name: Setup | Read SSH Key
+      ansible.builtin.set_fact:
+        ansible_ssh_key_pub: "{{ lookup('template', playbook_dir + '/secrets/ansible_id_ed25519.pub') }}"
+    - name: Setup | Add SSH Key to known hosts
+      ansible.builtin.known_hosts:
+        name: "{{ ansible_host }}"
+        key: "{{ ansible_host }} {{ ansible_ssh_key_pub }}"
+      changed_when: false
+
+# Load Variables
+- name: Load Variables
+  hosts: all
+  tags:
+    - vars
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Stat vars.yml
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/vars.yml"
+      register: vars_file
+    - name: Load vars
+      ansible.builtin.include_vars:
+        file: "{{ vars_file.stat.path }}"
+      when: vars_file.stat.exists
+
+- name: Setup Hosts
+  connection: ssh
+  gather_facts: true
+  hosts: all
+  tags:
+    - setup
+  tasks:
+    - name: Setup | Hosts
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/setup.yml"
+
+- name: Setup Kubernetes Hosts
+  hosts: kubernetes
+  connection: ssh
+  # vars:
+  tags:
+    - setup
+    - kubernetes
+  tasks:
+    - name: Setup | Hosts
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/setup-kubernetes.yml"
+
+# Age/Sops
+- name: Age/Sops
+  hosts: localhost
+  tags:
+    - setup
+    - kubernetes
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Stat age.key
+      ansible.builtin.stat:
+        path: "{{ home }}/.config/sops/age/keys.txt"
+      register: age_key_file
+    - name: Fail if Age Keyfile does not exist
+      ansible.builtin.fail:
+        message: "{{ home }}/.config/sops/age/keys.txt does not exist"
+      when: not age_key_file.stat.exists
+    - name: Get Age Public Key
+      ansible.builtin.command: |
+        grep -Po '(?<=public key: ).*' {{ home }}/.config/sops/age/keys.txt
+      register: age_public_key
+      when: age_key_file.stat.exists
+      changed_when: true
+
+# Flux
+- name: Install Flux
+  hosts: localhost
+  tags:
+    - setup
+    - kubernetes
+    - Flux
+  tasks:
+    - name: Install Flux CLI
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          curl -s https://fluxcd.io/install.sh | bash
+        executable: /bin/bash
+      become: true
+      changed_when: true
+
+# DNS
+- name: Externaldns-key
+  hosts: localhost
+  strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - dns
+  tasks:
+    - name: Generate externaldns-key
+      # noqa: run-once[task]
+      run_once: true
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          /usr/sbin/tsig-keygen -a hmac-sha256 externaldns | /usr/bin/grep secret | /usr/bin/cut -d '"' -f2
+        executable: /bin/bash
+      register: externaldns_key
+      changed_when: false
+- name: Setup DNS
+  hosts: kubernetes
+  tasks:
+    - name: Setup | DNS
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/setup-dns.yml"
+
+# rke2
+- name: RKE2 | install kubernetes
+  hosts: kubernetes
+  tags:
+    - setup
+    - kubernetes
+    - rke2
+  vars:
+    registry_hosts: |
+      {% set var = [] %}
+      {% for x in groups['controlnodes'] %}
+        {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
+      {% endfor %}
+      {{ var }}
+  tasks:
+    - name: Setup | RKE2 Part 1
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/rke2-p1.yml"
+
+- name: Post rke2 install
+  hosts: controlnodes
+  gather_facts: false
+  strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - rke2
+  tasks:
+    - name: Setup | RKE2 Part 2
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/rke2-p2.yml"
+
+- name: Post rke2 install part 2
+  hosts: localhost
+  gather_facts: false
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - rke2
+  tasks:
+    - name: Setup | RKE2 Part 3
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/rke2-p3.yml"
+
+- name: Post rke2 install part 3
+  hosts: kubernetes
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - rke2
+  tasks:
+    - name: Setup | RKE2 Part 4
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/rke2-p4.yml"

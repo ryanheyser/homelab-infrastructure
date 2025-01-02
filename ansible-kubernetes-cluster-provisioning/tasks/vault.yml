@@ -79,8 +79,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-    - app.kubernetes.io/name = vault
-    - apps.kubernetes.io/pod-index = "0"
+      - app.kubernetes.io/name = vault
+      - apps.kubernetes.io/pod-index = "0"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -91,8 +91,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-    - app.kubernetes.io/name = vault
-    - apps.kubernetes.io/pod-index = "1"
+      - app.kubernetes.io/name = vault
+      - apps.kubernetes.io/pod-index = "1"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -103,8 +103,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-    - app.kubernetes.io/name = vault
-    - apps.kubernetes.io/pod-index = "2"
+      - app.kubernetes.io/name = vault
+      - apps.kubernetes.io/pod-index = "2"
     wait: true
     wait_condition:
       type: "PodScheduled"

@@ -37,12 +37,12 @@
         server: "10.0.0.8"
         path: "/mnt/kracko"
         mountOptions:
-        - "vers=4"
-        - "minorversion=1"
-        - "local_lock=posix"
-        - "proto=tcp"
-        - "noresvport"
-        - "ac"
+          - "vers=4"
+          - "minorversion=1"
+          - "local_lock=posix"
+          - "proto=tcp"
+          - "noresvport"
+          - "ac"
       storageClass:
         defaultClass: true
         name: "nfs-dynamic"
@@ -54,13 +54,13 @@
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - nfs-subdir-external-provisioner
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nfs-subdir-external-provisioner
+              topologyKey: "kubernetes.io/hostname"
 - name: Wait for nfs-subdir-external-provisioner to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"

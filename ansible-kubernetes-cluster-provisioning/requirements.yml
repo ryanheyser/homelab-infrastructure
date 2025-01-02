@@ -1,7 +1,3 @@
-roles:
-  - src: bertvv.bind
-  - src: lablabs.rke2
-  # - src: xanmanning.k3s
 collections:
   - name: community.sops
   - name: kubernetes.core

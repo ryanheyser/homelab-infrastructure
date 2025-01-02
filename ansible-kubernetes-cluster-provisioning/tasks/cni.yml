@@ -100,7 +100,7 @@
 #     api_version: operator.tigera.io/v1
 #     kind: Installation
 #     # apply: true
-#     # server_side_apply: 
+#     # server_side_apply:
 #     #   field_manager: ansible
 #     definition:
 #       spec:
@@ -135,7 +135,7 @@
 #     kubeconfig: "{{ home }}/.kube/config"
 #     state: present
 #     apply: true
-#     server_side_apply: 
+#     server_side_apply:
 #       field_manager: ansible
 #     definition:
 #       apiVersion: operator.tigera.io/v1
@@ -277,7 +277,7 @@
           - cidr: 10.0.101.0/24
           - cidr: 10.0.100.0/24
         # communities:
-        #   - name: bgpdefault        
+        #   - name: bgpdefault
 - name: Create Global BGP Peer Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -311,9 +311,9 @@
         namespace: calico-system
       spec:
         classes:
-        - Agent
-        - BGP
-        - Routes
+          - Agent
+          - BGP
+          - Routes
         node: "{{ item }}"
         updatePeriodSeconds: 60
   loop: "{{ groups.kubernetes | list | flatten(1) }}"

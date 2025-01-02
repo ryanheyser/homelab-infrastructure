@@ -1,0 +1,13 @@
+syncSecret:
+  enabled: true
+enableSecretRotation: false
+rotationPollInterval:
+logFormatJSON: true
+linux:
+  tolerations:
+    - effect: PreferNoSchedule
+      key: node-role.kubernetes.io
+      value: master
+    - key: node-role.kubernetes.io/control-plane
+      operator: Equal
+      effect: NoSchedule
