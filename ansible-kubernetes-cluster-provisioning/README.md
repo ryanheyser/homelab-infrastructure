@@ -45,7 +45,7 @@ sops --encrypt --age '<age public key>' secrets/github.sops.yaml >secrets/github
 2. To decrypt:
 ```bash
 sops --decrypt --input-type yaml --output-type yaml secrets/docker.sops.yaml.enc >secrets/docker.sops.yaml
-sops --decrypt --input-type yaml --output-type yaml secrets/github.sops.yaml.enc >github.sops.yaml
+sops --decrypt --input-type yaml --output-type yaml secrets/github.sops.yaml.enc >secrets/github.sops.yaml
 ```
 
 ### Provision github_token
