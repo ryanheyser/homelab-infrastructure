@@ -46,6 +46,17 @@
         file: "{{ vars_file.stat.path }}"
       when: vars_file.stat.exists
 
+- name: Setup localhost
+  hosts: localhost
+  gather_facts: false
+  tags:
+    - setup
+    - kubernetes
+  tasks:
+    - name: Setup localhost to ensure ansible is successful
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/local-setup.yml"
+
 - name: Setup Hosts
   connection: ssh
   gather_facts: true
@@ -170,7 +181,7 @@
 
 - name: Post rke2 install part 2
   hosts: localhost
-  gather_facts: true
+  gather_facts: false
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -184,6 +195,7 @@
 
 - name: Post rke2 install part 3
   hosts: kubernetes
+  gather_facts: false
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
