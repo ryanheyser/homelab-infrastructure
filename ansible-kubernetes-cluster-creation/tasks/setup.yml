@@ -68,6 +68,25 @@
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
     state: present
+- name: Setup | Get Helm GPG
+  ansible.builtin.uri:
+    url: https://baltocdn.com/helm/signing.asc
+    return_content: true
+  register: helmgpg
+- name: Setup | Check to see if hashicorp gpg exists
+  ansible.builtin.stat:
+    path: "/usr/share/keyrings/helm.gpg"
+  register: helm_gpg_file
+- name: Setup | Add Hashicorp GPG to system
+  become: true
+  ansible.builtin.shell: |
+    echo "{{ helmgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+  when: not helm_gpg_file.stat.exists
+  changed_when: true
+- name: Setup | Add Hashicorp apt source
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    state: present
 # - name: Setup | install ansible ppa
 #   ansible.builtin.apt_repository:
 #     repo: ppa:ansible/ansible
@@ -78,6 +97,7 @@
     pkg:
       - ansible
       - vault
+      - helm
   become: true
   changed_when: true
 - name: Install sops on localhost
