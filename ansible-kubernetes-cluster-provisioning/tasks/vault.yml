@@ -120,7 +120,7 @@
     namespace: vault-system
     pod: vault-1
     # command: vault operator init -format=json -key-shares=2 -key-threshold=2 -pgp-keys="keybase:rumblpak,keybase:rheyser"
-    command: vault operator init -format=json -key-shares=5 -key-threshold=2
+    command: vault operator init
   register: vault_operator_init
   ignore_unreachable: true
   when: >-
@@ -130,14 +130,16 @@
   ansible.builtin.pause:
     seconds: 30
 - name: Write Vault Configuration to File
+  vars:
+    username: "{{ lookup('ansible.builtin.env', 'USER') }}"
   # noqa: run-once[task]
   run_once: true
   ansible.builtin.copy:
     content: "{{ vault_operator_init.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
     mode: preserve
-    owner: "rumblpak"
-    group: "rumblpak"
+    owner: "{{ username }}"
+    group: "{{ username }}"
   when: >-
     vault_operator_init is defined and
     (not vault_operator_init is skipped)
@@ -173,26 +175,29 @@
 - name: Debug
   ansible.builtin.debug:
     msg: "{{ ( vault_operator_init ) }}"
-- name: Unseal Vault 1
-  when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[0]) }}"
-- name: Unseal Vault 2
-  when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[1]) }}"
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ ( vault_status ) }}"
+# - name: Unseal Vault 1
+#   when: >-
+#     vault_status.stdout is defined and
+#     (vault_status.stdout | from_json).sealed and
+#     kubeconfig.stat.exists
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[0]) }}"
+# - name: Unseal Vault 2
+#   when: >-
+#     vault_status.stdout is defined and
+#     (vault_status.stdout | from_json).sealed and
+#     kubeconfig.stat.exists
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[1]) }}"
 # - name: Unseal Vault 3
 #   when: >-
 #     vault_status.stdout is defined and
@@ -203,88 +208,88 @@
 #     namespace: vault-system
 #     pod: vault-1
 #     command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[2] }}"
-- name: Check Vault Status Again
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: "vault status -format=json"
-  register: vault_status_after_unseal
-  ignore_unreachable: true
-  failed_when: (vault_status_after_unseal | from_json).sealed
-  when: >-
-    kubeconfig.stat.exists
-- name: Check if Vault Operator Root File Exists
-  ansible.builtin.stat:
-    path: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
-  register: vault_operator_root_file
-- name: Initialize Vault Root Token
-  # noqa: run-once[task]
-  run_once: true
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: "vault operator generate-root -init -format=json"
-  register: vault_operator_root
-  ignore_unreachable: true
-  when: >-
-    not vault_operator_root_file.stat.exists and
-    kubeconfig.stat.exists
-- name: Write Vault Root Generation to File
-  # noqa: run-once[task]
-  run_once: true
-  ansible.builtin.copy:
-    content: vault_operator_root.stdout
-    dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
-    mode: preserve
-  when: >-
-    vault_operator_root is defined and
-    not vault_operator_root is skipped
-- name: Read Vault Root Token from File
-  # noqa: run-once[task]
-  run_once: true
-  ansible.builtin.set_fact:
-    vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
-  when: vault_operator_root_file.stat.exists
-- name: Set Vault Root Token OTP
-  # noqa: run-once[task]
-  run_once: true
-  ansible.builtin.set_fact:
-    vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
-  when: vault_operator_root_file.stat.exists
-- name: Generate Root Token 1
-  # noqa: run-once[task]
-  run_once: true
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ (vault_operator_init.unseal_keys_b64[0] }} -format=json
-  when: >-
-    vault_operator_root.stdout is defined and
-    vault_operator_init.stdout is defined and
-    not (vault_operator_root.stdout | from_json).complete and
-    kubeconfig.stat.exists
-  register: vault_operator_root
-- name: Generate Root Token 2
-  # noqa: run-once[task]
-  run_once: true
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ (vault_operator_init.unseal_keys_b64[1] }} -format=json
-  when: >-
-    vault_operator_root.stdout is defined and
-    vault_operator_init.stdout is defined and
-    not (vault_operator_root.stdout | from_json).complete and
-    kubeconfig.stat.exists
-  register: vault_operator_root
+# - name: Check Vault Status Again
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: "vault status -format=json"
+#   register: vault_status_after_unseal
+#   ignore_unreachable: true
+#   failed_when: (vault_status_after_unseal | from_json).sealed
+#   when: >-
+#     kubeconfig.stat.exists
+# - name: Check if Vault Operator Root File Exists
+#   ansible.builtin.stat:
+#     path: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
+#   register: vault_operator_root_file
+# - name: Initialize Vault Root Token
+#   # noqa: run-once[task]
+#   run_once: true
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: "vault operator generate-root -init -format=json"
+#   register: vault_operator_root
+#   ignore_unreachable: true
+#   when: >-
+#     not vault_operator_root_file.stat.exists and
+#     kubeconfig.stat.exists
+# - name: Write Vault Root Generation to File
+#   # noqa: run-once[task]
+#   run_once: true
+#   ansible.builtin.copy:
+#     content: vault_operator_root.stdout
+#     dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
+#     mode: preserve
+#   when: >-
+#     vault_operator_root is defined and
+#     not vault_operator_root is skipped
+# - name: Read Vault Root Token from File
+#   # noqa: run-once[task]
+#   run_once: true
+#   ansible.builtin.set_fact:
+#     vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
+#   when: vault_operator_root_file.stat.exists
+# - name: Set Vault Root Token OTP
+#   # noqa: run-once[task]
+#   run_once: true
+#   ansible.builtin.set_fact:
+#     vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
+#   when: vault_operator_root_file.stat.exists
+# - name: Generate Root Token 1
+#   # noqa: run-once[task]
+#   run_once: true
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: >-
+#       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+#         -decode={{ (vault_operator_init.unseal_keys_b64[0] }} -format=json
+#   when: >-
+#     vault_operator_root.stdout is defined and
+#     vault_operator_init.stdout is defined and
+#     not (vault_operator_root.stdout | from_json).complete and
+#     kubeconfig.stat.exists
+#   register: vault_operator_root
+# - name: Generate Root Token 2
+#   # noqa: run-once[task]
+#   run_once: true
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: >-
+#       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+#         -decode={{ (vault_operator_init.unseal_keys_b64[1] }} -format=json
+#   when: >-
+#     vault_operator_root.stdout is defined and
+#     vault_operator_init.stdout is defined and
+#     not (vault_operator_root.stdout | from_json).complete and
+#     kubeconfig.stat.exists
+#   register: vault_operator_root
 # - name: Generate Root Token 3
 #   # noqa: run-once[task]
 #   run_once: true
@@ -315,36 +320,36 @@
   register: age_public_key
   when: age_key_file.stat.exists
   changed_when: true
-- name: Write Vault Encrypted Root Token to File
-  # noqa: run-once[task]
-  run_once: true
-  community.sops.sops_encrypt:
-    content_json: "{{ vault_operator_root.stdout | to_json }}"
-    path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
-    age: age_public_key.stdout
-  when: >-
-    vault_operator_root.stdout is defined and
-    vault_operator_init.stdout is defined and
-    (vault_operator_root.stdout | from_json).complete
-- name: Login to Vault
-  # noqa: run-once[task]
-  run_once: true
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: >-
-      vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
-        {{ (vault_operator_init.stdout | from_json).root_token }}
-  when: >-
-    vault_operator_root.stdout is defined and
-    vault_operator_init.stdout is defined and
-    (vault_operator_root.stdout | from_json).complete and
-    (vault_operator_root.stdout | from_json).encoded_token != "" and
-    (vault_operator_init.stdout | from_json).root_token != "" and
-    kubeconfig.stat.exists
-  register: vault_login
-  failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+# - name: Write Vault Encrypted Root Token to File
+#   # noqa: run-once[task]
+#   run_once: true
+#   community.sops.sops_encrypt:
+#     content_json: "{{ vault_operator_root.stdout | to_json }}"
+#     path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
+#     age: age_public_key.stdout
+#   when: >-
+#     vault_operator_root.stdout is defined and
+#     vault_operator_init.stdout is defined and
+#     (vault_operator_root.stdout | from_json).complete
+# - name: Login to Vault
+#   # noqa: run-once[task]
+#   run_once: true
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: >-
+#       vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
+#         {{ (vault_operator_init.stdout | from_json).root_token }}
+#   when: >-
+#     vault_operator_root.stdout is defined and
+#     vault_operator_init.stdout is defined and
+#     (vault_operator_root.stdout | from_json).complete and
+#     (vault_operator_root.stdout | from_json).encoded_token != "" and
+#     (vault_operator_init.stdout | from_json).root_token != "" and
+#     kubeconfig.stat.exists
+#   register: vault_login
+#   failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Create Vault Token Secret
   # noqa: run-once[task]
   run_once: true
