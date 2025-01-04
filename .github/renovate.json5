@@ -49,7 +49,10 @@
     ]
   },
   "helm-values": {
-    "fileMatch": ["helm_values/.+\\.ya?ml$"],
+    "fileMatch": [
+        "helm_values/.+\\.ya?ml$",
+        "tasks/*.ya?ml"  
+      ],
     "ignorePaths": [
       ".github/**",
       "vars\\.ya?ml"
