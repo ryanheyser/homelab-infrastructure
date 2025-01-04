@@ -1,106 +1,60 @@
 {
-  "extends": [
-    "config:recommended",
-    "docker:enableMajor",
-    ":disableRateLimiting",
-    ":dependencyDashboard",
-    ":enablePreCommit",
-
-    ":semanticCommits",
-    ":automergeDigest",
-    ":automergeBranchPush",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/automerge-github-actions.json",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/commit-message.json",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/pr-labels.json",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/semantic-commits.json",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/custom-managers.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/allowedVersions.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/versioning.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/groups.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/grafanaDashboards.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/autoMerge.json5",
-    "github>ryanheyser/homelab-infrastructure//.github/renovate/disabledDatasources.json5"
+  extends: [
+    'config:recommended',
+    'docker:enableMajor',
+    ':disableRateLimiting',
+    ':dependencyDashboard',
+    ':enablePreCommit',
+    ':semanticCommits',
+    ':automergeDigest',
+    ':automergeBranch',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/automerge-github-actions.json',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/commit-message.json',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/pr-labels.json',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/semantic-commits.json',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/custom-managers.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/allowedVersions.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/versioning.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/groups.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/grafanaDashboards.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/autoMerge.json5',
+    'github>ryanheyser/homelab-infrastructure//.github/renovate/disabledDatasources.json5',
   ],
-  "enabled": true,
-  "timezone": "America/New_York",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate (Mend) Dashboard",
-  // Do not notify on closed unmerged PRs
-  "suppressNotifications": ["prIgnoreNotification"],
-  // Do not rebase PRs
-  "rebaseWhen": "conflicted",
-  "commitBodyTable": true,
-  "platformCommit": true,
-  "gitAuthor": "Ryan Heyser <rumblpak@users.noreply.github.com>",
-  "commitBody": "Signed-off-by: Ryan Heyser <rumblpak@users.noreply.github.com>",
-  "ignorePaths": [
-    "setup/**",
-    ".taskfiles/**",
-    "vars.ya?ml"
+  enabled: true,
+  timezone: 'America/New_York',
+  dependencyDashboard: true,
+  dependencyDashboardTitle: 'Renovate (Mend) Dashboard',
+  suppressNotifications: [
+    'prIgnoreNotification',
   ],
-  "ansible": {
-    "fileMatch": [
-      "playbook\\.ya?ml",
-      "tasks/*.ya?ml"
-      ],
-    "ignorePaths": [
-      ".github/**",
-      "vars\\.ya?ml"
-    ]
+  rebaseWhen: 'conflicted',
+  commitBodyTable: true,
+  platformCommit: 'enabled',
+  gitAuthor: 'Ryan Heyser <rumblpak@users.noreply.github.com>',
+  commitBody: 'Signed-off-by: Ryan Heyser <rumblpak@users.noreply.github.com>',
+  ignorePaths: [
+    'setup/**',
+    '.taskfiles/**',
+    'vars.ya?ml',
+  ],
+  ansible: {
+    fileMatch: [
+      'playbook\\.ya?ml',
+      'tasks/*.ya?ml',
+    ],
+    ignorePaths: [
+      '.github/**',
+      'vars\\.ya?ml',
+    ],
   },
-  "helm-values": {
-    "fileMatch": [
-        "helm_values/.+\\.ya?ml$",
-        "tasks/*.ya?ml"  
-      ],
-    "ignorePaths": [
-      ".github/**",
-      "vars\\.ya?ml"
-    ]
-  }
-  // "helmv3": {
-  //   "fileMatch": ["playbook\\.ya?ml"],
-  //   "ignorePaths": [
-  //     ".github/**",
-  //     "vars\\.ya?ml",
-  //   ],
-  // },
-  // "flux": {
-  //   "fileMatch": ["\\.ya?ml$"],
-  //   "ignorePaths": [
-  //     ".github/**",
-  //     "vars\\.ya?ml",
-  //   ],
-  // },
-  // "kubernetes": {
-  //   "fileMatch": ["\\.ya?ml$"],
-  //   "ignorePaths": [
-  //     "flux-system/",
-  //     ".github/**",
-  //     "vars\\.ya?ml",
-  //   ],
-  // },
-
-  // "packageRules": [
-  //   // Setup datasources
-  //   {
-  //     "datasources": ["helm"],
-  //     "commitMessageTopic": "Helm chart {{depName}}",
-  //     "semanticCommitScope": "charts",
-  //     "separateMinorPatch": true,
-  //     "ignoreDeprecated": true
-  //   },
-  //   {
-  //     "datasources": ["docker"],
-  //     "commitMessageTopic": "Docker image {{depName}}",
-  //     "commitMessageExtra": "to {{#if isSingleVersion}}{{{toVersion}}}{{else}}{{{newValue}}}{{/if}}",
-  //     "updateTypes": ["major", "minor", "patch"],
-  //     "enabled": true
-  //   },
-  //   {
-  //     "matchDatasources": ["docker"],
-  //     "semanticCommitScope": "images",
-  //     "separateMinorPatch": true
-  //   },
-  // ],
+  'helm-values': {
+    fileMatch: [
+      'helm_values/.+\\.ya?ml$',
+      'tasks/*.ya?ml',
+    ],
+    ignorePaths: [
+      '.github/**',
+      'vars\\.ya?ml',
+    ],
+  },
 }
