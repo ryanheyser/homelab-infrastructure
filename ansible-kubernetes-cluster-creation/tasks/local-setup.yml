@@ -1,3 +1,22 @@
+- name: Setup | Get Helm GPG
+  ansible.builtin.uri:
+    url: https://baltocdn.com/helm/signing.asc
+    return_content: true
+  register: helmgpg
+- name: Setup | Check to see if helm gpg exists
+  ansible.builtin.stat:
+    path: "/usr/share/keyrings/helm.gpg"
+  register: helm_gpg_file
+- name: Setup | Add Helm GPG to system
+  become: true
+  ansible.builtin.shell: |
+    echo "{{ helmgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+  when: not helm_gpg_file.stat.exists
+  changed_when: true
+- name: Setup | Add Helm apt source
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    state: present
 - name: Setup | Apt Update/Upgrade
   ansible.builtin.apt:
     update_cache: "yes"
@@ -11,5 +30,6 @@
     state: 'present'
     update_cache: true
     pkg:
+      - helm
       - bind9-utils
       - python3-kubernetes
