@@ -170,7 +170,7 @@
 
 - name: Post rke2 install part 2
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
