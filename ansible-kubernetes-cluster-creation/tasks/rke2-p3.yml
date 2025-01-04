@@ -31,9 +31,19 @@
 - name: Copy Kubeconfig to user default
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
-  ansible.builtin.command: |
-    /usr/bin/cp "{{ playbook_dir }}/rke2.yaml" "{{ home }}/.kube/config"
-  changed_when: true
-  when: >-
-    rke2_yaml.stat.exists
-  #installrke2 is defined and
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/rke2.yaml"
+    dest: "{{ home }}/.kube/config"
+    force: true
+    mode: '0644'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+# - name: Copy Kubeconfig to user default
+#   vars:
+#     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+#   ansible.builtin.command: |
+#     /usr/bin/cp "{{ playbook_dir }}/rke2.yaml" "{{ home }}/.kube/config"
+#   changed_when: true
+#   when: >-
+#     rke2_yaml.stat.exists
+#   #installrke2 is defined and
