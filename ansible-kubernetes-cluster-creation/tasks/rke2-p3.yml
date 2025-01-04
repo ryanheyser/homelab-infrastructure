@@ -31,6 +31,7 @@
 - name: Copy Kubeconfig to user default
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    username: "{{ lookup('ansible.builtin.env', 'USER') }}"
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/rke2.yaml"
     dest: "{{ home }}/.kube/config"

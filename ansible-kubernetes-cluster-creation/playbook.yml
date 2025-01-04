@@ -179,8 +179,6 @@
     - rke2
   tasks:
     - name: Setup | RKE2 Part 3
-      vars:
-        username: "{{ ansible_user }}"
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/rke2-p3.yml"
 
