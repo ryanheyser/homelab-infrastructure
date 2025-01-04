@@ -57,14 +57,4 @@
       'vars\\.ya?ml',
     ],
   },
-  helm: {
-    fileMatch: [
-      'tasks/.+\\.ya?ml',
-    ],
-    ignorePaths: [
-      '.github/**',
-      'vars\\.ya?ml',
-      'helm_values/.+\\.ya?ml$',
-    ],
-  }
 }
