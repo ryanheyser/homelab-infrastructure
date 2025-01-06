@@ -57,8 +57,7 @@
       'vars\\.ya?ml',
     ],
   },
-  'helm
-  ': {
+  'helmv3': {
     fileMatch: [
       'tasks/.+\\.ya?ml',
     ],
