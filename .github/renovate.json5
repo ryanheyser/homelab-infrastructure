@@ -41,6 +41,7 @@
     fileMatch: [
       'playbook\\.ya?ml',
       'tasks/.+\\.ya?ml',
+      "(^|/)tasks/[^/]+\\.ya?ml$",
     ],
     ignorePaths: [
       '.github/**',
@@ -51,6 +52,7 @@
     fileMatch: [
       'helm_values/.+\\.ya?ml$',
       'tasks/.+\\.ya?ml',
+      "(^|/)tasks/[^/]+\\.ya?ml$"
     ],
     ignorePaths: [
       '.github/**',
@@ -60,6 +62,7 @@
   'helmv3': {
     fileMatch: [
       'tasks/.+\\.ya?ml',
+      "(^|/)tasks/[^/]+\\.ya?ml$"
     ],
     ignorePaths: [
       '.github/**',
