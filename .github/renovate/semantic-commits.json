@@ -28,7 +28,7 @@
       "semanticCommitScope": "container"
     },
     {
-      "matchDatasources": ["helm"],
+      "matchDatasources": ["helm","helmv3"],
       "semanticCommitScope": "helm"
     },
     {
