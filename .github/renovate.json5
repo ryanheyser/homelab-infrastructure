@@ -39,7 +39,7 @@
   ],
   ansible: {
     fileMatch: [
-      'playbook\\.ya?ml',
+      "(^|/)playbook\\.ya?ml$",
       "(^|/)tasks/[^/]+\\.ya?ml$",
     ],
     ignorePaths: [
