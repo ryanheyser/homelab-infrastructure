@@ -40,7 +40,6 @@
   ansible: {
     fileMatch: [
       'playbook\\.ya?ml',
-      'tasks/.+\\.ya?ml',
       "(^|/)tasks/[^/]+\\.ya?ml$",
     ],
     ignorePaths: [
@@ -50,8 +49,7 @@
   },
   'helm-values': {
     fileMatch: [
-      'helm_values/.+\\.ya?ml$',
-      'tasks/.+\\.ya?ml',
+      "(^|/)helm_values/[^/]+\\.ya?ml$",
       "(^|/)tasks/[^/]+\\.ya?ml$"
     ],
     ignorePaths: [
@@ -61,7 +59,6 @@
   },
   'helmv3': {
     fileMatch: [
-      'tasks/.+\\.ya?ml',
       "(^|/)tasks/[^/]+\\.ya?ml$"
     ],
     ignorePaths: [
