@@ -36,7 +36,8 @@
     'setup/**',
     '.taskfiles/**',
     'vars.ya?ml',
-  ],
+    'secrets/**'
+,  ],
   ansible: {
     fileMatch: [
       "(^|/)playbook\\.ya?ml$",
