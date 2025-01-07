@@ -33,7 +33,7 @@
     //   ]
     // },
     {
-      "datasources": ["helm", "ansible"],
+      "datasources": ["helm", "helmv3", "ansible"],
       "automerge": true,
       "requiredStatusChecks": null,
       "schedule": "after 1am and before 5am",
@@ -43,12 +43,11 @@
         "thanos",
         "reloader",
         "kube-prometheus-stack",
-        "vault",
-        "secrets-store-csi-driver",
         "metallb",
         "coredns",
         "traefik",
-        "patch-operator"
+        "patch-operator",
+        "nfs-subdir-external-provisioner"
       ]
     },
     {
@@ -93,7 +92,7 @@
       "matchPackagePattern": ["ghcr.io/onedr0p"]
     },
     {
-      "datasources": ["helm","ansible"],
+      "datasources": ["helm","helmv3","ansible"],
       "automerge": true,
       "automergeType": "branch",
       "requiredStatusChecks": null,
