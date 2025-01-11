@@ -34,8 +34,10 @@
       replicaCount: 3
       strategyType: RollingUpdate
       nfs:
-        server: "10.0.0.8"
-        path: "/mnt/kracko"
+        # server: "10.0.0.10"
+        # path: "/mnt/kracko"
+        server: 10.0.0.8
+        path: "/kracko"
         mountOptions:
           - "vers=4"
           - "minorversion=1"
