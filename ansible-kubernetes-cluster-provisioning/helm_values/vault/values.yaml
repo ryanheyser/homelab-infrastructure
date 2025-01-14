@@ -14,6 +14,8 @@ injector:
 server:
   logLevel: "info"
   logFormat: "json"
+  readinessProbe:
+    initialDelaySeconds: 20
   ingress:
     enabled: true
     ingressClassName: traefik
