@@ -3,6 +3,29 @@ name: Run Renovate
 
 on:
   workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "Dry-Run"
+        default: "false"
+        required: false
+        type: string
+      renovateLogLevel:
+        description: "Log-Level"
+        default: "debug"
+        required: false
+        type: string
+      configurationFile:
+        description: "Renovate configuration file"
+        default: ".github/renovate.json5"
+        required: false
+        type: string
+    secrets:
+      app_id:
+        description: "App ID of the application used to generate a token"
+        required: true
+      app_private_key:
+        description: "Private key of the application used to generate a token"
+        required: true
   workflow_call:
     inputs:
       dryRun:
