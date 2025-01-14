@@ -1333,6 +1333,7 @@
         # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
         chart_ref: secrets-store-csi-driver/secrets-store-csi-driver
         chart_version: 1.4.5
+        chart_repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
         values_files:
           - "{{ playbook_dir }}/ansible/helm_values/vault/csivalues.yaml"
     - name: Check if Vault Operator Init File Exists
