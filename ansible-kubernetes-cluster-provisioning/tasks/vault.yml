@@ -192,7 +192,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[0]) }}"
+    command: "vault operator unseal -format=json {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[0]) }}"
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -202,7 +202,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[1]) }}"
+    command: "vault operator unseal -format=json {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[1]) }}"
 - name: Unseal Vault 3
   when: >-
     vault_status.stdout is defined and
@@ -212,7 +212,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[2] }}"
+    command: "vault operator unseal -format=json {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[2]) }}"
 - name: Check Vault Status Again
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -272,7 +272,7 @@
     pod: vault-1
     command: >-
       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ (vault_operator_init.unseal_keys_b64[0] }} -format=json
+        -decode={{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[0]) }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init.stdout is defined and
@@ -288,7 +288,7 @@
     pod: vault-1
     command: >-
       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ (vault_operator_init.unseal_keys_b64[1] }} -format=json
+        -decode={{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[1]) }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init.stdout is defined and
