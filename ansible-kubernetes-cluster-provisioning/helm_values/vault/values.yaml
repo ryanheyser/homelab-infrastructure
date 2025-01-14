@@ -1,6 +1,7 @@
 global:
   namespace: vault-system
   enabled: true
+  tlsDisable: true
 injector:
   replicas: 3
   logFormat: "json"
