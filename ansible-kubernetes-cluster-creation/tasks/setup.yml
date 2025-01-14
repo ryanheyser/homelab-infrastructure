@@ -21,6 +21,12 @@
   changed_when: true
 - name: Setup | install required packages
   ansible.builtin.apt:
+    state: 'absent'
+    pkg:
+      - bind9
+    purge: true
+- name: Setup | install required packages
+  ansible.builtin.apt:
     state: 'present'
     update_cache: true
     pkg:
