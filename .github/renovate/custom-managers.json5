@@ -4,7 +4,7 @@
     {
       "customType": "regex",
       "description": "Process various dependencies in YAML files",
-      "fileMatch": ["\\.ya?ml(\\.j2)?$"],
+      "fileMatch": ["\\.y(a)?ml(\\.j2)?$"],
       "matchStrings": [
         // Inline
         '\\S+: "?(?<currentValue>[^"\\s]+)"? # ?renovate: depName=(?<depName>\\S+)( datasource=(?<datasource>\\S+))?( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?',
@@ -18,7 +18,7 @@
     {
       "customType": "regex",
       "description": "Process GitHub download dependencies in YAML files",
-      "fileMatch": ["\\.ya?ml(\\.j2)?$"],
+      "fileMatch": ["\\.y(a)?ml(\\.j2)?$"],
       "matchStrings": [
         // https://github.com/rancher/system-upgrade-controller/releases/download/v0.13.2/crd.yaml
         "https:\\/\\/github.com\\/(?<depName>\\S+?\\/\\S+?)\\/releases\\/download\\/(?<currentValue>(v|\\d)\\S+?)\\/\\S+",
@@ -32,7 +32,7 @@
     {
       "customType": "regex",
       "description": "Process ansible playbook",
-      "fileMatch": ["\\.yml$"],
+      "fileMatch": ["\\.y(a)?ml$"],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s",
