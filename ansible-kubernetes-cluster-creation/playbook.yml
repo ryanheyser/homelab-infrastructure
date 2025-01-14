@@ -140,38 +140,38 @@
         executable: /bin/bash
       register: externaldns_key
       changed_when: false
-- name: Setup DNS
-  hosts: kubernetes
-  tags:
-    - setup
-    - kubernetes
-    - dns
-  tasks:
-    - name: Setup BIND9
-      vars:
-        bind_dnssec_enable: false
-        bind_dnssesc_validation: false
-        # bind_listen_ipv4:
-        #   - '127.0.0.1'
-        bind_allow_query:
-          - any
-        bind_allow_recursion:
-          - any
-        bind_dns_keys:
-          - name: externaldns-key
-            algorithm: hmac-sha256
-            secret: "{{ externaldns_key }}"
-        bind_zones:
-          - name: homelab.heyser.lan
-            type: primary
-            primaries:
-              "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
-          - name: homelab.heyser.lan
-            type: secondary
-            primaries:
-              "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
-      ansible.builtin.import_role:
-        name: "bertvv.bind"
+# - name: Setup DNS
+#   hosts: kubernetes
+#   tags:
+#     - setup
+#     - kubernetes
+#     - dns
+#   tasks:
+#     - name: Setup BIND9
+#       vars:
+#         bind_dnssec_enable: false
+#         bind_dnssesc_validation: false
+#         # bind_listen_ipv4:
+#         #   - '127.0.0.1'
+#         bind_allow_query:
+#           - any
+#         bind_allow_recursion:
+#           - any
+#         bind_dns_keys:
+#           - name: externaldns-key
+#             algorithm: hmac-sha256
+#             secret: "{{ externaldns_key }}"
+#         bind_zones:
+#           - name: homelab.heyser.lan
+#             type: primary
+#             primaries:
+#               "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+#           - name: homelab.heyser.lan
+#             type: secondary
+#             primaries:
+#               "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
+#       ansible.builtin.import_role:
+#         name: "bertvv.bind"
 
 
 # rke2
