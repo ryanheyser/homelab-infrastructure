@@ -64,6 +64,49 @@
                     values:
                       - nfs-subdir-external-provisioner
               topologyKey: "kubernetes.io/hostname"
+- name: Deploy nfs-subdir-external-provisioner chart for statefulsets
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: nfs-subdir-external-provisioner-ss
+    release_namespace: storage-system
+    # renovate: registryUrl=https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    chart_ref: nfs-subdir-external-provisioner
+    chart_version: 4.0.18
+    chart_repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    values:
+      replicaCount: 3
+      strategyType: RollingUpdate
+      nfs:
+        server: "10.0.0.10"
+        path: "/kracko"
+        # server: 10.0.0.8
+        # path: "/mnt/kracko"
+        mountOptions:
+          - "vers=4"
+          - "minorversion=1"
+          - "local_lock=posix"
+          - "proto=tcp"
+          - "noresvport"
+          - "ac"
+      storageClass:
+        defaultClass: false
+        name: "nfs-dynamic-ss"
+        pathPattern: "${.PVC.annotations.nfs.io/storage-path}/${.PVC.name}"
+        accesssModes: "ReadWriteMany"
+        archiveOnDelete: false
+        provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner-ss"
+        reclaimPolicy: "Retain"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nfs-subdir-external-provisioner-ss
+              topologyKey: "kubernetes.io/hostname"
 - name: Wait for nfs-subdir-external-provisioner to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"

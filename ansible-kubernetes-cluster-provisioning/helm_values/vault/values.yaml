@@ -35,14 +35,14 @@ server:
     enabled: true
     size: 40Gi
     annotations:
-      nfs.io/storage-path: "containers/kubernetes/vault/data/{{metadata.name}}"
-    storageClass: "nfs-dynamic"
+      nfs.io/storage-path: "containers/kubernetes/vault/data"
+    storageClass: "nfs-dynamic-ss"
     accessMode: ReadWriteMany
   auditStorage:
     enabled: true
     annotations:
-      nfs.io/storage-path: "containers/kubernetes/vault/audit/{{metadata.name}}"
-    storageClass: "nfs-dynamic"
+      nfs.io/storage-path: "containers/kubernetes/vault/audit"
+    storageClass: "nfs-dynamic-ss"
     accessMode: ReadWriteMany
   # extraEnvironmentVars:
   #   VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
