@@ -36,7 +36,7 @@
       "matchStringsStrategy": "combination",
       "matchStrings": [
         //"#(\\s+)?renovate:(\\s+)((\\S)?registryUrl=(?<registryUrl>.*))",
-        "chart_ref:(\\s+)?((?<depName>.*))",
+        "chart_ref:(\\s+)?(.*\/)?((?<depName>.*))",
         "chart_version:(\\s+)?((?<currentValue>.*))",
         "chart_repo_url:(\\s+)?((?<registryUrl>.*))",
       ],
