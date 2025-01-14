@@ -30,6 +30,7 @@
     # renovate: registryUrl=https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
     chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
     chart_version: 4.0.18
+    chart_repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
     values:
       replicaCount: 3
       strategyType: RollingUpdate
