@@ -16,6 +16,8 @@ server:
   logFormat: "json"
   readinessProbe:
     initialDelaySeconds: 20
+  postStart:
+    - sleep 10
   ingress:
     enabled: true
     ingressClassName: traefik
@@ -74,6 +76,7 @@ server:
     enabled: false
   ha:
     enabled: true
+    clusterAddr: vault.vault-system.svc.cluster.local
     raft:
       enabled: true
       setNodeId: true
