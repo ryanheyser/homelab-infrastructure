@@ -16,8 +16,6 @@ server:
   logFormat: "json"
   readinessProbe:
     initialDelaySeconds: 20
-  postStart:
-    - "sleep 10"
   ingress:
     enabled: true
     ingressClassName: traefik
