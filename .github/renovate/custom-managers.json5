@@ -32,7 +32,7 @@
     {
       "customType": "regex",
       "description": "Process ansible playbook",
-      "fileMatch": ["\\.ya?ml$"],
+      "fileMatch": ["\\.yml$"],
       "matchStringsStrategy": "any",
       "matchStrings": [
         "#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s",
