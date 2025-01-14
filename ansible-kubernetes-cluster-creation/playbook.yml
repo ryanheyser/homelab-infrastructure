@@ -148,8 +148,8 @@
         bind_dnssec_enable: false
         bind_dnssesc_validation: false
         bind_listen_ipv4:
-          - "127.0.0.1"
-          - "{{ ansible_host }}"
+          - '127.0.0.1'
+          - "'{{ ansible_host }}'"
         bind_listen_ipv6: []
         bind_allow_query:
           - any
