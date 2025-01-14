@@ -35,7 +35,7 @@
       "fileMatch": ["\\.y(a)?ml$"],
       "matchStringsStrategy": "any",
       "matchStrings": [
-        "(?m:^[ \\t]*?# ?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?chart_ref=(?<depName>.*?)(\\s*versioning=(?<versioning>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s)",
+        "#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\s+))?(\\s+?registryUrl=(?<registryUrl>\\s+))",
         "chart_ref:\\s+(?<depName>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\"",
       ],
       "datasourceTemplate": "helm",
