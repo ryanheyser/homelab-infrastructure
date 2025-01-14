@@ -331,7 +331,7 @@
       spec:
         valuesContent: |-
           nodelocal:
-            enabled: true
+            enabled: false
           service:
             clusterIP: 10.254.0.10
             # loadBalancerIP: 10.0.100.2
