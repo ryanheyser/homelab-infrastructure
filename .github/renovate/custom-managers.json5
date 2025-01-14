@@ -33,8 +33,10 @@
       "customType": "regex",
       "description": "Process ansible playbook",
       "fileMatch": ["\\.y(a)?ml$"],
+      "matchStringsStrategy": "any",
       "matchStrings": [
-        "chart_ref:\\s+(?<depName>.*?)\\s+chart_repo_url:\\s+(?<registryUrl>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\"",
+        "(?m:^[ \\t]*?# ?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?chart_ref=(?<depName>.*?)(\\s*versioning=(?<versioning>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s)",
+        "chart_ref:\\s+(?<depName>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\"",
       ],
       "datasourceTemplate": "helm",
       //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
