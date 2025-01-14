@@ -64,7 +64,7 @@ server:
       image: alpine
       command: [sh, -c]
       args:
-        - if [[ -d /vault/data/ ]]; then echo "chown vault/data"; chown -R vault:vault /vault/data/; fi
+        - if [[ -d /vault/data/ ]]; then echo "chown vault/data"; chown -R 100:1000 /vault/data/; fi
       volumeMounts:
         - name: data
           mountPath: /vault/data
