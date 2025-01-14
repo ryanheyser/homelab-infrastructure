@@ -38,6 +38,7 @@
     release_namespace: network-system
     chart_ref: metallb/metallb
     chart_version: 0.14.8
+    chart_repo_url: https://metallb.github.io/metallb
     # values:
 - name: Wait for metallb controller to complete
   kubernetes.core.k8s_info:
