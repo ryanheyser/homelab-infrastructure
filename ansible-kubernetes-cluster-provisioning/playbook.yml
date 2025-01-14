@@ -168,6 +168,7 @@
 #         # renovate: registryUrl=https://redhat-cop.github.io/patch-operator
 #         chart_ref: patch-operator/patch-operator
 #         chart_version: v0.1.11
+#         chart_repo_url: https://redhat-cop.github.io/patch-operator
 #         values:
 #           enableMonitoring: false
 #     - name: Install Patch ServiceAccount
