@@ -18,6 +18,9 @@
   register: age_public_key
   when: age_key_file.stat.exists
   changed_when: true
+- name: Debug Age Public Key
+  ansible.builtin.debug:
+    msg: "age public key: \"{{ age_public_key }}\""
 - name: Add hashicorp repository
   when: kubeconfig.stat.exists
   kubernetes.core.helm_repository:
