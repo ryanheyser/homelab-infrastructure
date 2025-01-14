@@ -12,7 +12,7 @@ injector:
       maxUnavailable: "25%"
     type: RollingUpdate
 server:
-  logLevel: "info"
+  logLevel: "debug"
   logFormat: "json"
   readinessProbe:
     initialDelaySeconds: 20
