@@ -33,7 +33,7 @@
       "customType": "regex",
       "description": "Process ansible playbook",
       "fileMatch": ["\\.y(a)?ml$"],
-      "matchStringsStrategy": "any",
+      "matchStringsStrategy": "combination",
       "matchStrings": [
         "#(\\s+)?renovate:(\\s+)?((\\s+)?datasource=(?<datasource>.*))?((\\s+)?registryUrl=(?<registryUrl>.*))",
         "chart_ref:(\\s+)?(?<depName>.*?)(\\s+)?",
