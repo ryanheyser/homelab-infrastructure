@@ -28,7 +28,3 @@
           "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list }}"
   ansible.builtin.import_role:
     name: "bertvv.bind"
-  when: >-
-    packageinstall.stdout is defined and
-    packageinstall.rc == 0 and
-    not packageinstall is skipped

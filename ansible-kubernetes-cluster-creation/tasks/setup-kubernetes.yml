@@ -15,4 +15,3 @@
       - containernetworking-plugins
   become: true
   changed_when: true
-  register: packageinstall
