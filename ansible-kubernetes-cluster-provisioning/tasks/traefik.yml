@@ -143,8 +143,9 @@
     name: traefik
     release_namespace: network-system
     # renovate: registryUrl=https://helm.traefik.io/traefik
-    chart_ref: traefik/traefik
+    chart_ref: traefik
     chart_version: 31.0.0
+    chart_repo_url: https://helm.traefik.io/traefik
     values_files:
       - "{{ traefikvalues.stat.path }}"
 - name: Check for crowdsec bouncer config
