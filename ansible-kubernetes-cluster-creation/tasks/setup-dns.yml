@@ -1,13 +1,14 @@
 - name: Setup BIND9
   vars:
+    bind_acls:
+      - name: listenips
+        match_list:
+          - "127.0.0.1/32"
+          - "10.0.0.0/18"
     bind_dnssec_enable: false
     bind_dnssesc_validation: false
     bind_listen_ipv4:
-      - "127.0.0.1/32"
-      - "10.0.0.0/18"
-      # - "!10.99.0.0/18"
-      # - "!10.254.0.0/16"
-      # - "!10.255.0.0/16"
+      - "listenips"
     bind_listen_ipv6: []
     bind_allow_query:
       - any
