@@ -91,12 +91,6 @@ server:
           # tls_client_ca_file = "/vault/userconfig/tls-server/client-auth-ca.pem"
         }
         disable_sealwrap = true
-        seal "ocikms" {
-          key_id = "ocid1.vault.oc1.iad.ejtwpffhaacok.abuwcljtphky5tek5szyy2wmz2ig324rmnbw7fqnyuevkxomgk2shjwzojaq"
-          crypto_endpoint = "https://ejtwpffhaacok-crypto.kms.us-ashburn-1.oraclecloud.com"
-          management_endpoint = "https://ejtwpffhaacok-management.kms.us-ashburn-1.oraclecloud.com"
-          # auth_type_api_key = "true" # default false
-        }
         storage "raft" {
           path = "/vault/data"
           retry_join {
