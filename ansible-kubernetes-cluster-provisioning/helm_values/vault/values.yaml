@@ -51,6 +51,15 @@ server:
   #     name: tls-server
   #   - type: secret
   #     name: tls-ca
+  extraInitContainers:
+    - name: chmod
+      image: alpine
+      command: [sh, -c]
+      args:
+        - if [[ -f /vault/data/vault.db ]]; then chmod 600 /vault/data/vault.db; fi; if [[ -f /vault/data/raft/raft.db ]]; then chmod 600 /vault/data/raft/raft.db; fi
+      volumeMounts:
+        - name: data
+          mountPath: /vault/data 
   standalone:
     enabled: false
   ha:
