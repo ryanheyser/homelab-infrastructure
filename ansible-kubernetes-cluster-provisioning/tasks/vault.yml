@@ -56,6 +56,7 @@
     # renovate: registryUrl=https://helm.releases.hashicorp.com
     chart_ref: hashicorp/vault
     chart_version: 0.29.1
+    chart_repo_url: https://helm.releases.hashicorp.com
     values_files:
       - "{{ playbook_dir }}/helm_values/vault/values.yaml"
 - name: Deploy csi-secrets-store chart
@@ -67,6 +68,7 @@
     # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
     chart_ref: secrets-store-csi-driver/secrets-store-csi-driver
     chart_version: 1.4.5
+    chart_repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
     values_files:
       - "{{ playbook_dir }}/helm_values/vault/csivalues.yaml"
 - name: Check if Vault Operator Init File Exists
