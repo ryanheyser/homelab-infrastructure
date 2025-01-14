@@ -9,7 +9,7 @@
     state: 'present'
     update_cache: true
     pkg:
-      - bind9 
+      # - bind9 
       - bind9-utils 
       - bind9-dnsutils 
       - containernetworking-plugins
