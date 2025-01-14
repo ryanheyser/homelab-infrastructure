@@ -59,7 +59,7 @@
       'vars\\.ya?ml',
     ],
   },
-  'helmv3': {
+  'regex': {
     fileMatch: [
       "(^|/)tasks/(.*)?[^/]+\\.ya?ml$"
     ],
