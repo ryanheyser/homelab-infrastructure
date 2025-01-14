@@ -36,7 +36,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     name: metallb
     release_namespace: network-system
-    chart_ref: metallb
+    chart_ref: metallb/metallb
     chart_version: 0.14.8
     chart_repo_url: https://metallb.github.io/metallb
     # values:
