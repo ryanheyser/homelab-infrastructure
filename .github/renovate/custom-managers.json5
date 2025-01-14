@@ -32,15 +32,14 @@
     {
       "customType": "regex",
       "description": "Process ansible playbook",
-      "fileMatch": ["\\.y(a)?ml$"],
-      //"matchStringsStrategy": "any",
+      "fileMatch": ["\\.y(a)?ml$"]]
       "matchStrings": [
         //"#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s",
         //"chart_ref:(\\s+)?(?<depName>.*?)",
         //"chart_version:(\\s+)?(?<versioning>.*?)",
         "chart_ref:\\s+(?<depName>.*?)\\s+chart_repo_url:\\s+(?<registryUrl>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\""
       ],
-      "datasourceTemplate": helm
+      "datasourceTemplate": "helm"
       //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
       //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
       //"extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.*)${{/if}}",
