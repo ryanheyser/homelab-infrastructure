@@ -32,11 +32,13 @@
     {
       "customType": "regex",
       "description": "Process ansible playbook",
-      "fileMatch": ["\\.y(a)?ml$"]],
+      "fileMatch": ["\\.y(a)?ml$"],
       "matchStrings": [
         "chart_ref:\\s+(?<depName>.*?)\\s+chart_repo_url:\\s+(?<registryUrl>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\"",
       ],
       "datasourceTemplate": "helm",
+      //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
+      //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
     }
   ]
 }
