@@ -35,9 +35,9 @@
       "fileMatch": ["\\.ya?ml$"],
       "matchStringsStrategy": "any",
       "matchStrings": [
-        //"#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s",
-        //"chart_ref:(\\s+)?(?<depName>.*?)",
-        //"chart_version:(\\s+)?(?<versioning>.*?)",
+        "#(\\s+)?renovate:(\\s+)?(\\s+?datasource=(?<datasource>\\S+))?(\\s+?registryUrl=(?<registryUrl>.*?)\\s*)?depName=(?<chart_ref>.*?)(\\s*versioning=(?<chart_version>.*?))?\\s*\\w*:\\s*[\"']?(?<currentValue>.+?)[\"']?\\s",
+        "chart_ref:(\\s+)?(?<depName>.*?)",
+        "chart_version:(\\s+)?(?<versioning>.*?)",
         "chart_ref:\\s+(?<depName>.*?)\\s+chart_repo_url:\\s+(?<registryUrl>.*?)\\s+chart_version:\\s+\"(?<currentValue>.*)\""
       ],
       "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
