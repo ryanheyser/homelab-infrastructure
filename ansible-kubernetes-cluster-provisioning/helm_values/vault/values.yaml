@@ -56,10 +56,18 @@ server:
       image: alpine
       command: [sh, -c]
       args:
-        - if [[ -f /vault/data/vault.db ]]; then chmod 600 /vault/data/vault.db; fi; if [[ -f /vault/data/raft/raft.db ]]; then chmod 600 /vault/data/raft/raft.db; fi
+        - if [[ -f /vault/data/vault.db ]]; then echo "chmod 600 vault.db"; chmod 600 /vault/data/vault.db; fi; if [[ -f /vault/data/raft/raft.db ]]; then echo "chmod 600 raft.db"; chmod 600 /vault/data/raft/raft.db; fi
       volumeMounts:
         - name: data
-          mountPath: /vault/data 
+          mountPath: /vault/data
+    - name: chown
+      image: alpine
+      command: [sh, -c]
+      args:
+        - if [[ -d /vault/data/ ]]; then echo "chown vault/data"; chown -R vault:vault /vault/data/; fi
+      volumeMounts:
+        - name: data
+          mountPath: /vault/data
   standalone:
     enabled: false
   ha:
