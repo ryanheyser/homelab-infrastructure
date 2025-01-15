@@ -219,10 +219,10 @@
     msg: "{{ ( vault_status ) }}"
 - name: Debug
   ansible.builtin.debug:
-    msg: "{{ (vault_operator_init.unseal_keys_b64[0]) }}"
+    msg: "echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
 - name: Debug
   ansible.builtin.debug:
-    msg: "{{ (vault_operator_init.unseal_keys_b64[1]) }}"
+    msg: "echo {{ (vault_operator_init.unseal_keys_b64[1]) }} | base64 -d | gpg -dq"
 - name: Debug Decode unseal_keys_b64[0]
   ansible.builtin.shell: "echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
   args:
