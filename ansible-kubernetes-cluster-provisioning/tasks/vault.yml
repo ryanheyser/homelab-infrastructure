@@ -283,7 +283,7 @@
     command: "vault status -format=json"
   register: vault_status_after_unseal
   ignore_unreachable: true
-  failed_when: (vault_status_after_unseal | from_json).sealed
+  failed_when: (vault_status_after_unseal.result.stdout | from_json).sealed
   when: >-
     kubeconfig.stat.exists
 - name: Check if Vault Operator Root File Exists
