@@ -348,8 +348,7 @@
   when: age_key_file.stat.exists
   changed_when: true
 - name: Write Vault Encrypted Root Token to File
-  # noqa: run-once[task]
-  run_once: true
+  become: false
   community.sops.sops_encrypt:
     content_json: "{{ vault_operator_root.stdout }}"
     path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
@@ -359,8 +358,6 @@
     vault_operator_init is defined and
     vault_operator_root.complete
 - name: Login to Vault
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -377,8 +374,6 @@
   register: vault_login
   failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Create Vault Token Secret
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     state: present
