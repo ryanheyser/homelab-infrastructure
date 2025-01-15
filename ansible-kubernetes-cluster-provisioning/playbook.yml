@@ -1,6 +1,7 @@
 ---
 - name: Test
   hosts: localhost
+  become: rumblpak
   tasks:
     - name: Whoami
       ansible.builtin.shell:
