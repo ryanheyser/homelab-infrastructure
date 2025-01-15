@@ -247,8 +247,8 @@
     msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
 - name: Unseal Vault 1
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
+    vault_status.result.stdout is defined and
+    (vault_status.result.stdout | from_json).sealed and
     kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -257,8 +257,8 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
+    vault_status.result.stdout is defined and
+    (vault_status.result.stdout | from_json).sealed and
     kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
