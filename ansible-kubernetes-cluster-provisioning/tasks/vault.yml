@@ -304,9 +304,15 @@
 - name: Read Vault Root Token from File
   ansible.builtin.set_fact:
     vault_operator_root: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-root-generate.key') }}"
+- name: Debug Vault Operator Root 
+  ansible.builtin.debug:
+    msg: "{{ vault_operator_root }}"
 - name: Set Vault Root Token OTP
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root.otp }}"
+- name: Debug Vault Operator Root OTP
+  ansible.builtin.debug:
+    msg: "{{ vault_operator_root_otp }}"
 - name: Generate Root Token 1
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
