@@ -72,7 +72,7 @@
         name: vault-pgp-key
         namespace: vault-system
       data:
-        rumblpak.asc: "{{ lookup('ansible.builtin.file', rumblpak_pgp_key_file) }}"
+        rumblpak.asc: "{{ lookup('ansible.builtin.file', rumblpak_pgp_key_file.stat.path) }}"
 - name: Deploy vault chart
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
