@@ -34,6 +34,14 @@ server:
     - key: node-role.kubernetes.io/control-plane
       operator: Equal
       effect: NoSchedule
+  volumes:
+    - name: pgp-keys
+      configMap:
+        name: vault-pgp-key
+  volumeMounts:
+    - name: pgp-keys
+      mountPath: /vault/config/pgp-keys
+      readOnly: true
   dataStorage:
     enabled: true
     size: 40Gi

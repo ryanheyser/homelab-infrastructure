@@ -35,6 +35,7 @@
     repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 - name: Create vault-system namespace
   when: kubeconfig.stat.exists
+  register: vault-system-namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     name: vault-system
@@ -50,6 +51,29 @@
           pod-security.kubernetes.io/enforce: privileged
           pod-security.kubernetes.io/audit: privileged
           pod-security.kubernetes.io/warn: privileged
+- name: Stat rumblpak.asc
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/secrets/rumblpak.asc"
+  register: rumblpak-pgp-key-file
+- name: Fail if rumblpak.asc does not exist
+  ansible.builtin.fail:
+    message: "{{ playbook_dir }}/secrets/rumblpak.asc does not exist"
+  when: not rumblpak-pgp-key-file.stat.exists
+- name: Create pgp-keys configmap
+  when: >-
+    kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: vault-pgp-key
+    api_version: v1
+    kind: Configmap
+    state: present
+    definition:
+      metadata:
+        name: vault-pgp-key
+        namespace: vault-system
+      data:
+        rumblpak.asc: "{{ lookup('ansible.builtin.file', rumblpak-pgp-key-file) }}"
 - name: Deploy vault chart
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
@@ -124,7 +148,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: vault operator init -format=json -key-shares=2 -key-threshold=1 -pgp-keys="{{ playbook_dir }}/secrets/rumblpak.asc,keybase:rumblpak,keybase:rheyser"
+    command: vault operator init -format=json -key-shares=2 -key-threshold=1 -pgp-keys="/vault/config/pgp-keys/rumblpak.asc,keybase:rumblpak,keybase:rheyser"
     # command: vault operator init
   register: vault_operator_init
   ignore_unreachable: true
