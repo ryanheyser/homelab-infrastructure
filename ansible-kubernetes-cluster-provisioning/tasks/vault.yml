@@ -303,7 +303,7 @@
   # noqa: run-once[task]
   run_once: true
   ansible.builtin.copy:
-    content: "{{ vault_operator_root }}"
+    content: "{{ vault_operator_root.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
     mode: preserve
   when: >-
@@ -314,12 +314,11 @@
   run_once: true
   ansible.builtin.set_fact:
     vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
-  when: vault_operator_root_file.stat.exists
 - name: Set Vault Root Token OTP
   # noqa: run-once[task]
   run_once: true
   ansible.builtin.set_fact:
-    vault_operator_root_otp: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
+    vault_operator_root_otp: "{{ vault_operator_root | from_json }}.otp"
   when: vault_operator_root_file.stat.exists
 - name: Generate Root Token 1
   # noqa: run-once[task]
