@@ -243,7 +243,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json $(echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq)"
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0 }}"
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -253,7 +253,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ (vault_operator_init.unseal_keys_b64[1]) }}"
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1 }}"
 # - name: Unseal Vault 3
 #   when: >-
 #     vault_status.stdout is defined and
