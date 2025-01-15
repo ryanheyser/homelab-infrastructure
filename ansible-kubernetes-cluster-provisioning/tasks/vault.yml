@@ -222,6 +222,10 @@
 - name: Debug
   ansible.builtin.debug:
     msg: "{{ (vault_operator_init.unseal_keys_b64[1]) }}"
+- name: Debug Decode unseal_keys_b64[0]
+  ansible.builtin.command: "echo (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
+- name: Debug Decode unseal_keys_b64[1]
+  ansible.builtin.command: "echo (vault_operator_init.unseal_keys_b64[1]) }} | base64 -d | gpg -dq"
 - name: Unseal Vault 1
   when: >-
     vault_status.stdout is defined and
