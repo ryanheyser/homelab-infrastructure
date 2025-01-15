@@ -2,6 +2,13 @@
 - name: Test
   hosts: localhost
   tasks:
+    - name: whoami
+      ansible.builtin.shell:
+        cmd: "whoami"
+      args:
+        executable: /usr/bin/bash
+      changed_when: true
+
     - name: Decode unseal_keys_b64[0]
       ansible.builtin.shell:
         cmd: "echo wV4Dn2UxpJObX98SAQdARQcrSXzdz68B3CA+1EHHf1MdPgfvPy5NURF+LxFqQ2swBuTRWtQcmyBbeE2jduCxA7CJundM4fBG8Ov3iQE+xPPaazbrwLQVywdEYo8FO0jj0nMBgN2Cfrx+2gpbMuSDQRXSt1YzZbPlAK09JqGFNXGWZdvdZ6cowfhwTwqm8ysAiZ3kyAwOP6hO3xj/n9e+RNaH4lhmLZbAw2uGq3vKG6XPFt90PDwNZptfpILF3wjjxnh8BoZg0reVHlhgSTV00BqaeU00 | base64 -d | gpg -dq"
