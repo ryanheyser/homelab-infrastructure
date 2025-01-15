@@ -310,18 +310,12 @@
     vault_operator_root is defined and
     not vault_operator_root is skipped
 - name: Read Vault Root Token from File
-  # noqa: run-once[task]
-  run_once: true
   ansible.builtin.set_fact:
     vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
 - name: Set Vault Root Token OTP
-  # noqa: run-once[task]
-  run_once: true
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root.otp }}"
 - name: Generate Root Token 1
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -335,8 +329,6 @@
     kubeconfig.stat.exists
   register: vault_operator_root
 - name: Generate Root Token 2
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
