@@ -65,7 +65,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     name: vault-pgp-key
     api_version: v1
-    kind: Configmap
+    kind: ConfigMap
     state: present
     definition:
       metadata:
