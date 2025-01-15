@@ -167,6 +167,7 @@
 - name: Pause for Vault Stability
   ansible.builtin.pause:
     seconds: 30
+  when: not vault_operator_init is skipped
 - name: Write Vault Configuration to File
   vars:
     username: "{{ lookup('ansible.builtin.env', 'USER') }}"
