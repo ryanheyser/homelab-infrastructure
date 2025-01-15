@@ -226,16 +226,16 @@
     namespace: vault-system
     pod: vault-1
     command: "vault operator unseal -format=json $(echo {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[0]) }} | base64 -d | gpg -dq)"
-# - name: Unseal Vault 2
-#   when: >-
-#     vault_status.stdout is defined and
-#     (vault_status.stdout | from_json).sealed and
-#     kubeconfig.stat.exists
-#   kubernetes.core.k8s_exec:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     namespace: vault-system
-#     pod: vault-1
-#     command: "vault operator unseal -format=json {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[1]) }}"
+- name: Unseal Vault 2
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-1
+    command: "vault operator unseal -format=json {{ ((vault_operator_init.stdout | from_json).unseal_keys_b64[1]) }}"
 # - name: Unseal Vault 3
 #   when: >-
 #     vault_status.stdout is defined and
@@ -328,22 +328,22 @@
     not (vault_operator_root.stdout | from_json).complete and
     kubeconfig.stat.exists
   register: vault_operator_root
-- name: Generate Root Token 3
-  # noqa: run-once[task]
-  run_once: true
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ home }}/.kube/config"
-    namespace: vault-system
-    pod: vault-1
-    command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
-  when: >-
-    vault_operator_root.stdout is defined and
-    vault_operator_init.stdout is defined and
-    not (vault_operator_root.stdout | from_json).complete and
-    kubeconfig.stat.exists
-  register: vault_operator_root
+# - name: Generate Root Token 3
+#   # noqa: run-once[task]
+#   run_once: true
+#   kubernetes.core.k8s_exec:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     namespace: vault-system
+#     pod: vault-1
+#     command: >-
+#       vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
+#         -decode={{ (vault_operator_init.stdout | from_json).unseal_keys_b64[2] }} -format=json
+#   when: >-
+#     vault_operator_root.stdout is defined and
+#     vault_operator_init.stdout is defined and
+#     not (vault_operator_root.stdout | from_json).complete and
+#     kubeconfig.stat.exists
+#   register: vault_operator_root
 - name: Stat age.key
   ansible.builtin.stat:
     path: "{{ home }}/.config/sops/age/keys.txt"
