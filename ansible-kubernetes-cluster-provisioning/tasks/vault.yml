@@ -53,11 +53,11 @@
 - name: Stat rumblpak.asc
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/secrets/rumblpak.asc"
-  register: rumblpak-pgp-key-file
+  register: rumblpak_pgp_key_file
 - name: Fail if rumblpak.asc does not exist
   ansible.builtin.fail:
     message: "{{ playbook_dir }}/secrets/rumblpak.asc does not exist"
-  when: not rumblpak-pgp-key-file.stat.exists
+  when: not rumblpak_pgp_key_file.stat.exists
 - name: Create pgp-keys configmap
   when: >-
     kubeconfig.stat.exists
@@ -72,7 +72,7 @@
         name: vault-pgp-key
         namespace: vault-system
       data:
-        rumblpak.asc: "{{ lookup('ansible.builtin.file', rumblpak-pgp-key-file) }}"
+        rumblpak.asc: "{{ lookup('ansible.builtin.file', rumblpak_pgp_key_file) }}"
 - name: Deploy vault chart
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
