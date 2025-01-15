@@ -1,7 +1,7 @@
 ---
 - name: Test
   hosts: localhost
-  become: "{{ ansible_user }}"
+  become: false
   tasks:
     - name: Whoami
       ansible.builtin.shell:
