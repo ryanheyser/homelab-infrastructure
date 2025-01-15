@@ -150,8 +150,6 @@
   ansible.builtin.pause:
     seconds: 30
 - name: Initialize Vault
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -171,8 +169,6 @@
 - name: Write Vault Configuration to File
   vars:
     username: "{{ lookup('ansible.builtin.env', 'USER') }}"
-  # noqa: run-once[task]
-  run_once: true
   ansible.builtin.copy:
     content: "{{ vault_operator_init.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"
@@ -184,8 +180,7 @@
     (not vault_operator_init is skipped)
   register: vault_operator_init_config
 - name: Write Vault Configuration to Encrypted File
-  # noqa: run-once[task]
-  run_once: true
+  become: false
   community.sops.sops_encrypt:
     content_json: "{{ vault_operator_init }}"
     path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key.enc"
@@ -194,11 +189,8 @@
     vault_operator_init_config is defined and
     (not vault_operator_init_config is skipped)
 - name: Read Vault Configuration from File
-  # noqa: run-once[task]
-  run_once: true
   become: true
   ansible.builtin.set_fact:
-    # vault_operator_init: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-init-secret.key')"
     vault_operator_init: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-init-secret.key') }}"
 - name: Check Vault Status
   when: kubeconfig.stat.exists
@@ -287,8 +279,6 @@
     path: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
   register: vault_operator_root_file
 - name: Initialize Vault Root Token
-  # noqa: run-once[task]
-  run_once: true
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -300,12 +290,11 @@
     not vault_operator_root_file.stat.exists and
     kubeconfig.stat.exists
 - name: Write Vault Root Generation to File
-  # noqa: run-once[task]
-  run_once: true
   ansible.builtin.copy:
     content: "{{ vault_operator_root.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
     mode: preserve
+    
   when: >-
     vault_operator_root is defined and
     not vault_operator_root is skipped
