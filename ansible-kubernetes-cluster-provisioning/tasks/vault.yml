@@ -224,6 +224,7 @@
   ansible.builtin.debug:
     msg: "echo {{ (vault_operator_init.unseal_keys_b64[1]) }} | base64 -d | gpg -dq"
 - name: Decode unseal_keys_b64[0]
+  become: false
   ansible.builtin.shell:
     cmd: "echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
   args:
@@ -232,8 +233,9 @@
   changed_when: true
 - name: Debug Decode unseal_keys_b64[0]
   ansible.builtin.debug:
-    msg: "{{ ( unseal_keys_b64_0 ) }}"
+    msg: "{{ ( unseal_keys_b64_0.stdout ) }}"
 - name: Decode unseal_keys_b64[1]
+  become: false
   ansible.builtin.shell:
     cmd: "echo {{ (vault_operator_init.unseal_keys_b64[1]) }} | base64 -d | gpg -dq"
   args:
@@ -242,7 +244,7 @@
   changed_when: true
 - name: Debug Decode unseal_keys_b64[1]
   ansible.builtin.debug:
-    msg: "{{ ( unseal_keys_b64_1 ) }}"
+    msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
 - name: Unseal Vault 1
   when: >-
     vault_status.stdout is defined and
@@ -252,7 +254,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ unseal_keys_b64_0 }}"
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -262,7 +264,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator unseal -format=json {{ unseal_keys_b64_1 }}"
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
 # - name: Unseal Vault 3
 #   when: >-
 #     vault_status.stdout is defined and
