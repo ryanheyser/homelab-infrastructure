@@ -283,7 +283,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: "vault operator generate-root -init -format=json"
+    command: "vault operator generate-root -init -format=json -pgp-key=-pgp-keys=/vault/config/pgp-keys/rumblpak.asc"
   register: vault_operator_root
   ignore_unreachable: true
   when: >-
@@ -310,6 +310,7 @@
 - name: Set Vault Root Token OTP
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root.otp }}"
+    vault_operator_root_nonce: "{{ vault_operator_root.nonce }}"
 - name: Debug Vault Operator Root OTP
   ansible.builtin.debug:
     msg: "{{ vault_operator_root_otp }}"
@@ -319,7 +320,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
+      vault operator generate-root -nonce={{ vault_operator_root_nonce }} -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
   when: >-
     vault_operator_root is defined and
     vault_operator_init is defined and
@@ -332,7 +333,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
+      vault operator generate-root -nonce={{ vault_operator_root_nonce }} -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
@@ -353,6 +354,22 @@
   register: age_public_key
   when: age_key_file.stat.exists
   changed_when: true
+- name: Write Vault Root Generation to File
+  vars:
+    username: "{{ lookup('ansible.builtin.env', 'USER') }}"
+  ansible.builtin.copy:
+    content: "{{ vault_operator_root.stdout }}"
+    dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
+    mode: preserve
+    owner: "{{ username }}"
+    group: "{{ username }}"
+  when: >-
+    vault_operator_root is defined and
+    not vault_operator_root is skipped and
+    vault_operator_root.complete
+- name: Read Vault Root Token from File
+  ansible.builtin.set_fact:
+    vault_operator_root: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-root-generate.key') }}"
 - name: Write Vault Encrypted Root Token to File
   become: false
   community.sops.sops_encrypt:
