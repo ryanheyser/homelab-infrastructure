@@ -35,7 +35,6 @@
     repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 - name: Create vault-system namespace
   when: kubeconfig.stat.exists
-  register: vault-system-namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     name: vault-system
