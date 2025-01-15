@@ -319,7 +319,6 @@
   run_once: true
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root | from_json }}.otp"
-  when: vault_operator_root_file.stat.exists
 - name: Generate Root Token 1
   # noqa: run-once[task]
   run_once: true
@@ -328,7 +327,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
+      vault operator generate-root -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
@@ -343,7 +342,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
+      vault operator generate-root -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
@@ -368,7 +367,7 @@
   # noqa: run-once[task]
   run_once: true
   community.sops.sops_encrypt:
-    content_json: "{{ vault_operator_root.stdout | from_json }}"
+    content_json: "{{ vault_operator_root.stdout }}"
     path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
     age: "{{ age_public_key.stdout }}"
   when: >-
@@ -384,13 +383,13 @@
     pod: vault-1
     command: >-
       vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
-        {{ (vault_operator_init | from_json).root_token }}
+        {{ vault_operator_init.root_token }}
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
     (vault_operator_root.stdout | from_json).complete and
     (vault_operator_root.stdout | from_json).encoded_token != "" and
-    (vault_operator_init | from_json).root_token != "" and
+    vault_operator_init.root_token != "" and
     kubeconfig.stat.exists
   register: vault_login
   failed_when: (vault_login.stdout | from_json).auth.client_token == ""
@@ -408,10 +407,10 @@
         namespace: kube-system
       type: opaque
       data:
-        token: "{{ (vault_operator_init | from_json).root_token | b64encode }}"
+        token: "{{ vault_operator_init.root_token | b64encode }}"
   when: >-
     kubeconfig.stat.exists and
     vault_operator_init is defined
   changed_when: true
   failed_when: >-
-    {{(vault_operator_init | from_json).root_token | b64encode}} == ""
+    {{vault_operator_init.root_token | b64encode}} == ""
