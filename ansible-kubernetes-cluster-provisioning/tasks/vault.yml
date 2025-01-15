@@ -290,11 +290,14 @@
     not vault_operator_root_file.stat.exists and
     kubeconfig.stat.exists
 - name: Write Vault Root Generation to File
+  vars:
+    username: "{{ lookup('ansible.builtin.env', 'USER') }}"
   ansible.builtin.copy:
     content: "{{ vault_operator_root.stdout }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
     mode: preserve
-    
+    owner: "{{ username }}"
+    group: "{{ username }}"
   when: >-
     vault_operator_root is defined and
     not vault_operator_root is skipped
