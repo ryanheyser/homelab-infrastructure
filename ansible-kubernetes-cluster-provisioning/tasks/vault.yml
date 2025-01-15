@@ -311,7 +311,7 @@
     not vault_operator_root is skipped
 - name: Read Vault Root Token from File
   ansible.builtin.set_fact:
-    vault_operator_root: "lookup('file', {{ playbook_dir }}'/secrets/vault-operator-root-generate.key')"
+    vault_operator_root: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-root-generate.key') }}"
 - name: Set Vault Root Token OTP
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root.otp }}"
@@ -374,8 +374,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
-        {{ vault_operator_init.root_token }}
+      vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 {{ vault_operator_init.root_token }}
   when: >-
     vault_operator_root is defined and
     vault_operator_init is defined and
