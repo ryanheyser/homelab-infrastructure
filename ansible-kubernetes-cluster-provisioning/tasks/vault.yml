@@ -247,8 +247,8 @@
     msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
 - name: Unseal Vault 1
   when: >-
-    vault_status.result.stdout is defined and
-    (vault_status.result.stdout | from_json).sealed and
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
     kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -257,8 +257,8 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2
   when: >-
-    vault_status.result.stdout is defined and
-    (vault_status.result.stdout | from_json).sealed and
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
     kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -273,7 +273,7 @@
     command: "vault status -format=json"
   register: vault_status_after_unseal
   ignore_unreachable: true
-  failed_when: (vault_status_after_unseal.result.stdout | from_json).sealed
+  failed_when: (vault_status_after_unseal.stdout | to_json).sealed
   when: >-
     kubeconfig.stat.exists
 - name: Check if Vault Operator Root File Exists
@@ -323,12 +323,11 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode=$( echo {{ ((vault_operator_init | from_json).unseal_keys_b64[0]) }} | base64 -d | gpg -dq) -format=json
+      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | to_json).otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
-    not (vault_operator_root.stdout | from_json).complete and
+    not (vault_operator_root.stdout | to_json).complete and
     kubeconfig.stat.exists
   register: vault_operator_root
 - name: Generate Root Token 2
@@ -339,12 +338,11 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | from_json).otp }} \
-        -decode={{ ((vault_operator_init | from_json).unseal_keys_b64[1]) }} -format=json
+      vault operator generate-root -otp={{ (vault_operator_root_otp.stdout | to_json).otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
-    not (vault_operator_root.stdout | from_json).complete and
+    not (vault_operator_root.stdout | to_json).complete and
     kubeconfig.stat.exists
   register: vault_operator_root
 - name: Stat age.key
@@ -371,7 +369,7 @@
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
-    (vault_operator_root.stdout | from_json).complete
+    (vault_operator_root.stdout | to_json).complete
 - name: Login to Vault
   # noqa: run-once[task]
   run_once: true
@@ -381,16 +379,16 @@
     pod: vault-1
     command: >-
       vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
-        {{ (vault_operator_init | from_json).root_token }}
+        {{ (vault_operator_init | to_json).root_token }}
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
-    (vault_operator_root.stdout | from_json).complete and
-    (vault_operator_root.stdout | from_json).encoded_token != "" and
-    (vault_operator_init | from_json).root_token != "" and
+    (vault_operator_root.stdout | to_json).complete and
+    (vault_operator_root.stdout | to_json).encoded_token != "" and
+    (vault_operator_init | to_json).root_token != "" and
     kubeconfig.stat.exists
   register: vault_login
-  failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+  failed_when: (vault_login.stdout | to_json).auth.client_token == ""
 - name: Create Vault Token Secret
   # noqa: run-once[task]
   run_once: true
@@ -405,9 +403,10 @@
         namespace: kube-system
       type: opaque
       data:
-        token: "{{ (vault_operator_init | from_json).root_token | b64encode }}"
+        token: "{{ (vault_operator_init | to_json).root_token | b64encode }}"
   when: >-
     kubeconfig.stat.exists and
     vault_operator_init is defined
+  changed_when: true
   failed_when: >-
-    {{(vault_operator_init | from_json).root_token | b64encode}} == ""
+    {{(vault_operator_init | to_json).root_token | b64encode}} == ""
