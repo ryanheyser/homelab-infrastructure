@@ -318,7 +318,7 @@
   # noqa: run-once[task]
   run_once: true
   ansible.builtin.set_fact:
-    vault_operator_root_otp: "{{ vault_operator_root | from_json }}.otp"
+    vault_operator_root_otp: "{{ vault_operator_root.otp }}"
 - name: Generate Root Token 1
   # noqa: run-once[task]
   run_once: true
