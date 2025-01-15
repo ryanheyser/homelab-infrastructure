@@ -311,9 +311,15 @@
   ansible.builtin.set_fact:
     vault_operator_root_otp: "{{ vault_operator_root.otp }}"
     vault_operator_root_nonce: "{{ vault_operator_root.nonce }}"
-- name: Debug Vault Operator Root OTP
+- name: Debug Vault Operator Root otp
   ansible.builtin.debug:
     msg: "{{ vault_operator_root_otp }}"
+- name: Debug Vault Operator Root nonce
+  ansible.builtin.debug:
+    msg: "{{ vault_operator_root_nonce }}"
+- name: Debug Vault Operator Root cmd
+  ansible.builtin.debug:
+    msg: "vault operator generate-root -nonce={{ vault_operator_root_nonce }} -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json"
 - name: Generate Root Token 1
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
