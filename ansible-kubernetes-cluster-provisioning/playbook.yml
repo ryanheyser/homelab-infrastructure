@@ -1,7 +1,7 @@
 ---
 - name: Test
   hosts: localhost
-  become: rumblpak
+  become: "{{ ansible_user }}"
   tasks:
     - name: Whoami
       ansible.builtin.shell:
