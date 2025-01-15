@@ -265,6 +265,9 @@
     namespace: vault-system
     pod: vault-1
     command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Debug Check Vault Status
+  ansible.builtin.debug:
+    msg: "{{ vault_status_after_unseal.stdout | to_json }}"
 - name: Check Vault Status Again
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
