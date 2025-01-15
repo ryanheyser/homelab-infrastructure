@@ -304,7 +304,7 @@
   # noqa: run-once[task]
   run_once: true
   ansible.builtin.copy:
-    content: vault_operator_root.stdout
+    content: "{{ vault_operator_root }}"
     dest: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
     mode: preserve
   when: >-
