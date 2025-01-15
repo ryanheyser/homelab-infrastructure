@@ -329,9 +329,9 @@
     command: >-
       vault operator generate-root -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
   when: >-
-    vault_operator_root.stdout is defined and
+    vault_operator_root is defined and
     vault_operator_init is defined and
-    not (vault_operator_root.stdout | from_json).complete and
+    not vault_operator_root.complete and
     kubeconfig.stat.exists
   register: vault_operator_root
 - name: Generate Root Token 2
@@ -346,7 +346,7 @@
   when: >-
     vault_operator_root.stdout is defined and
     vault_operator_init is defined and
-    not (vault_operator_root.stdout | from_json).complete and
+    not vault_operator_root.complete and
     kubeconfig.stat.exists
   register: vault_operator_root
 - name: Stat age.key
@@ -371,9 +371,9 @@
     path: "{{ playbook_dir }}/secrets/vault-operator-root-token.key.enc"
     age: "{{ age_public_key.stdout }}"
   when: >-
-    vault_operator_root.stdout is defined and
+    vault_operator_root is defined and
     vault_operator_init is defined and
-    (vault_operator_root.stdout | from_json).complete
+    vault_operator_root.complete
 - name: Login to Vault
   # noqa: run-once[task]
   run_once: true
@@ -385,10 +385,10 @@
       vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 \
         {{ vault_operator_init.root_token }}
   when: >-
-    vault_operator_root.stdout is defined and
+    vault_operator_root is defined and
     vault_operator_init is defined and
-    (vault_operator_root.stdout | from_json).complete and
-    (vault_operator_root.stdout | from_json).encoded_token != "" and
+    vault_operator_root.complete and
+    vault_operator_root.encoded_token != "" and
     vault_operator_init.root_token != "" and
     kubeconfig.stat.exists
   register: vault_login
