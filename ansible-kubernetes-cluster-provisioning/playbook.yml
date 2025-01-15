@@ -20,6 +20,10 @@
         executable: /usr/bin/bash
       register: unseal_keys_b64_0
       changed_when: true
+    - name: Debug Whoami
+      ansible.builtin.debug:
+        msg: "{{ unseal_keys_b64_0.stdout }}"
+    
 
 - name: Ping Hosts
   hosts: all
