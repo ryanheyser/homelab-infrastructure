@@ -391,8 +391,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-1
-    command: >-
-      "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
+    command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
     vault_operator_init is defined and
     vault_operator_init.root_token != "" and
