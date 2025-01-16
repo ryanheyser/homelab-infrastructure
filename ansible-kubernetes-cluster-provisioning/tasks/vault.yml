@@ -398,7 +398,11 @@
     vault_operator_init.root_token != "" and
     kubeconfig.stat.exists
   register: vault_login
-  failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+  # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+- name: Fail if Vault Login Fails
+  ansible.builtin.fail:
+    message: "Vault Login Failed"
+  when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Create Vault Token Secret
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
@@ -416,5 +420,5 @@
     kubeconfig.stat.exists and
     vault_operator_init is defined
   changed_when: true
-  failed_when: >-
-    {{vault_operator_init.root_token | b64encode}} == ""
+  # failed_when: >-
+  #   {{vault_operator_init.root_token | b64encode}} == ""
