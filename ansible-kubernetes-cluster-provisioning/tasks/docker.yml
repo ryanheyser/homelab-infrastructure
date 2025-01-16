@@ -15,7 +15,7 @@
   failed_when:
     - dockercfg.rc != 0
     - dockercfg.stdout == ""
-- name: Create Secret
+- name: Create Secret | docker-registry-credentials
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
@@ -25,6 +25,23 @@
       kind: Secret
       metadata:
         name: docker-registry-credentials
+        namespace: kube-system
+        annotations:
+          reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+          reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      type: kubernetes.io/dockercfg
+      data:
+        .dockercfg: "{{ dockercfg.stdout | b64encode }}"
+- name: Create Secret | dockerhub-registrycreds
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: dockerhub-registrycreds
         namespace: kube-system
         annotations:
           reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
