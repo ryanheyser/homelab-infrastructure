@@ -189,3 +189,11 @@
 #   ansible.builtin.file:
 #     path: "/opt/cni/bin/multus-shim"
 #     state: absent
+- name: Reload Services | systemctl daemon reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+- name: Enable Service | cni-dhcp
+  ansible.builtin.systemd_service:
+    name: cni-dhcp
+    state: started
+    enabled: true
