@@ -12,7 +12,7 @@
   ansible.builtin.stat:
     path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
   register: githubsecretsfile
-- name: Unencrypt Docker Secrets
+- name: Unencrypt Github Secrets
   ansible.builtin.set_fact:
     github: "{{ lookup('file', playbook_dir + '/secrets/github.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
   when: githubsecretsfile.stat.exists
