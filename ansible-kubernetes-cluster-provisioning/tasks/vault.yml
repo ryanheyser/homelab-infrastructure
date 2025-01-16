@@ -392,7 +392,7 @@
     namespace: vault-system
     pod: vault-1
     command: >-
-      vault login -format=json -address=http://vault.vault-system.svc.cluster.local:8200 {{ vault_operator_init.root_token }}
+      echo {{ vault_operator_init.root_token }} | vault login -
   when: >-
     vault_operator_init is defined and
     vault_operator_init.root_token != "" and
