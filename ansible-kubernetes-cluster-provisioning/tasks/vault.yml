@@ -33,12 +33,6 @@
     kubeconfig: "{{ home }}/.kube/config"
     name: secrets-store-csi-driver
     repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-- name: Add external-secrets repository
-  when: kubeconfig.stat.exists
-  kubernetes.core.helm_repository:
-    kubeconfig: "{{ home }}/.kube/config"
-    name: external-secrets
-    repo_url: https://charts.external-secrets.io
 - name: Create vault-system namespace
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -427,15 +421,3 @@
   changed_when: true
   # failed_when: >-
   #   {{vault_operator_init.root_token | b64encode}} == ""
-- name: Deploy external-secrets chart
-  when: kubeconfig.stat.exists
-  kubernetes.core.helm:
-    kubeconfig: "{{ home }}/.kube/config"
-    name: external-secrets
-    release_namespace: kube-system
-    # renovate: registryUrl=https://charts.external-secrets.io
-    chart_ref: external-secrets
-    chart_version: 0.12.1
-    chart_repo_url: https://charts.external-secrets.io
-    values_files:
-      - "{{ playbook_dir }}/helm_values/vault/externalsecretsvalues.yaml"
