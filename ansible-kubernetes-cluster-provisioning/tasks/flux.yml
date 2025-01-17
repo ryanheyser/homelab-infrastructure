@@ -25,10 +25,12 @@
     flux bootstrap github \
       --owner=ryanheyser \
       --repository=homelab-ops \
-      --branch main \
+      --branch=main \
       --private=false \
       --network-policy=false \
-      --token-auth=false
+      --token-auth=false \
+      --reconcile \
+      --force
   register: flux_bootstrap_out
   changed_when: true
   failed_when:
