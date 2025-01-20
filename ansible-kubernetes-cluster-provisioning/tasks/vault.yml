@@ -153,7 +153,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-1
+    pod: vault-0
     command: >-
       vault operator init -format=json -key-shares=2 -key-threshold=2 -pgp-keys="/vault/config/pgp-keys/rumblpak.asc,/vault/config/pgp-keys/rheyser.asc"
     # command: vault operator init
@@ -197,7 +197,7 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-1
+    pod: vault-0
     command: vault status -format=json
   register: vault_status
   ignore_unreachable: true
@@ -244,12 +244,8 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: "{{ item }}"
+    pod: vault-0
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
-  loop:
-    - vault-0
-    - vault-1
-    - vault-2
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -258,17 +254,13 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: "{{ item }}"
+    pod: vault-0
     command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
-  loop:
-    - vault-0
-    - vault-1
-    - vault-2
 - name: Check Vault Status Again
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-1
+    pod: vault-0
     command: "vault status -format=json"
   register: vault_status_after_unseal
   ignore_unreachable: true
@@ -282,6 +274,47 @@
   ansible.builtin.fail:
     message: "Vault is sealed"
   when: (vault_status_after_unseal.stdout | from_json).sealed
+- name: Unseal Vault 1 - vault-1
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-1
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
+- name: Unseal Vault 2 - vault-1
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-1
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Unseal Vault 1 - vault-2
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-2
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
+- name: Unseal Vault 2 - vault-2
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-2
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+
 # - name: Check if Vault Operator Root File Exists
 #   ansible.builtin.stat:
 #     path: "{{ playbook_dir }}/secrets/vault-operator-root-generate.key"
@@ -290,7 +323,7 @@
 #   kubernetes.core.k8s_exec:
 #     kubeconfig: "{{ home }}/.kube/config"
 #     namespace: vault-system
-#     pod: vault-1
+#     pod: vault-0
 #     command: "vault operator generate-root -init -format=json"
 #   register: vault_operator_root
 #   ignore_unreachable: true
@@ -332,7 +365,7 @@
 #   kubernetes.core.k8s_exec:
 #     kubeconfig: "{{ home }}/.kube/config"
 #     namespace: vault-system
-#     pod: vault-1
+#     pod: vault-0
 #     command: >-
 #       vault operator generate-root -nonce={{ vault_operator_root_nonce }} -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_0.stdout }} -format=json
 #   when: >-
@@ -345,7 +378,7 @@
 #   kubernetes.core.k8s_exec:
 #     kubeconfig: "{{ home }}/.kube/config"
 #     namespace: vault-system
-#     pod: vault-1
+#     pod: vault-0
 #     command: >-
 #       vault operator generate-root -nonce={{ vault_operator_root_nonce }} -otp={{ vault_operator_root_otp }} -decode={{ unseal_keys_b64_1.stdout }} -format=json
 #   when: >-
@@ -394,7 +427,23 @@
 #     vault_operator_root is defined and
 #     vault_operator_init is defined and
 #     vault_operator_root.complete
-- name: Login to Vault
+- name: Login to Vault - vault-0
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
+  when: >-
+    vault_operator_init is defined and
+    vault_operator_init.root_token != "" and
+    kubeconfig.stat.exists
+  register: vault_login_0
+  # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+- name: Fail if Vault Login Fails - vault-0
+  ansible.builtin.fail:
+    message: "Vault Login Failed"
+  when: (vault_login_0.stdout | from_json).auth.client_token == ""
+- name: Login to Vault - vault-1
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -404,12 +453,28 @@
     vault_operator_init is defined and
     vault_operator_init.root_token != "" and
     kubeconfig.stat.exists
-  register: vault_login
+  register: vault_login_1
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
-- name: Fail if Vault Login Fails
+- name: Fail if Vault Login Fails - vault-1
   ansible.builtin.fail:
     message: "Vault Login Failed"
-  when: (vault_login.stdout | from_json).auth.client_token == ""
+  when: (vault_login_1.stdout | from_json).auth.client_token == ""
+- name: Login to Vault - vault-2
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-2
+    command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
+  when: >-
+    vault_operator_init is defined and
+    vault_operator_init.root_token != "" and
+    kubeconfig.stat.exists
+  register: vault_login_2
+  # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+- name: Fail if Vault Login Fails - vault-2
+  ansible.builtin.fail:
+    message: "Vault Login Failed"
+  when: (vault_login_2.stdout | from_json).auth.client_token == ""
 - name: Create Vault Token Secret
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
