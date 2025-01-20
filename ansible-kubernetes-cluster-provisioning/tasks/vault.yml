@@ -294,6 +294,24 @@
     namespace: vault-system
     pod: vault-1
     command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Check Vault Status Again
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-1
+    command: "vault status -format=json"
+  register: vault_status_after_unseal_1
+  ignore_unreachable: true
+  # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
+  when: >-
+    kubeconfig.stat.exists
+- name: Debug vault_status_after_unseal_1
+  ansible.builtin.debug:
+    msg: "{{ vault_status_after_unseal_1 }}"
+- name: Fail vault status is sealed
+  ansible.builtin.fail:
+    message: "Vault is sealed"
+  when: (vault_status_after_unseal_1.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-2
   when: >-
     vault_status.stdout is defined and
@@ -314,6 +332,24 @@
     namespace: vault-system
     pod: vault-2
     command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Check Vault Status Again
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-2
+    command: "vault status -format=json"
+  register: vault_status_after_unseal_2
+  ignore_unreachable: true
+  # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
+  when: >-
+    kubeconfig.stat.exists
+- name: Debug vault_status_after_unseal_2
+  ansible.builtin.debug:
+    msg: "{{ vault_status_after_unseal_2 }}"
+- name: Fail vault status is sealed
+  ansible.builtin.fail:
+    message: "Vault is sealed"
+  when: (vault_status_after_unseal_2.stdout | from_json).sealed
 
 # - name: Check if Vault Operator Root File Exists
 #   ansible.builtin.stat:

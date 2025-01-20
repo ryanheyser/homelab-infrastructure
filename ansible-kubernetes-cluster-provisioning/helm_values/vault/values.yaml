@@ -22,7 +22,12 @@ server:
     ingressClassName: traefik
     hosts:
       - host: vault.homelab.heyser.xyz
-        paths: []
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: vault-ui
+              port: 8200
     tls:
       - secretName: vault-homelab-heyser-xyz-tls
         hosts:
@@ -107,29 +112,33 @@ server:
             auto_join_scheme = "http"
           }
           # retry_join {
-          #   leader_api_addr = "http://vault-0.vault-system.svc.cluster.local:8200"
+          #   leader_api_addr = "http://vault-0.vault-internal:8200"
           #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
           #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
           #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
           # }
           # retry_join {
-          #   leader_api_addr = "http://vault-1.vault-system.svc.cluster.local:8200"
+          #   leader_api_addr = "http://vault-1.vault-internal:8200"
           #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
           #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
           #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
           # }
           # retry_join {
-          #   leader_api_addr = "http://vault-2.vault-system.svc.cluster.local:8200"
+          #   leader_api_addr = "http://vault-2.vault-internal:8200"
           #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
           #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
           #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
           # }
         }
+        autopilot {
+          last_contact_failure_threshold = "15m"
+          server_stabilization_time = "30s"
+        }
         service_registration "kubernetes" {}
 ui:
   enabled: true
 csi:
-  enabled: false
+  enabled: true
   daemonSet:
     updateStrategy:
       maxSurge: "25%"
