@@ -20,14 +20,9 @@ server:
   ingress:
     enabled: true
     ingressClassName: traefik
+    pathType: Prefix
     hosts:
       - host: vault.homelab.heyser.xyz
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service: vault-ui
-              port: 8200
     tls:
       - secretName: vault-homelab-heyser-xyz-tls
         hosts:
