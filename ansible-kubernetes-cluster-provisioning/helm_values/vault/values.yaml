@@ -23,19 +23,7 @@ server:
     pathType: Prefix
     hosts:
       - host: vault.homelab.heyser.xyz
-        paths:
-          - path: /
-            backend:
-              service:
-                name: vault-active
-                port: 8200
       - host: vault-ui.homelab.heyser.xyz
-        paths:
-          - path: /
-            backend:
-              service:
-                name: vault-ui
-                port: 8200
     tls:
       - secretName: vault-homelab-heyser-xyz-tls
         hosts:
@@ -97,10 +85,14 @@ server:
     enabled: false
   ha:
     enabled: true
+    replicas: 3
     # clusterAddr: vault.vault-system.svc.cluster.local
     raft:
       enabled: true
       setNodeId: true
+      disruptionBudget:
+        enabled: true
+        maxUnavailable: 1
       config: |
         ui = true
         disable_mlock = true
