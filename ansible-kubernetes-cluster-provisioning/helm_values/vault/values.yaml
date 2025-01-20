@@ -23,10 +23,24 @@ server:
     pathType: Prefix
     hosts:
       - host: vault.homelab.heyser.xyz
+        paths:
+          - path: /
+            backend:
+              service:
+                name: vault-active
+                port: 8200
+      - host: vault-ui.homelab.heyser.xyz
+        paths:
+          - path: /
+            backend:
+              service:
+                name: vault-ui
+                port: 8200
     tls:
       - secretName: vault-homelab-heyser-xyz-tls
         hosts:
           - vault.homelab.heyser.xyz
+          - vault-ui.homelab.heyser.xyz
   tolerations:
     - effect: PreferNoSchedule
       key: node-role.kubernetes.io
@@ -92,8 +106,8 @@ server:
         disable_mlock = true
         listener "tcp" {
           tls_disable = 1
-          address = "[::]:8200"
-          cluster_address = "[::]:8201"
+          address = "0.0.0.0:8200"
+          cluster_address = "0.0.0.0:8201"
           # tls_cert_file = "/vault/userconfig/tls-server/fullchain.pem"
           # tls_key_file = "/vault/userconfig/tls-server/server.key"
           # tls_client_ca_file = "/vault/userconfig/tls-server/client-auth-ca.pem"
