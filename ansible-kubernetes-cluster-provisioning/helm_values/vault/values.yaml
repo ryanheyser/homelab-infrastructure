@@ -129,7 +129,7 @@ server:
 ui:
   enabled: true
 csi:
-  enabled: true
+  enabled: false
   daemonSet:
     updateStrategy:
       maxSurge: "25%"

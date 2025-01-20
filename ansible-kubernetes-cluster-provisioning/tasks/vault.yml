@@ -244,8 +244,12 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-1
+    pod: "{{ item }}"
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
+  loop:
+    - vault-0
+    - vault-1
+    - vault-2
 - name: Unseal Vault 2
   when: >-
     vault_status.stdout is defined and
@@ -254,8 +258,12 @@
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
-    pod: vault-1
+    pod: "{{ item }}"
     command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+  loop:
+    - vault-0
+    - vault-1
+    - vault-2
 - name: Check Vault Status Again
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
