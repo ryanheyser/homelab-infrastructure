@@ -105,7 +105,7 @@
     # - "bind-address: 10.0.1.5"
     # - "cloud-provider-name: none"
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
-    # - "disable-cloud-controller: true"
+    - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
     # - "node-name: {{ inventory_hostname }}"
     # - "node-external-ip: 10.0.1.5"
