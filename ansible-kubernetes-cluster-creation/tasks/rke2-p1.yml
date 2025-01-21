@@ -111,7 +111,7 @@
     # - "node-external-ip: 10.0.1.5"
     - "write-kubeconfig-mode: 0644"
     - "embedded-registry: true"
-    - "etcd-arg: [ 'election-timeout=15000', 'heartbeat-interval=5000' ]"
+    - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000' ]"
     - "selinux: false"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     # rke2_agent_options:
