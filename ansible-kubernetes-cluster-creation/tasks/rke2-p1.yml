@@ -46,7 +46,7 @@
     rke2_version: v1.31.4+rke2r1
     rke2_ha_mode: true
     rke2_interface: ens18
-    rke2_api_ip: "10.0.1.5"
+    rke2_api_ip: "10.0.1.10"
     rke2_ha_mode_keepalived: true
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
@@ -54,11 +54,10 @@
     rke2_api_cidr: 18
     rke2_additional_sans:
     - kubernetes.homelab.heyser.xyz
-    - kubernetes.homelab.heyser.lan
     # rke2_cluster_domain: homelab.heyser.xyz
     rke2_download_kubeconf: true
-    # rke2_server_node_taints:
-    # - "node-role.kubernetes.io/control-plane:NoSchedule"
+    rke2_server_node_taints:
+    - "node-role.kubernetes.io/control-plane:NoSchedule"
     # rke2_cni: 'none'
     rke2_cni:
     - multus

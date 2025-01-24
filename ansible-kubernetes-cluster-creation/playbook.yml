@@ -55,7 +55,7 @@
   tasks:
     - name: Setup localhost to ensure ansible is successful
       ansible.builtin.include_tasks:
-        file: "{{ playbook_dir }}/tasks/local-setup.yml"
+        file: "{{ playbook_dir }}/tasks/setup-local.yml"
 
 - name: Setup Hosts
   connection: ssh

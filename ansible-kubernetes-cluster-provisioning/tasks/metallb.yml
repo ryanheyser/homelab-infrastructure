@@ -39,7 +39,17 @@
     chart_ref: metallb
     chart_version: 0.14.9
     chart_repo_url: https://metallb.github.io/metallb
-    # values:
+    values:
+      controller:
+        tolerations:
+          - key: "node-role.kubernetes.io/control-plane"
+            operator: "Exists"
+            effect: "NoSchedule"
+      speaker:
+        tolerations:
+          - key: "node-role.kubernetes.io/control-plane"
+            operator: "Exists"
+            effect: "NoSchedule"
 - name: Wait for metallb controller to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"

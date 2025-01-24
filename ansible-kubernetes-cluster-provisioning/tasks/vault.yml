@@ -27,12 +27,12 @@
     kubeconfig: "{{ home }}/.kube/config"
     name: hashicorp
     repo_url: https://helm.releases.hashicorp.com
-- name: Add secrets-store-csi repository
-  when: kubeconfig.stat.exists
-  kubernetes.core.helm_repository:
-    kubeconfig: "{{ home }}/.kube/config"
-    name: secrets-store-csi-driver
-    repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+# - name: Add secrets-store-csi repository
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.helm_repository:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     name: secrets-store-csi-driver
+#     repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 - name: Create vault-system namespace
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -94,18 +94,18 @@
     chart_repo_url: https://helm.releases.hashicorp.com
     values_files:
       - "{{ playbook_dir }}/helm_values/vault/values.yaml"
-- name: Deploy csi-secrets-store chart
-  when: kubeconfig.stat.exists
-  kubernetes.core.helm:
-    kubeconfig: "{{ home }}/.kube/config"
-    name: csi-secrets-store
-    release_namespace: kube-system
-    # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-    chart_ref: secrets-store-csi-driver
-    chart_version: 1.4.7
-    chart_repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-    values_files:
-      - "{{ playbook_dir }}/helm_values/vault/csivalues.yaml"
+# - name: Deploy csi-secrets-store chart
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.helm:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     name: csi-secrets-store
+#     release_namespace: kube-system
+#     # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+#     chart_ref: secrets-store-csi-driver
+#     chart_version: 1.4.7
+#     chart_repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+#     values_files:
+#       - "{{ playbook_dir }}/helm_values/vault/csivalues.yaml"
 - name: Check if Vault Operator Init File Exists
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key"

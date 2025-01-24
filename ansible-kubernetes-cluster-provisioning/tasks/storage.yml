@@ -106,6 +106,15 @@
         archiveOnDelete: false
         provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner-ss"
         reclaimPolicy: "Retain"
+      podAnnotations:
+        app.kubernetes.io/component: nfs
+      tolerations:
+        - effect: PreferNoSchedule
+          key: node-role.kubernetes.io
+          value: master
+        - key: node-role.kubernetes.io/control-plane
+          operator: Equal
+          effect: NoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

@@ -2,15 +2,18 @@
   ansible.builtin.stat:
     path: "{{ home }}/.kube/config"
   register: kubeconfig
-- name: Download reflector manifest to the cluster.
-  ansible.builtin.get_url:
-    url: https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml
-    dest: "{{ playbook_dir }}/reflector.yaml"
-    mode: '0664'
-  register: reflector
-- name: Apply reflector manifest to the cluster.
-  kubernetes.core.k8s:
+- name: Deploy Reflector chart
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    # renovate: registryUrl=https://emberstack.github.io/helm-charts
     kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    src: "{{ playbook_dir }}/reflector.yaml"
-  register: reflectorapply
+    name: reflector
+    release_namespace: kube-system
+    chart_ref: reflector
+    chart_version: 7.1.288
+    chart_repo_url: https://emberstack.github.io/helm-charts
+    values:
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"

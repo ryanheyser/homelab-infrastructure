@@ -331,7 +331,7 @@
       spec:
         valuesContent: |-
           nodelocal:
-            enabled: false
+            enabled: true
           service:
             clusterIP: 10.254.0.10
             # loadBalancerIP: 10.0.100.2
@@ -375,7 +375,7 @@
             - name: prometheus
               parameters: 0.0.0.0:9153
             - name: forward
-              parameters: . /etc/resolv.conf 1.1.1.1
+              parameters: . /etc/resolv.conf 10.0.0.1
               configBlock: |-
                 except "cluster.local" "svc.cluster.local" ".svc"
                 policy sequential
