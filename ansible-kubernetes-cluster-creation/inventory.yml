@@ -101,6 +101,16 @@ workernodes:
       ansible_fqdn: phanta.homelab.heyser.xyz
       ansible_hostname: phanta
       rke2_type: agent
+    posura:
+      ansible_host: 10.0.1.26
+      ansible_fqdn: posura.homelab.heyser.xyz
+      ansible_hostname: posura
+      rke2_type: agent
+    pteran:
+      ansible_host: 10.0.1.27
+      ansible_fqdn: pteran.homelab.heyser.xyz
+      ansible_hostname: pteran
+      rke2_type: agent
 kubernetes:
   vars:
     ansible_user: ansible
