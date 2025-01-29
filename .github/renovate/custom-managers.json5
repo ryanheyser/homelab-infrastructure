@@ -50,7 +50,7 @@
       "fileMatch": ["rke2-p1\\.y(a)?ml$"],
       "matchStringsStrategy": "combination",
       "matchStrings": [
-        "#(\\s+)?renovate:(\\s+)((\\S)?depName=(?<depName>.*))((\\S)?registryUrl=(?<registryUrl>.*))",
+        "#(\\s+)?renovate:(\\s+)((\\S)?depName=(?<depName>.*))",
         "rke2_version:(\\s+)?((?<currentValue>.*))",
       ],
       "datasourceTemplate": "github-releases",

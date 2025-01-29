@@ -68,7 +68,17 @@
       "matchUpdateTypes": ["minor", "patch"],
       "matchPackagePattern": [
         "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin",
-        "github.com/k8snetworkplumbingwg/multus-cni",
+        "github.com/k8snetworkplumbingwg/multus-cni"
+      ]
+    },
+    {
+      "description": "Auto merge GitHub Releases",
+      "matchDatasources": ["github-releases","ansible"],
+      "automerge": true,
+      "ignoreTests": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["patch"],
+      "matchPackagePattern": [
         "github.com/rancher/rke2"
       ]
     },
