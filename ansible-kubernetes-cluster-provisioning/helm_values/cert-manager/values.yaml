@@ -1,0 +1,89 @@
+crds: 
+  enabled: true
+  keep: true
+replicaCount: 3
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 1
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+webhook:
+  replicaCount: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+#   enabled: true
+  tolerations:
+  - key: "arm"
+    operator: "Exists"
+  - key: node-role.kubernetes.io/control-plane
+    operator: Equal
+    effect: NoSchedule
+  - effect: PreferNoSchedule
+    key: node-role.kubernetes.io
+    value: master
+# extraArgs:
+# - --dns01-recursive-nameservers=1.1.1.1:53
+# - --dns01-recursive-nameservers-only
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - cert-manager
+        topologyKey: "kubernetes.io/hostname"
+tolerations:
+- key: "arm"
+  operator: "Exists"
+- key: node-role.kubernetes.io/control-plane
+  operator: Equal
+  effect: NoSchedule
+- effect: PreferNoSchedule
+  key: node-role.kubernetes.io
+  value: master
+cainjector:
+  replicaCount: 3
+  # extraArgs:
+  #   - --leader-elect=false
+  tolerations:
+  - key: "arm"
+    operator: "Exists"
+  - key: node-role.kubernetes.io/control-plane
+    operator: Equal
+    effect: NoSchedule
+  - effect: PreferNoSchedule
+    key: node-role.kubernetes.io
+    value: master
+  strategy:
+    type: RollingUpdate
+    maxSurge: 1
+    maxUnavailable: 1
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - cert-manager
+          topologyKey: "kubernetes.io/hostname"
+# prometheus:
+#   enabled: true
+#   servicemonitor:
+#     enabled: true
+#     prometheusInstance: monitoring

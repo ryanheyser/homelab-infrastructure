@@ -292,6 +292,21 @@
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/external-secrets.yml"
 
+# Cert-Manager
+- name: Install Cert-Manager
+  hosts: localhost
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    # kubeconfig: "{{ home }}/.kube/config"
+  tags:
+    - setup
+    - kubernetes
+    - certificates
+  tasks:
+    - name: Setup | Cert-Manager
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/cert-manager.yml"
+
 # Flux
 - name: Bootstrap Flux
   hosts: localhost
