@@ -43,7 +43,7 @@
       clusterDNS: [ 10.254.0.10 ]
 - name: Deploy | Install RKE2
   vars:
-    # renovate: registryUrl=https://github.com/rancher/rke2
+    # renovate: depName=rancher/rke2 registryUrl=https://github.com/rancher/rke2
     rke2_version: v1.31.4+rke2r1
     rke2_ha_mode: true
     rke2_interface: ens18
