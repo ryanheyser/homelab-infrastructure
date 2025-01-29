@@ -202,7 +202,7 @@
     name: cni-dhcp
     state: started
     enabled: true
-- name: Mount /var/tmp as executable
+- name: Mount /var/tmp as non-executable
   become: true
   ansible.builtin.shell:
     cmd: "mount -o remount,noexec /var/tmp"
