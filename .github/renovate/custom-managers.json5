@@ -43,6 +43,20 @@
       "datasourceTemplate": "helm",
       //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
       //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
-    }
+    },
+    {
+      "customType": "regex",
+      "description": "Process rke2_version",
+      "fileMatch": ["rke2-p1\\.y(a)?ml$"],
+      "matchStringsStrategy": "combination",
+      "matchStrings": [
+        "#(\\s+)?renovate:(\\s+)?((\\S)?registryUrl=(?<registryUrl>.*))?",
+        "rke2_version:(\\s+)?((?<currentValue>.*))",
+      ],
+      "datasourceTemplate": "github-releases",
+      //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
+      //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    
   ]
 }
