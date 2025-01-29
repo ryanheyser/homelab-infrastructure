@@ -49,16 +49,6 @@
       'vars\\.ya?ml',
     ],
   },
-  docker: {
-    fileMatch: [
-      "(^|/)playbook\\.ya?ml$",
-      "(^|/)tasks/(.*)?[^/]+\\.ya?ml$",
-    ],
-    ignorePaths: [
-      '.github/**',
-      'vars\\.ya?ml',
-    ],
-  },
   'helm-values': {
     fileMatch: [
       "(^|/)helm_values/[^/]+\\.ya?ml$",
