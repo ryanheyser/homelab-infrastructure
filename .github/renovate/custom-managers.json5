@@ -64,7 +64,7 @@
       "matchStringsStrategy": "combination",
       "matchStrings": [
         "#(\\s+)?renovate:(\\s+)((\\S)?depName=(?<depName>.*))",
-        "moduleName:(\\s+)?((?<depName>.*))"
+        "moduleName:(\\s+)?((?<depName>.*))",
         "version:(\\s+)?((?<currentValue>.*))",
       ],
       "datasourceTemplate": "github-releases",
