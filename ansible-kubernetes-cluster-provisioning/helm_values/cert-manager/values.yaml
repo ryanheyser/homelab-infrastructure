@@ -20,7 +20,6 @@ webhook:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
-#   enabled: true
   tolerations:
   - key: "arm"
     operator: "Exists"
@@ -30,9 +29,9 @@ webhook:
   - effect: PreferNoSchedule
     key: node-role.kubernetes.io
     value: master
-# extraArgs:
-# - --dns01-recursive-nameservers=1.1.1.1:53
-# - --dns01-recursive-nameservers-only
+extraArgs:
+- --dns01-recursive-nameservers=1.1.1.1:53
+- --dns01-recursive-nameservers-only
 affinity:
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
