@@ -48,6 +48,7 @@ service:
   annotations:
     cni.projectcalico.org/ipAddrs: '["10.0.100.1"]'
     metallb.universe.tf/address-pool: "system"
+    metallb.universe.tf/loadBalancerIPs: 10.0.100.1
   spec:
     loadBalancerIP: 10.0.100.1
     externalTrafficPolicy: Cluster
