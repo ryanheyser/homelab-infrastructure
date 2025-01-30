@@ -36,8 +36,8 @@ providers:
     publishedService:
       enabled: true
     ingressClass: traefik 
-  kubernetesGateway:
-    enabled: true
+  # kubernetesGateway:
+  #   enabled: true
 # nodeSelector:
 #   ingress-ready: 'true'
 ingressClass:
