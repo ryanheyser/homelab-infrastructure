@@ -59,11 +59,6 @@ ports:
       enabled: true
     middlewares:
       - network-system@kubernetescrd
-    tls:
-      certResolver: leresolver
-      domains:
-        - '*.homelab.heyser.xyz'
-        - '*.heyser.xyz'
   web:
     middlewares:
       - network-system@kubernetescrd
