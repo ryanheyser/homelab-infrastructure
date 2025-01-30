@@ -23,15 +23,21 @@ experimental:
     bouncer:
       # renovate: moduleName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-      version: v1.3.3 # To update
+      version: v1.4.0 # To update
     # kubernetesGateway:
     #   enabled: true
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
     allowExternalNameServices: true
+    ingressClass: traefik
   kubernetesIngress:
     allowExternalNameServices: true
+    publishedService:
+      enabled: true
+    ingressClass: traefik 
+  kubernetesGateway:
+    enabled: true
 # nodeSelector:
 #   ingress-ready: 'true'
 ingressClass:
@@ -47,10 +53,16 @@ service:
     externalTrafficPolicy: Cluster
 ports:
   websecure:
+    asDefault: true
     http3:
       enabled: true
     middlewares:
       - network-system@kubernetescrd
+    tls:
+      certResolver: leresolver
+      domains:
+        - '*.homelab.heyser.xyz'
+        - '*.heyser.xyz'
   web:
     middlewares:
       - network-system@kubernetescrd
