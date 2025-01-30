@@ -21,7 +21,7 @@ experimental:
   plugins:
     # enabled: true
     bouncer:
-      # renovate: moduleName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      # renovate: depName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       version: v1.4.0 # To update
     # kubernetesGateway:

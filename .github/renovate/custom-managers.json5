@@ -57,6 +57,19 @@
       //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
       //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
     },
-    
+    {
+      "customType": "regex",
+      "description": "Process github release versions",
+      "fileMatch": ["\\.y(a)?ml$"],
+      "matchStringsStrategy": "combination",
+      "matchStrings": [
+        "#(\\s+)?renovate:(\\s+)((\\S)?depName=(?<depName>.*))",
+        "moduleName:(\\s+)?((?<depName>.*))"
+        "version:(\\s+)?((?<currentValue>.*))",
+      ],
+      "datasourceTemplate": "github-releases",
+      //"datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}",
+      //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
   ]
 }
