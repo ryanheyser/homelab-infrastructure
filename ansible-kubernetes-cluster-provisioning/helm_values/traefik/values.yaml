@@ -69,6 +69,9 @@ tolerations:
   - effect: PreferNoSchedule
     key: node-role.kubernetes.io
     value: master
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
 autoscaling:
   enabled: true
   minReplicas: 2
