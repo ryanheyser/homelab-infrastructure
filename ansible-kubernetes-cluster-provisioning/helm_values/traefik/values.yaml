@@ -24,8 +24,8 @@ experimental:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
       version: v1.4.0
-    kubernetesGateway:
-      enabled: true
+    # kubernetesGateway:
+    #   enabled: true
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
@@ -37,8 +37,8 @@ providers:
       enabled: true
     # comment out ingressClass to allow all ingresses to be processed  
     ingressClass: traefik 
-  kubernetesGateway:
-    enabled: true
+  # kubernetesGateway:
+  #   enabled: true
 # nodeSelector:
 #   ingress-ready: 'true'
 ingressClass:
