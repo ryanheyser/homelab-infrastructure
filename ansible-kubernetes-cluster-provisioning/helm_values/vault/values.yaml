@@ -17,8 +17,15 @@ server:
   logFormat: "json"
   readinessProbe:
     initialDelaySeconds: 20
+  service:
+    annotations:
+      traefik.ingress.kubernetes.io/service.nativelb: "true"
   ingress:
     enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      # traefik.ingress.kubernetes.io/router.middlewares: "network-system-authentik@kubernetescrd"
     ingressClassName: traefik
     pathType: Prefix
     hosts:
