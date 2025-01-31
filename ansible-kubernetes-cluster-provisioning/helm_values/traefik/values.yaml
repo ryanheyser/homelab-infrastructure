@@ -1,8 +1,10 @@
 globalArguments:
 - "--global.checknewversion"
 - "--global.sendanonymoususage=false"
+- "--rule.authentik.action=allow"
+- "--rule.authentik.rule=Host(`auth.$DOMAINNAME`)"
 deployment:
-  replicas: null
+  replicas: null 
 logs:
   general:
     level: DEBUG
@@ -59,10 +61,10 @@ ports:
     http3:
       enabled: true
     middlewares:
-      #- network-system-authentik@kubernetescrd
+      - network-system-authentik@kubernetescrd
   web:
     middlewares:
-      #- network-system-authentik@kubernetescrd
+      - network-system-authentik@kubernetescrd
 tolerations:
   - key: node-role.kubernetes.io/control-plane
     operator: Equal
