@@ -1,8 +1,6 @@
 globalArguments:
 - "--global.checknewversion"
 - "--global.sendanonymoususage=false"
-- "--rule.authentik.action=allow"
-- "--rule.authentik.rule=Host(`auth.$DOMAINNAME`)"
 deployment:
   replicas: null 
 logs:
