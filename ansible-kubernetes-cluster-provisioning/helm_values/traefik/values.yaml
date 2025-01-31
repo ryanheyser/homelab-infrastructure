@@ -57,11 +57,11 @@ ports:
     asDefault: true
     http3:
       enabled: true
-    # middlewares:
-    #   - network-system-authentik@kubernetescrd
+    middlewares:
+      - network-system-authentik@kubernetescrd
   web:
-    # middlewares:
-    #   - network-system-authentik@kubernetescrd
+    middlewares:
+      - network-system-authentik@kubernetescrd
 tolerations:
   - key: node-role.kubernetes.io/control-plane
     operator: Equal
