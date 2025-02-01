@@ -58,6 +58,7 @@ ports:
     asDefault: true
     http3:
       enabled: true
+      advertisedPort: 443
     middlewares:
       # - network-system-authentik@kubernetescrd
   web:
