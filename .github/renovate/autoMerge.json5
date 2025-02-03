@@ -16,7 +16,8 @@
         "ghcr.io/onedr0p/qbittorrent",
         "ghcr.io/onedr0p/intel-gpu-exporter",
         "codercom/code-server",
-        "adguard/adguardhome"
+        "adguard/adguardhome",
+        "cert-manager/cert-manager"
       ]
     },
     // auto-updates - weekly
@@ -47,7 +48,8 @@
         "coredns",
         "traefik",
         "patch-operator",
-        "nfs-subdir-external-provisioner"
+        "nfs-subdir-external-provisioner",
+        "cert-manager"
       ]
     },
     {
