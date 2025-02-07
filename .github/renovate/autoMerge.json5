@@ -49,7 +49,8 @@
         "traefik",
         "patch-operator",
         "nfs-subdir-external-provisioner",
-        "cert-manager"
+        "cert-manager",
+        "external-secrets"
       ]
     },
     {
