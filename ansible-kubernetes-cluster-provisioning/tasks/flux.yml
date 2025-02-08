@@ -1,3 +1,9 @@
+- name: Check for kubeconfig
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.stat:
+    path: "{{ home }}/.kube/config"
+  register: kubeconfig
 - name: Flux pre-checks
   ansible.builtin.command: |
     flux check --pre

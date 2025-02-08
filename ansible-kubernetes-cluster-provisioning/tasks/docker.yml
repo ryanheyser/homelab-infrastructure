@@ -1,3 +1,9 @@
+- name: Check for kubeconfig
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.stat:
+    path: "{{ home }}/.kube/config"
+  register: kubeconfig
 - name: Check docker secrets encrypted file
   ansible.builtin.stat:
     path: "{{ playbook_dir + '/secrets/docker.sops.yaml.enc' }}"
