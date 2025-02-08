@@ -1,3 +1,7 @@
+- name: Check for kubeconfig
+  ansible.builtin.stat:
+    path: "{{ home }}/.kube/config"
+  register: kubeconfig
 - name: Add nfs-subdir-external-provisioner repository
   when: kubeconfig.stat.exists
   kubernetes.core.helm_repository:
