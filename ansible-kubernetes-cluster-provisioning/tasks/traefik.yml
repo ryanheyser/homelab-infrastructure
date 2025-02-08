@@ -144,7 +144,7 @@
     release_namespace: network-system
     # renovate: registryUrl=https://helm.traefik.io/traefik
     chart_ref: traefik
-    chart_version: 34.2.0
+    chart_version: 34.3.0
     chart_repo_url: https://helm.traefik.io/traefik
     values_files:
       - "{{ traefikvalues.stat.path }}"
