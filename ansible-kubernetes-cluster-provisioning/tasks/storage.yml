@@ -41,7 +41,8 @@
       nfs:
         # server: "10.0.0.10"
         # path: "/kracko"
-        server: "10.0.0.8"
+        # server: "10.0.0.8"
+        server: "storage.homelab.heyser.xyz"
         path: "/mnt/kracko"
         mountOptions:
           - "vers=4"
