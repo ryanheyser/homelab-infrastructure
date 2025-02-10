@@ -101,24 +101,30 @@
     - name: Cleanup | Stop Agent Service
       ansible.builtin.command: sudo systemctl stop rke2-agent.service
       when: inventory_hostname in groups["workernodes"]
+      changed_when: true
     - name: Cleanup | Stop Server Service
       ansible.builtin.command: sudo systemctl stop rke2-server.service
       when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
     - name: Cleanup | Disable Agent Service
       ansible.builtin.command: sudo systemctl disable rke2-agent.service
       when: inventory_hostname in groups["workernodes"]
+      changed_when: true
     - name: Cleanup | Disable Server Service
       ansible.builtin.command: sudo systemctl disable rke2-server.service
       when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
     - name: Cleanup | Run RKE2 Killall
       ansible.builtin.command: rke2-killall.sh
       when: rke2killall.stat.exists
+      changed_when: true
     - name: Cleanup | Remove reset-flag if exists
       become: true
       ansible.builtin.file:
         path: "/var/lib/rancher/rke2/server/db/reset-flag"
         state: absent
       when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
     - name: Check for rke2 config.yaml
       ansible.builtin.stat:
         path: "/etc/rancher/rke2/config.yaml"
@@ -129,18 +135,21 @@
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
+      changed_when: true
     - name: Cleanup | Reset Cluster Remove node-external-ip
       become: true
       ansible.builtin.command: sudo sed -i '/node-external-ip:/d' /etc/rancher/rke2/config.yaml
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
+      changed_when: true
     - name: Cleanup | Reset Cluster Remove bind
       become: true
       ansible.builtin.command: sudo sed -i '/bind-address:/d' /etc/rancher/rke2/config.yaml
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2config.stat.exists
+      changed_when: true
     - name: Check for rke2 server token
       become: true
       ansible.builtin.stat:
@@ -160,12 +169,15 @@
       when: inventory_hostname in groups["controlnodes"]
       register: clusterreset
       failed_when: clusterreset.rc > 0
+      changed_when: true
     - name: Cleanup | Unmask Agent Service
       ansible.builtin.command: sudo systemctl unmask rke2-agent.service
       when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
     - name: Cleanup | Unmask Server Service
       ansible.builtin.command: sudo systemctl unmask rke2-server.service
       when: inventory_hostname in groups["workernodes"]
+      changed_when: true
     - name: Check for rke2-uninstall.sh
       ansible.builtin.stat:
         path: "/usr/local/bin/rke2-uninstall.sh"
@@ -173,6 +185,7 @@
     - name: Cleanup | Run RKE2 Uninstall
       ansible.builtin.command: rke2-uninstall.sh
       when: rke2uninstall.stat.exists
+      changed_when: true
     - name: Cleanup | Remove multus-shim if exists
       ansible.builtin.file:
         path: "/opt/cni/bin/multus-shim"
