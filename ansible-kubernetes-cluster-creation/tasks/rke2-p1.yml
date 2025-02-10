@@ -45,6 +45,17 @@
   become: true
   ansible.builtin.shell:
     cmd: "mount -o remount,exec /var/tmp"
+- name: Check rke2 encrypted file
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "{{ playbook_dir + '/secrets/rke2.sops.yaml.enc' }}"
+  register: rke2secretsfile
+- name: Unencrypt rke2 Secrets
+  delegate_to: localhost
+  ansible.builtin.set_fact:
+      rke2_token: "{{ lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+  when: rke2secretsfile.stat.exists
+  failed_when: not rke2secretsfile.stat.exists
 - name: Deploy | Install RKE2
   vars:
     # renovate: depName=rancher/rke2
@@ -64,6 +75,8 @@
     rke2_server_node_taints:
     - "node-role.kubernetes.io/control-plane:NoSchedule"
     # rke2_cni: 'none'
+    rke2_token: "{{ (rke2_token | from_yaml).RKE2_SERVER_TOKEN }}"
+    rke2_agent_token: "{{ (rke2_token | from_yaml).RKE2_AGENT_TOKEN }}"
     rke2_cni:
     - multus
     - calico
