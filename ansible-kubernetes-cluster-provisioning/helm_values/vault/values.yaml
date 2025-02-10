@@ -13,6 +13,19 @@ injector:
       maxUnavailable: "25%"
     type: RollingUpdate
 server:
+  statefulset:
+    securityContext:
+      pod:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+        supplementalGroups: [568,911,1000,1001]
+      container:
+        allowPrivilegeEscalation: false
+        runAsGroup: 1000
+        runAsUser: 1000
   logLevel: "debug"
   logFormat: "json"
   readinessProbe:
