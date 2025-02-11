@@ -37,6 +37,7 @@
     chart_repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
     values:
       nameOverride: nfs-subdir-external-provisioner
+      fullnameOverride: nfs-subdir-external-provisioner
       replicaCount: 3
       strategyType: RollingUpdate
       nfs:
@@ -91,6 +92,7 @@
     chart_repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
     values:
       nameOverride: nfs-subdir-external-provisioner-ss
+      fullnameOverride: nfs-subdir-external-provisioner-ss
       replicaCount: 3
       strategyType: RollingUpdate
       nfs:
