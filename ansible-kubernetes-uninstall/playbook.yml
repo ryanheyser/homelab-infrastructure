@@ -201,6 +201,7 @@
 # reboot
 - name: Reboot
   hosts: kubernetes
+  gather_facts: false
   # serial: 1
   tasks:
     - name: Reboot all nodes
