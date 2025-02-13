@@ -54,7 +54,7 @@ service:
     metallb.universe.tf/loadBalancerIPs: 10.0.100.1
     traefik.ingress.kubernetes.io/service.nativelb: "true"
   spec:
-    loadBalancerIP: 10.0.100.1
+    # loadBalancerIP: 10.0.100.1
     externalIPs:
     - 10.0.100.1
     externalTrafficPolicy: Cluster
