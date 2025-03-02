@@ -51,7 +51,8 @@
         "patch-operator",
         "nfs-subdir-external-provisioner",
         "cert-manager",
-        "external-secrets"
+        "external-secrets",
+        "reflector"
       ]
     },
     {
