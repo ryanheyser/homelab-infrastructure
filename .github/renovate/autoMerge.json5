@@ -17,7 +17,8 @@
         "ghcr.io/onedr0p/intel-gpu-exporter",
         "codercom/code-server",
         "adguard/adguardhome",
-        "cert-manager/cert-manager"
+        "cert-manager/cert-manager",
+        "emberstack/kubernetes-reflector"
       ]
     },
     // auto-updates - weekly
