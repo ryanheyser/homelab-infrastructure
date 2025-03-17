@@ -81,12 +81,14 @@ jobs:
           ref: "${{ github.event.repository.default_branch }}"
           path: default_branch
 
-      - name: Setup Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+      # - name: Setup Homebrew
+      #   uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Setup Tools
-        run: |
-          brew install helm homeport/tap/dyff kustomize yq
+      # - name: Setup Tools
+      #   run: |
+      #     brew install helm homeport/tap/dyff kustomize yq
+
+      - uses: step-security/setup-yq@v1
 
       - name: Diff
         id: diff
