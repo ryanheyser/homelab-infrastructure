@@ -30,10 +30,12 @@ jobs:
         fetch-depth: 1
         ref: main
 
-    - name: Install yq
-      run: |
-        sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
+    # - name: Install yq
+    #   run: |
+    #     sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64
+    #     sudo chmod +x /usr/local/bin/yq
+
+    - uses: step-security/setup-yq@v1
 
     - name: Create pull request for HelmRelease annotations
       uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
