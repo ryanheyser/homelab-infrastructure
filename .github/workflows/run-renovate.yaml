@@ -11,7 +11,7 @@ on:
         type: string
       renovateLogLevel:
         description: "Log-Level"
-        default: "debug"
+        default: "info"
         required: false
         type: string
       configurationFile:
@@ -35,7 +35,7 @@ on:
         type: string
       renovateLogLevel:
         description: "Log-Level"
-        default: "debug"
+        default: "info"
         required: false
         type: string
       configurationFile:
