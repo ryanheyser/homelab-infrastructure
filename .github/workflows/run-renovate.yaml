@@ -1,5 +1,7 @@
 name: Run Renovate
-permissions: read-all
+
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
