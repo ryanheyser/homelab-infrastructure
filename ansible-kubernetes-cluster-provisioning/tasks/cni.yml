@@ -111,8 +111,6 @@
                 blockSize: 26
                 cidr: 10.255.0.0/16
                 disableBGPExport: false
-                disableNewAllocations: false
-                encapsulation: VXLAN
                 name: default-ipv4-ippool
                 natOutgoing: Enabled
                 nodeSelector: all()
