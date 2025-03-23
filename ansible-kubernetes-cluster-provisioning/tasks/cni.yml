@@ -105,10 +105,16 @@
                 firstFound: false
               containerIPForwarding: "Enabled"
               ipPools:
-              - blockSize: 27
-                cidr: 10.254.0.0/16
-                encapsulation: IPIP
-                natOutgoing: False
+              - allowedUses:
+                - Workload
+                - Tunnel
+                blockSize: 26
+                cidr: 10.255.0.0/16
+                disableBGPExport: false
+                disableNewAllocations: false
+                encapsulation: VXLAN
+                name: default-ipv4-ippool
+                natOutgoing: Enabled
                 nodeSelector: all()
 - name: Configure RKE2-Multus
   run_once: true
