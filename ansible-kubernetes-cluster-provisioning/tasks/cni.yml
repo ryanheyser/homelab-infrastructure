@@ -104,6 +104,12 @@
                 - 10.0.0.0/18
                 firstFound: false
               containerIPForwarding: "Enabled"
+              ipPools:
+              - blockSize: 27
+                cidr: 10.254.0.0/16
+                encapsulation: IPIP
+                natOutgoing: False
+                nodeSelector: all()
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
