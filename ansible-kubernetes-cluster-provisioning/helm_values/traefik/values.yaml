@@ -30,6 +30,8 @@ providers:
   kubernetesCRD:
     allowCrossNamespace: true
     allowExternalNameServices: true
+    allowEmptyServices: true
+    nativeLBByDefault: true
     # ingressClass: traefik
   kubernetesIngress:
     allowExternalNameServices: true
