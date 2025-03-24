@@ -38,7 +38,7 @@ providers:
     publishedService:
       enabled: true
     # comment out ingressClass to allow all ingresses to be processed  
-    ingressClass: traefik 
+    # ingressClass: traefik 
   # kubernetesGateway:
   #   enabled: true
 # nodeSelector:
