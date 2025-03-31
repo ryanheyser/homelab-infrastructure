@@ -17,8 +17,8 @@ resources:
   limits:
     cpu: "300m"
     memory: "150Mi"
-experimental:
-  plugins:
+# experimental:
+  # plugins:
     # enabled: true
     # bouncer:
       # moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
