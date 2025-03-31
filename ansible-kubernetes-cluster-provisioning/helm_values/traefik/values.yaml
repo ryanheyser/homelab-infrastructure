@@ -20,10 +20,10 @@ resources:
 experimental:
   plugins:
     # enabled: true
-    bouncer:
-      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+    # bouncer:
+      # moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-      version: 1.4.1
+      # version: 1.4.1
     # kubernetesGateway:
     #   enabled: true
 providers:
