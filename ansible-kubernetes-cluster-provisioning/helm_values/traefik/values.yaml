@@ -17,15 +17,15 @@ resources:
   limits:
     cpu: "300m"
     memory: "150Mi"
-# experimental:
-  # plugins:
+experimental:
+  plugins:
     # enabled: true
-    # bouncer:
-      # moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+    bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-      # version: 1.4.2
-    # kubernetesGateway:
-    #   enabled: true
+      version: 1.4.2
+    kubernetesGateway:
+      enabled: true
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
@@ -41,8 +41,8 @@ providers:
       enabled: true
     # comment out ingressClass to allow all ingresses to be processed  
     # ingressClass: traefik 
-  # kubernetesGateway:
-  #   enabled: true
+  kubernetesGateway:
+    enabled: true
 # nodeSelector:
 #   ingress-ready: 'true'
 ingressClass:
@@ -83,7 +83,7 @@ podDisruptionBudget:
   maxUnavailable: 1
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 3
   maxReplicas: 5
   metrics:
     - type: Resource
