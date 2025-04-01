@@ -51,7 +51,7 @@
 - name: Setup localhost
   hosts: localhost
   gather_facts: false
-  become_method: enable
+  # become_method: enable
   tags:
     - setup
     - kubernetes
