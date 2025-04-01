@@ -41,6 +41,8 @@
       apiVersion: kubelet.config.k8s.io/v1beta1
       kind: KubeletConfiguration
       clusterDNS: [ 10.254.0.10 ]
+      cgroupDriver: systemd
+      maxPods: 64
 - name: Mount /var/tmp as executable
   become: true
   ansible.builtin.shell:
@@ -121,7 +123,7 @@
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
     # - "cloud-provider-name: none"
-    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+    - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
     # - "node-name: {{ inventory_hostname }}"
