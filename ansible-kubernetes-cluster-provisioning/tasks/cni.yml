@@ -63,6 +63,21 @@
 #     name: rke2-multus
 #     namespace: kube-system
 #     state: present
+- name: Configure RKE2-Calico-Crd
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    api_version: helm.cattle.io/v1
+    kind: HelmChartConfig
+    name: rke2-calico-crd
+    namespace: kube-system
+    state: present
+    definition:
+      spec:
+        valuesContent: |-
+          global:
+            systemDefaultIngressClass: traefik
 - name: Configure RKE2-Calico
   run_once: true
   delegate_to: localhost
@@ -78,7 +93,7 @@
         valuesContent: |-
           priorityClassName: system-cluster-critical
           apiServer:
-            enabled: true
+            enabled: false
           installation:
             enabled: true
             kubernetesProvider: ''
@@ -116,21 +131,6 @@
                 name: default-ipv4-ippool
                 natOutgoing: Enabled
                 nodeSelector: all()
-- name: Configure RKE2-Calico-Crd
-  run_once: true
-  delegate_to: localhost
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    api_version: helm.cattle.io/v1
-    kind: HelmChartConfig
-    name: rke2-calico-crd
-    namespace: kube-system
-    state: present
-    definition:
-      spec:
-        valuesContent: |-
-          global:
-            systemDefaultIngressClass: traefik
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
@@ -231,6 +231,17 @@
 #     kubeconfig: "{{ home }}/.kube/config"
 #     state: present
 #     src: "{{ playbook_dir }}/apiserver.yaml"
+- name: Configure tigera apiserver
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    api_version: operator.tigera.io/v1
+    kind: operator.tigera.io/v1
+    name: default
+    state: present
+    definition:
+      spec: {}
 - name: Wait for apply tigera apiserver manifest to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
