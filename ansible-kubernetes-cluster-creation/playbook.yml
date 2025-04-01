@@ -18,6 +18,7 @@
 
 - name: Setup SSH Access
   hosts: all
+  become_method: enable
   tags:
     - ssh
   tasks:
@@ -33,6 +34,7 @@
 # Load Variables
 - name: Load Variables
   hosts: all
+  become_method: enable
   tags:
     - vars
   vars:
@@ -50,6 +52,7 @@
 - name: Setup localhost
   hosts: localhost
   gather_facts: false
+  become_method: enable
   tags:
     - setup
     - kubernetes
@@ -61,6 +64,7 @@
 - name: Setup Hosts
   connection: ssh
   gather_facts: true
+  become_method: enable
   hosts: all
   tags:
     - setup
@@ -71,6 +75,7 @@
 
 - name: Setup Kubernetes Hosts
   hosts: kubernetes
+  become_method: enable
   connection: ssh
   # vars:
   tags:
@@ -84,6 +89,7 @@
 # Age/Sops
 - name: Age/Sops
   hosts: localhost
+  become_method: enable
   tags:
     - setup
     - kubernetes
@@ -108,6 +114,7 @@
 # Flux
 - name: Install Flux
   hosts: localhost
+  become_method: enable
   tags:
     - setup
     - kubernetes
@@ -126,6 +133,7 @@
 - name: Externaldns-key
   hosts: localhost
   strategy: linear
+  become_method: enable
   tags:
     - setup
     - kubernetes
@@ -178,6 +186,7 @@
 # rke2
 - name: RKE2 | install kubernetes
   hosts: kubernetes
+  become_method: enable
   tags:
     - setup
     - kubernetes
@@ -197,6 +206,7 @@
 - name: Post rke2 install
   hosts: controlnodes
   gather_facts: false
+  become_method: enable
   strategy: linear
   tags:
     - setup
@@ -210,6 +220,7 @@
 - name: Post rke2 install part 2
   hosts: localhost
   gather_facts: false
+  become_method: enable
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -224,6 +235,7 @@
 - name: Post rke2 install part 3
   hosts: kubernetes
   gather_facts: false
+  become_method: enable
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
