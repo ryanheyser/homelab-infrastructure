@@ -34,7 +34,6 @@
 # Load Variables
 - name: Load Variables
   hosts: all
-  become_method: enable
   tags:
     - vars
   vars:
