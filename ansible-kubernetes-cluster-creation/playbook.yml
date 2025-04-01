@@ -1,6 +1,7 @@
 ---
 - name: Ping Hosts
   hosts: all
+  become_method: enable
   tags:
     - ping
   tasks:
