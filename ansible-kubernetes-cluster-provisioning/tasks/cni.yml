@@ -114,6 +114,16 @@
                 name: default-ipv4-ippool
                 natOutgoing: Enabled
                 nodeSelector: all()
+- name: Configure RKE2-Calico-Crds
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    api_version: helm.cattle.io/v1
+    kind: HelmChartConfig
+    name: rke2-calico-crds
+    namespace: kube-system
+    state: present
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
