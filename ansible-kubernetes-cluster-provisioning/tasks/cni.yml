@@ -237,7 +237,7 @@
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     api_version: operator.tigera.io/v1
-    kind: operator.tigera.io/v1
+    kind: apiserver
     name: default
     state: present
     definition:
