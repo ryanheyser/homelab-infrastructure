@@ -84,7 +84,7 @@
       "ignoreTests": true,
       "automergeType": "branch",
       "matchUpdateTypes": ["major","minor"],
-      "enabled": false
+      "enabled": false,
       "matchPackagePattern": [
         "github.com/rancher/rke2"
       ]
