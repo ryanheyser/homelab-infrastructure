@@ -80,6 +80,18 @@
     {
       "description": "Auto merge GitHub Releases",
       "matchDatasources": ["github-releases","ansible"],
+      "automerge": false,
+      "ignoreTests": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["major","minor"],
+      "enabled": false
+      "matchPackagePattern": [
+        "github.com/rancher/rke2"
+      ]
+    },
+    {
+      "description": "Auto merge GitHub Releases",
+      "matchDatasources": ["github-releases","ansible"],
       "automerge": true,
       "ignoreTests": true,
       "automergeType": "branch",
