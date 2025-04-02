@@ -43,6 +43,8 @@
       clusterDNS: [ 10.254.0.10 ]
       cgroupDriver: systemd
       maxPods: 64
+      protectKernelDefaults: true
+      imageGCHighThresholdPercent: 75
 - name: Mount /var/tmp as executable
   become: true
   ansible.builtin.shell:
@@ -124,7 +126,7 @@
     # - "bind-address: 10.0.1.5"
     # - "cloud-provider-name: none"
     - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
-    - "disable-cloud-controller: true"
+    # - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
     # - "node-name: {{ inventory_hostname }}"
     # - "node-external-ip: 10.0.1.5"
