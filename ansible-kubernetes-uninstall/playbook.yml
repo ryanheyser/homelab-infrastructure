@@ -164,6 +164,11 @@
       when: |
         inventory_hostname in groups["controlnodes"] and
         rke2servertoken.stat.exists
+    - name: Cleanup | Remove Kubelet Config
+      become: true
+      ansible.builtin.file:
+        path: "/etc/kubernetes/kubeletconfig.yml"
+        state: absent
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
       when: inventory_hostname in groups["controlnodes"]
