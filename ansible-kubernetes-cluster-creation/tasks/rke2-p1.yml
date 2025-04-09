@@ -125,7 +125,7 @@
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
     # - "cloud-provider-name: none"
-    - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
     # - "node-name: {{ inventory_hostname }}"
@@ -135,8 +135,8 @@
     - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000' ]"
     - "selinux: false"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
-    rke2_agent_options:
-    - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+    # rke2_agent_options:
+    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     # k3s_become: true
     # k3s_state: installed
