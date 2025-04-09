@@ -86,10 +86,10 @@
     - calico
     rke2_cluster_cidr:
     - 10.255.0.0/16
-    - fd00:255::/56
+    # - fd00:255::/56
     rke2_service_cidr:
     - 10.254.0.0/16
-    - fd00:254::/56
+    # - fd00:254::/56
     rke2_node_name: "{{ inventory_hostname }}"
     rke2_cluster_group_name: kubernetes
     rke2_servers_group_name: controlnodes

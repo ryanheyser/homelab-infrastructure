@@ -98,7 +98,7 @@
             enabled: true
           global:
             clusterCIDRv4: "10.255.0.0/16"
-            clusterCIDRv6: "fd00:255::/56"
+            # clusterCIDRv6: "fd00:255::/56"
           installation:
             enabled: true
             kubernetesProvider: ''
@@ -130,11 +130,11 @@
                 - 10.0.0.0/18
                 firstFound: false
                 canReach: "10.0.0.1"
-              nodeAddressAutodetectionV6:
-                cidrs:
-                - fd00:11::/64
-                firstFound: false
-                canReach: "fd00:11::1/64"
+              # nodeAddressAutodetectionV6:
+              #   cidrs:
+              #   - fd00:11::/64
+              #   firstFound: false
+              #   canReach: "fd00:11::1/64"
               containerIPForwarding: "Enabled"
               ipPools:
               - allowedUses:
@@ -146,14 +146,14 @@
                 name: default-ipv4-ippool
                 natOutgoing: Enabled
                 nodeSelector: all()
-              - allowedUses:
-                - Workload
-                - Tunnel
-                blockSize: 122
-                cidr: fd00:255::/56
-                disableBGPExport: false
-                name: default-ipv6-ippool
-                nodeSelector: all()
+              # - allowedUses:
+              #   - Workload
+              #   - Tunnel
+              #   blockSize: 122
+              #   cidr: fd00:255::/56
+              #   disableBGPExport: false
+              #   name: default-ipv6-ippool
+              #   nodeSelector: all()
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
