@@ -269,23 +269,23 @@
   #   kubeconfig: "{{ home }}/.kube/config"
   #   state: present
   #   src: "{{ playbook_dir }}/apiserver.yaml"
-- name: Wait for apply tigera apiserver manifest to complete
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ home }}/.kube/config"
-    kind: Deployment
-    namespace: calico-apiserver
-    label_selectors:
-      - k8s-app = calico-apiserver
-    wait: true
-    wait_condition:
-      type: "Available"
-      status: "True"
-    wait_sleep: 30
-    wait_timeout: 600
-  register: calicoapiserverstatus
-  until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
-  retries: 20
-  delay: 15
+# - name: Wait for apply tigera apiserver manifest to complete
+#   kubernetes.core.k8s_info:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     kind: Deployment
+#     namespace: calico-apiserver
+#     label_selectors:
+#       - k8s-app = calico-apiserver
+#     wait: true
+#     wait_condition:
+#       type: "Available"
+#       status: "True"
+#     wait_sleep: 30
+#     wait_timeout: 600
+#   register: calicoapiserverstatus
+#   until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
+#   retries: 20
+#   delay: 15
 - name: Wait for apiservice apiserver to be available
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
