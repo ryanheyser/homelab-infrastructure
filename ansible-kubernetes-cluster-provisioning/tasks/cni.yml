@@ -92,8 +92,13 @@
       spec:
         valuesContent: |-
           priorityClassName: system-cluster-critical
+          felixConfiguration:
+            featureDetectOverride: "ChecksumOffloadBroken=false"
           apiServer:
-            enabled: false
+            enabled: true
+          global:
+            clusterCIDRv4: "10.255.0.0/16"
+            clusterCIDRv6: "fd00:255::/56"
           installation:
             enabled: true
             kubernetesProvider: ''
@@ -104,6 +109,9 @@
             - effect: PreferNoSchedule
               key: node-role.kubernetes.io
               value: master
+            - key: node-role.kubernetes.io/etcd
+              operator: Exists
+              effect: NoExecute
             controlPlaneReplicas: 3
             nodeUpdateStrategy:
               type: RollingUpdate
@@ -111,6 +119,7 @@
                 maxUnavailable: 1
             serviceCIDRs:
             - 10.254.0.0/16
+            - fd00:254::/56
             calicoNetwork:
               multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
@@ -120,6 +129,12 @@
                 cidrs:
                 - 10.0.0.0/18
                 firstFound: false
+                canReach: "10.0.0.1"
+              nodeAddressAutodetectionV6:
+                cidrs:
+                - fd00:11::/64
+                firstFound: false
+                canReach: "fd00:11::1/64"
               containerIPForwarding: "Enabled"
               ipPools:
               - allowedUses:
@@ -130,6 +145,14 @@
                 disableBGPExport: false
                 name: default-ipv4-ippool
                 natOutgoing: Enabled
+                nodeSelector: all()
+              - allowedUses:
+                - Workload
+                - Tunnel
+                blockSize: 122
+                cidr: fd00:255::/56
+                disableBGPExport: false
+                name: default-ipv6-ippool
                 nodeSelector: all()
 - name: Configure RKE2-Multus
   run_once: true
@@ -146,6 +169,9 @@
         valuesContent: |-
           rke2-whereabouts:
             enabled: true
+          pod:
+            resources:
+              enabled: true  
 # - name: Patch Installation Configuration for Tigera Operator
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
@@ -196,20 +222,20 @@
 #     dest: "{{ playbook_dir }}/apiserver.yaml"
 #     mode: '0664'
 #   register: tigeraapiservermanifest
-- name: Create APIServer for Tigera Operator
-  when: kubeconfig.stat.exists
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    apply: true
-    server_side_apply:
-      field_manager: ansible
-    definition:
-      apiVersion: operator.tigera.io/v1
-      kind: APIServer
-      metadata:
-        name: default
-      spec: {}
+# - name: Create APIServer for Tigera Operator
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     apply: true
+#     server_side_apply:
+#       field_manager: ansible
+#     definition:
+#       apiVersion: operator.tigera.io/v1
+#       kind: APIServer
+#       metadata:
+#         name: default
+#       spec: {}
 #     # - name: Wait until HTTP status is 401
 #     #   ansible.builtin.uri:
 #     #     url: "https://{{ hostvars[groups['controlnodes'][0]]['ansible_host'] }}:6443"
