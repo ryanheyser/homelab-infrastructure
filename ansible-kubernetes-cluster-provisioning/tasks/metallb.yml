@@ -102,24 +102,83 @@
       spec:
         addresses:
           - 10.0.100.0/24
-- name: Create Coredns IP Reservation
+- name: Create Default IPv4 BGPPeer Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     state: present
-    apply: true
-    server_side_apply:
-      field_manager: ansible
-      force_conflicts: true
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
     definition:
-      apiVersion: projectcalico.org/v3
-      kind: IPReservation
+      apiVersion: metallb.io/v1beta2
+      kind: BGPPeer
       metadata:
-        name: coredns-ipv4-reservation
-        namespace: kube-system
+        name: default-ipv4
+        namespace: network-system
       spec:
-        reservedCIDRs:
-          - 10.0.100.2
+        myASN: 65001
+        peerASN: 65000
+        peerAddress: 10.0.0.1
+        ebgpMultiHop: true
+        disableMP: true
+# - name: Create Default IPv6 BGPPeer Config
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     # apply: true
+#     # server_side_apply:
+#     #   field_manager: ansible
+#     definition:
+#       apiVersion: metallb.io/v1beta2
+#       kind: BGPPeer
+#       metadata:
+#         name: default-ipv6
+#         namespace: network-system
+#       spec:
+#         myASN: 65001
+#         peerASN: 65000
+#         peerAddress: "fd00:11::1/64"
+#         ebgpMultiHop: true
+#         disableMP: true
+- name: Create BGP Adverstisement Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: BGPAdvertisement
+      metadata:
+        name: default
+        namespace: network-system
+      spec:
+        IPAddressPools:
+        - default
+        - system
+        aggregationLength: 24
+# - name: Create Coredns IP Reservation
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     apply: true
+#     server_side_apply:
+#       field_manager: ansible
+#       force_conflicts: true
+#     definition:
+#       apiVersion: projectcalico.org/v3
+#       kind: IPReservation
+#       metadata:
+#         name: coredns-ipv4-reservation
+#         namespace: kube-system
+#       spec:
+#         reservedCIDRs:
+#           - 10.0.100.2
 - name: Create Coredns LoadBalancer
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
