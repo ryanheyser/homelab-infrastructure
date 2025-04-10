@@ -127,8 +127,8 @@
     rke2_kube_apiserver_args:
     - "--kubelet-timeout=30s"
     - "--request-timeout=5m0s"
-    - "--advertise-address={{ ansible_host }}"
     - "--event-ttl=30m0s"
+    # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
     - "--config=/etc/rancher/rke2/kubelet-config.yaml"
     rke2_kubelet_config:
