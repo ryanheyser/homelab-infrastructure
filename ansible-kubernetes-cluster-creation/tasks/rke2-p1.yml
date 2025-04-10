@@ -141,7 +141,7 @@
       authentication:
         anonymous:
           enabled: true
-      address: {{ ansible_host }}
+      address: "{{ ansible_host }}"
     rke2_kube_proxy_arg:
     - "proxy-mode=ipvs"
     - "ipvs-strict-arp=true"
