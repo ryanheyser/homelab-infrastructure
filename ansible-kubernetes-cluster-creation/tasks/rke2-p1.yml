@@ -30,21 +30,25 @@
     mode: '0755'
     owner: root
     group: root
-# - name: Create KubeletConfig File
-#   become: true
-#   ansible.builtin.copy:
-#     dest: /etc/kubernetes/kubeletconfig.yml
-#     mode: '0644'
-#     owner: root
-#     group: root
-#     content: |
-#       apiVersion: kubelet.config.k8s.io/v1beta1
-#       kind: KubeletConfiguration
-#       clusterDNS: [ 10.254.0.10 ]
-#       cgroupDriver: systemd
-#       maxPods: 64
-#       protectKernelDefaults: true
-#       imageGCHighThresholdPercent: 75
+- name: Create KubeletConfig File
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/kubernetes/kubelet-config.yml
+    mode: '0644'
+    owner: root
+    group: root
+    content: |
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      kind: KubeletConfiguration
+      imageGCHighThresholdPercent: 75
+      imageGCLowThresholdPercent: 60
+      clusterDNS: '[ "10.254.0.10" ]'
+      cgroupDriver: systemd
+      maxPods: 64
+      authentication:
+        anonymous:
+          enabled: true
+      address: "{{ ansible_host }}"
 - name: Mount /var/tmp as executable
   become: true
   ansible.builtin.shell:
@@ -131,7 +135,7 @@
     - "--event-ttl=30m0s"
     # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
-    - "--config=/etc/rancher/rke2/kubelet-config.yaml"
+    - "--config=/etc/kubernetes/kubelet-config.yml"
     rke2_kubelet_config:
       imageGCHighThresholdPercent: 75
       imageGCLowThresholdPercent: 60
