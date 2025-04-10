@@ -124,6 +124,22 @@
     - rke2-canal
     - rke2-ingress-nginx
     - rke2-metrics-server
+    rke2_kube_apiserver_args:
+    - "--kubelet-timeout=30s"
+    - "--request-timeout=5m0s"
+    - "--advertise-address={{ ansible_host }}"
+    - "--event-ttl=30m0s"
+    rke2_kubelet_arg:
+    - "--config=/etc/rancher/rke2/kubelet-config.yaml"
+    rke2_kubelet_config:
+      imageGCHighThresholdPercent: 75
+      clusterDNS: [ 10.254.0.10 ]
+      cgroupDriver: systemd
+      maxPods: 64
+      protectKernelDefaults: true
+    rke2_kube_proxy_arg:
+    - "proxy-mode=ipvs"
+    - "ipvs-strict-arp=true"
     rke2_server_options:
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
