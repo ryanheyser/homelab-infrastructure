@@ -196,10 +196,12 @@
       ansible.builtin.command: sudo systemctl unmask rke2-agent.service
       when: inventory_hostname in groups["controlnodes"]
       changed_when: true
+      failed_when: false
     - name: Cleanup | Unmask Server Service
       ansible.builtin.command: sudo systemctl unmask rke2-server.service
       when: inventory_hostname in groups["workernodes"]
       changed_when: true
+      failed_when: false
     - name: Check for rke2-uninstall.sh
       ansible.builtin.stat:
         path: "/usr/local/bin/rke2-uninstall.sh"
