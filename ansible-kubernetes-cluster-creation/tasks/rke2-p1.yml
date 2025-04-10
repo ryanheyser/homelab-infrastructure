@@ -134,10 +134,14 @@
     - "--config=/etc/rancher/rke2/kubelet-config.yaml"
     rke2_kubelet_config:
       imageGCHighThresholdPercent: 75
-      clusterDNS: [ 10.254.0.10 ]
+      imageGCLowThresholdPercent: 60
+      clusterDNS: '[ "10.254.0.10" ]'
       cgroupDriver: systemd
       maxPods: 64
-      protectKernelDefaults: true
+      authentication:
+        anonymous:
+          enabled: true
+      address: {{ ansible_host }}
     rke2_kube_proxy_arg:
     - "proxy-mode=ipvs"
     - "ipvs-strict-arp=true"
