@@ -189,7 +189,8 @@
         inventory_hostname in groups["controlnodes"] and
         rke2binary.stat.exists
       register: clusterreset
-      failed_when: clusterreset.rc > 0
+      # failed_when: clusterreset.rc > 0
+      failed_when: false
       changed_when: true
     - name: Cleanup | Unmask Agent Service
       ansible.builtin.command: sudo systemctl unmask rke2-agent.service
