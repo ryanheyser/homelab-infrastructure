@@ -123,10 +123,11 @@
     rke2_disable:
     - rke2-canal
     - rke2-ingress-nginx
+    - rke2-metrics-server
     rke2_server_options:
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
-    - "cloud-provider-name: none"
+    # - "cloud-provider-name: none"
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
