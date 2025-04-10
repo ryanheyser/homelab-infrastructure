@@ -207,6 +207,11 @@
     #   ansible.builtin.file:
     #     path: "/opt/cni/bin/multus-shim"
     #     state: absent
+
+- name: Reset ControlNodes
+  hosts: controlnodes
+  gather_facts: false
+  tasks:
     - name: Unmount /var/lib/rancher
       ansible.builtin.command: sudo umount /var/lib/rancher
       when: inventory_hostname in groups["controlnodes"]
