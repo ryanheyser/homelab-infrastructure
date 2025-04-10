@@ -227,6 +227,7 @@
       ansible.builtin.command: sudo umount /var/lib/rancher
       when: inventory_hostname in groups["controlnodes"]
       changed_when: true
+      failed_when: false
     - name: Format /dev/sdb1
       ansible.builtin.command: sudo mkfs.ext4 -F /dev/sdb1
       when: inventory_hostname in groups["controlnodes"]
