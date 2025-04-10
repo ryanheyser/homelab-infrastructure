@@ -179,9 +179,15 @@
       ansible.builtin.file:
         path: "/etc/rancher/rke2/kubelet-config.yaml"
         state: absent
+    - name: Check for rke2
+      ansible.builtin.stat:
+        path: "/usr/local/bin/rke2"
+      register: rke2binary
     - name: Cleanup | Reset Cluster
       ansible.builtin.command: sudo rke2 server --cluster-reset
-      when: inventory_hostname in groups["controlnodes"]
+      when: |
+        inventory_hostname in groups["controlnodes"] and
+        rke2binary.stat.exists
       register: clusterreset
       failed_when: clusterreset.rc > 0
       changed_when: true
