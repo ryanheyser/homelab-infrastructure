@@ -86,7 +86,7 @@
     - "node-role.kubernetes.io/control-plane:NoSchedule"
     # rke2_cni: 'none'
     rke2_token: "{{ rke2_server_token }}"
-    #rke2_agent_token: "{{ rke2_agent_token }}"
+    rke2_agent_token: "{{ rke2_agent_token }}"
     rke2_cni:
     - multus
     - calico
@@ -137,16 +137,6 @@
     # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
     - "--config=/etc/kubernetes/kubelet-config.yml"
-    rke2_kubelet_config:
-      imageGCHighThresholdPercent: 75
-      imageGCLowThresholdPercent: 60
-      clusterDNS: '[ "10.254.0.10" ]'
-      cgroupDriver: systemd
-      maxPods: 64
-      authentication:
-        anonymous:
-          enabled: true
-      address: "{{ ansible_host }}"
     rke2_kube_proxy_arg:
     - "proxy-mode=ipvs"
     - "ipvs-strict-arp=true"
