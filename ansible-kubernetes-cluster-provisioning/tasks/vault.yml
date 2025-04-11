@@ -102,7 +102,7 @@
 #     release_namespace: kube-system
 #     # renovate: registryUrl=https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 #     chart_ref: secrets-store-csi-driver
-#     chart_version: 1.4.8
+#     chart_version: 1.5.0
 #     chart_repo_url: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 #     values_files:
 #       - "{{ playbook_dir }}/helm_values/vault/csivalues.yaml"
