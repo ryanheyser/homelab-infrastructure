@@ -421,10 +421,13 @@
     definition:
       spec:
         valuesContent: |-
+          global:
+            clusterDNS: 
+            - 10.254.0.10
           nodelocal:
             enabled: true
           service:
-            clusterIP: 10.254.0.10
+            # clusterIP: 10.254.0.10
             # loadBalancerIP: 10.0.100.2
             # externalTrafficPolicy: Local
             serviceType: ClusterIP
