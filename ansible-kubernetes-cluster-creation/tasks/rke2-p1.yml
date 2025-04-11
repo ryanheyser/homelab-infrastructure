@@ -47,9 +47,9 @@
       cgroupDriver: systemd
       maxPods: 64
       address: "{{ ansible_host }}"
-    # authentication:
-    #   anonymous:
-    #     enabled: true
+      authentication:
+        anonymous:
+          enabled: true
 - name: Mount /var/tmp as executable
   become: true
   ansible.builtin.shell:
