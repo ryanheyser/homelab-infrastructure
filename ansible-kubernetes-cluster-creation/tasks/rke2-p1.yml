@@ -46,7 +46,7 @@
       - 10.254.0.10
       cgroupDriver: systemd
       maxPods: 64
-      address: "{{ ansible_host }}"
+      address: 0.0.0.0
       authorization:
         mode: AlwaysAllow
       authentication:
@@ -80,8 +80,18 @@
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
     rke2_api_cidr: 18
-    # rke2_additional_sans:
-    # - kubernetes.homelab.heyser.xyz
+    rke2_additional_sans:
+    - kubernetes.homelab.heyser.xyz
+    - 10.0.1.11
+    - 10.0.1.12
+    - 10.0.1.13
+    - 10.0.1.14
+    - 10.0.1.15
+    - madoo
+    - magoo
+    - mirra
+    - minny
+    - moggy
     # rke2_cluster_domain: homelab.heyser.xyz
     rke2_download_kubeconf: true
     rke2_server_node_taints:
@@ -144,6 +154,10 @@
     rke2_kube_proxy_arg:
     - "proxy-mode=ipvs"
     - "ipvs-strict-arp=true"
+    rke2_kube_scheduler_arg:
+    - "bind-address=0.0.0.0"
+    rke2_kube_controller_manager_arg:
+    - "bind-address=0.0.0.0"
     rke2_server_options:
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
