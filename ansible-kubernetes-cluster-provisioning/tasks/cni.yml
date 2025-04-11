@@ -262,152 +262,152 @@
 #       until: calicokubecontrollersstatus.resources[0].status.readyReplicas | int > 0
 #       retries: 20
 #       delay: 15
-#- name: Apply tigera apiserver manifest to the cluster.
+# - name: Apply tigera apiserver manifest to the cluster.
   # kubernetes.core.k8s:
   #   kubeconfig: "{{ home }}/.kube/config"
   #   state: present
   #   src: "{{ playbook_dir }}/apiserver.yaml"
-# - name: Wait for apply tigera apiserver manifest to complete
-#   kubernetes.core.k8s_info:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     kind: Deployment
-#     namespace: calico-apiserver
-#     label_selectors:
-#       - k8s-app = calico-apiserver
-#     wait: true
-#     wait_condition:
-#       type: "Available"
-#       status: "True"
-#     wait_sleep: 30
-#     wait_timeout: 600
-#   register: calicoapiserverstatus
-#   until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
-#   retries: 20
-#   delay: 15
-# - name: Wait for apiservice apiserver to be available
-#   kubernetes.core.k8s_info:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     kind: APIService
-#     name: v3.projectcalico.org
-#     wait: true
-#     wait_condition:
-#       type: "Available"
-#       status: "True"
-#     wait_sleep: 30
-#     wait_timeout: 600
-#   register: calicoapiservicestatus
-#   until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
-#   retries: 20
-#   delay: 15
-#     # - name: Create Default IPPool Config
-#     #   when: kubeconfig.stat.exists
-#     #   kubernetes.core.k8s:
-#     #     kubeconfig: "{{ home }}/.kube/config"
-#     #     state: present
-#     #     apply: true
-#     #     server_side_apply:
-#     #       field_manager: ansible
-#     #     definition:
-#     #       apiVersion: projectcalico.org/v3
-#     #       kind: IPPool
-#     #       metadata:
-#     #         name: default
-#     #         namespace: kube-system
-#     #       spec:
-#     #         cidr: 10.0.101.0/24
-#     #         ipipMode: Never
-#     #         disabled: false
-#     #         disableBGPExport: false
-#     #         natOutgoing: false
-#     #         nodeSelector: all()
-#     #         allowedUses:
-#     #         - Workload
-#     #         - Tunnel
-#     # - name: Create System IPPool Config
-#     #   when: kubeconfig.stat.exists
-#     #   kubernetes.core.k8s:
-#     #     kubeconfig: "{{ home }}/.kube/config"
-#     #     state: present
-#     #     apply: true
-#     #     server_side_apply:
-#     #       field_manager: ansible
-#     #     definition:
-#     #       apiVersion: projectcalico.org/v3
-#     #       kind: IPPool
-#     #       metadata:
-#     #         name: system
-#     #         namespace: kube-system
-#     #       spec:
-#     #         cidr: 10.0.100.0/24
-#     #         ipipMode: Never
-#     #         disabled: false
-#     #         disableBGPExport: false
-#     #         natOutgoing: false
-#     #         nodeSelector: all()
-#     #         allowedUses:
-#     #         - Workload
-#     #         - Tunnel
-# - name: Create Global BGP Config
-#   when: kubeconfig.stat.exists
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     state: present
-#     # apply: true
-#     # server_side_apply:
-#     #   field_manager: ansible
-#     definition:
-#       apiVersion: projectcalico.org/v3
-#       kind: BGPConfiguration
-#       metadata:
-#         name: default
-#         namespace: calico-system
-#       spec:
-#         nodeToNodeMeshEnabled: false
-#         asNumber: 65001
-#         serviceLoadBalancerIPs:
-#           - cidr: 10.0.101.0/24
-#           - cidr: 10.0.100.0/24
-#         # communities:
-#         #   - name: bgpdefault
-# - name: Create Global BGP Peer Config
-#   when: kubeconfig.stat.exists
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     state: present
-#     # apply: true
-#     # server_side_apply:
-#     #   field_manager: ansible
-#     definition:
-#       apiVersion: projectcalico.org/v3
-#       kind: BGPPeer
-#       metadata:
-#         name: bgppeer
-#         namespace: calico-system
-#       spec:
-#         peerIP: 10.0.0.1
-#         asNumber: 65000
-# - name: Create Status Config
-#   when: kubeconfig.stat.exists
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     state: present
-#     # apply: true
-#     # server_side_apply:
-#     #   field_manager: ansible
-#     definition:
-#       apiVersion: projectcalico.org/v3
-#       kind: CalicoNodeStatus
-#       metadata:
-#         name: "{{ item }}-node-status"
-#         namespace: calico-system
-#       spec:
-#         classes:
-#           - Agent
-#           - BGP
-#           - Routes
-#         node: "{{ item }}"
-#         updatePeriodSeconds: 60
-#   loop: "{{ groups.kubernetes | list | flatten(1) }}"
+- name: Wait for apply tigera apiserver manifest to complete
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Deployment
+    namespace: calico-apiserver
+    label_selectors:
+      - k8s-app = calico-apiserver
+    wait: true
+    wait_condition:
+      type: "Available"
+      status: "True"
+    wait_sleep: 30
+    wait_timeout: 600
+  register: calicoapiserverstatus
+  until: calicoapiserverstatus.resources[0].status.readyReplicas | int > 0
+  retries: 20
+  delay: 15
+- name: Wait for apiservice apiserver to be available
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: APIService
+    name: v3.projectcalico.org
+    wait: true
+    wait_condition:
+      type: "Available"
+      status: "True"
+    wait_sleep: 30
+    wait_timeout: 600
+  register: calicoapiservicestatus
+  until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
+  retries: 20
+  delay: 15
+- name: Create Default IPPool Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    apply: true
+    server_side_apply:
+      field_manager: ansible
+    definition:
+      apiVersion: projectcalico.org/v3
+      kind: IPPool
+      metadata:
+        name: default
+        namespace: kube-system
+      spec:
+        cidr: 10.0.101.0/24
+        ipipMode: Never
+        disabled: false
+        disableBGPExport: false
+        natOutgoing: false
+        nodeSelector: all()
+        allowedUses:
+        - Workload
+        - Tunnel
+- name: Create System IPPool Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    apply: true
+    server_side_apply:
+      field_manager: ansible
+    definition:
+      apiVersion: projectcalico.org/v3
+      kind: IPPool
+      metadata:
+        name: system
+        namespace: kube-system
+      spec:
+        cidr: 10.0.100.0/24
+        ipipMode: Never
+        disabled: false
+        disableBGPExport: false
+        natOutgoing: false
+        nodeSelector: all()
+        allowedUses:
+        - Workload
+        - Tunnel
+- name: Create Global BGP Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
+    definition:
+      apiVersion: projectcalico.org/v3
+      kind: BGPConfiguration
+      metadata:
+        name: default
+        namespace: calico-system
+      spec:
+        nodeToNodeMeshEnabled: false
+        asNumber: 65001
+        serviceLoadBalancerIPs:
+          - cidr: 10.0.101.0/24
+          - cidr: 10.0.100.0/24
+        # communities:
+        #   - name: bgpdefault
+- name: Create Global BGP Peer Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
+    definition:
+      apiVersion: projectcalico.org/v3
+      kind: BGPPeer
+      metadata:
+        name: bgppeer
+        namespace: calico-system
+      spec:
+        peerIP: 10.0.0.1
+        asNumber: 65000
+- name: Create Status Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
+    definition:
+      apiVersion: projectcalico.org/v3
+      kind: CalicoNodeStatus
+      metadata:
+        name: "{{ item }}-node-status"
+        namespace: calico-system
+      spec:
+        classes:
+          - Agent
+          - BGP
+          - Routes
+        node: "{{ item }}"
+        updatePeriodSeconds: 60
+  loop: "{{ groups.kubernetes | list | flatten(1) }}"
 - name: Configure Coredns
   run_once: true
   delegate_to: localhost
