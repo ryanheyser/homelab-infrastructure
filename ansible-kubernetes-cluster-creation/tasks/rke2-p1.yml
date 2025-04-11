@@ -156,7 +156,7 @@
     - "embedded-registry: true"
     - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000' ]"
     - "selinux: false"
-    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=150m', 'kube-scheduler-cpu=100m', 'etcd-cpu=250m' ]"
+    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=250m' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     # rke2_agent_options:
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
