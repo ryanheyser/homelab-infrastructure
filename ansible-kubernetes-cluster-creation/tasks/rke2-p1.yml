@@ -129,6 +129,7 @@
     rke2_disable:
     - rke2-canal
     - rke2-ingress-nginx
+    - rke2-metrics-server
     rke2_kube_apiserver_args:
     - "--kubelet-timeout=30s"
     - "--request-timeout=5m0s"
