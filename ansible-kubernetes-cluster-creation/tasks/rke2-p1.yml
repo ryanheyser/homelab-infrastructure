@@ -86,7 +86,7 @@
     - "node-role.kubernetes.io/control-plane:NoSchedule"
     # rke2_cni: 'none'
     rke2_token: "{{ rke2_server_token }}"
-    rke2_agent_token: "{{ rke2_agent_token }}"
+    # rke2_agent_token: "{{ rke2_agent_token }}"
     rke2_cni:
     - multus
     - calico
