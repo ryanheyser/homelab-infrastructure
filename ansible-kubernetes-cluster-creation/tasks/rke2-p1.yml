@@ -62,8 +62,8 @@
 - name: Unencrypt rke2 Secrets
   delegate_to: localhost
   ansible.builtin.set_fact:
-      rke2_server_token: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_SERVER_TOKEN }}"
-      rke2_agent_token: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_AGENT_TOKEN }}"
+    rke2_server_token: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_SERVER_TOKEN }}"
+    # rke2_agent_token: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_AGENT_TOKEN }}"
   when: rke2secretsfile.stat.exists
   failed_when: not rke2secretsfile.stat.exists
 - name: Deploy | Install RKE2
