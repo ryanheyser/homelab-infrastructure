@@ -139,9 +139,18 @@
                 - Workload
                 - Tunnel
                 blockSize: 26
-                cidr: 10.255.0.0/16
+                cidr: 10.0.101.0/24
                 disableBGPExport: false
-                name: default-ipv4-ippool
+                name: default
+                natOutgoing: Enabled
+                nodeSelector: all()
+              - allowedUses:
+                - Workload
+                - Tunnel
+                blockSize: 26
+                cidr: 10.0.100.0/24
+                disableBGPExport: false
+                name: system
                 natOutgoing: Enabled
                 nodeSelector: all()
               # - allowedUses:
@@ -299,54 +308,54 @@
   until: calicoapiservicestatus.resources[0].status.conditions[0].status == "True"
   retries: 20
   delay: 15
-- name: Create Default IPPool Config
-  when: kubeconfig.stat.exists
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    apply: true
-    server_side_apply:
-      field_manager: ansible
-    definition:
-      apiVersion: projectcalico.org/v3
-      kind: IPPool
-      metadata:
-        name: default
-        namespace: kube-system
-      spec:
-        cidr: 10.0.101.0/24
-        ipipMode: Never
-        disabled: false
-        disableBGPExport: false
-        natOutgoing: false
-        nodeSelector: all()
-        allowedUses:
-        - Workload
-        - Tunnel
-- name: Create System IPPool Config
-  when: kubeconfig.stat.exists
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    apply: true
-    server_side_apply:
-      field_manager: ansible
-    definition:
-      apiVersion: projectcalico.org/v3
-      kind: IPPool
-      metadata:
-        name: system
-        namespace: kube-system
-      spec:
-        cidr: 10.0.100.0/24
-        ipipMode: Never
-        disabled: false
-        disableBGPExport: false
-        natOutgoing: false
-        nodeSelector: all()
-        allowedUses:
-        - Workload
-        - Tunnel
+# - name: Create Default IPPool Config
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     apply: true
+#     server_side_apply:
+#       field_manager: ansible
+#     definition:
+#       apiVersion: projectcalico.org/v3
+#       kind: IPPool
+#       metadata:
+#         name: default
+#         namespace: kube-system
+#       spec:
+#         cidr: 10.0.101.0/24
+#         ipipMode: Never
+#         disabled: false
+#         disableBGPExport: false
+#         natOutgoing: false
+#         nodeSelector: all()
+#         allowedUses:
+#         - Workload
+#         - Tunnel
+# - name: Create System IPPool Config
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     apply: true
+#     server_side_apply:
+#       field_manager: ansible
+#     definition:
+#       apiVersion: projectcalico.org/v3
+#       kind: IPPool
+#       metadata:
+#         name: system
+#         namespace: kube-system
+#       spec:
+#         cidr: 10.0.100.0/24
+#         ipipMode: Never
+#         disabled: false
+#         disableBGPExport: false
+#         natOutgoing: false
+#         nodeSelector: all()
+#         allowedUses:
+#         - Workload
+#         - Tunnel
 - name: Create Global BGP Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
