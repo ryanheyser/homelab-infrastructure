@@ -42,7 +42,8 @@
       kind: KubeletConfiguration
       imageGCHighThresholdPercent: 75
       imageGCLowThresholdPercent: 60
-      clusterDNS: '[ "10.254.0.10" ]'
+      clusterDNS: 
+      - 10.254.0.10
       cgroupDriver: systemd
       maxPods: 64
       authentication:
