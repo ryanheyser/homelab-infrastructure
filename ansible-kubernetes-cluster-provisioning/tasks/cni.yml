@@ -119,7 +119,7 @@
                 maxUnavailable: 1
             serviceCIDRs:
             - 10.254.0.0/16
-            - fd00:254::/56
+            # - fd00:254::/56
             calicoNetwork:
               multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
@@ -129,12 +129,10 @@
                 cidrs:
                 - 10.0.0.0/18
                 firstFound: false
-                canReach: "10.0.0.1"
               # nodeAddressAutodetectionV6:
               #   cidrs:
               #   - fd00:11::/64
               #   firstFound: false
-              #   canReach: "fd00:11::1/64"
               containerIPForwarding: "Enabled"
               ipPools:
               - allowedUses:
