@@ -47,6 +47,8 @@
       cgroupDriver: systemd
       maxPods: 64
       address: "{{ ansible_host }}"
+      authorization:
+        mode: AlwaysAllow
       authentication:
         anonymous:
           enabled: true
