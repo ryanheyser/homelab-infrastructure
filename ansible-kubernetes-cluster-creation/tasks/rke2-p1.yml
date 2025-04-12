@@ -166,6 +166,7 @@
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
+    - "advertise-address: {{ ansible_host }}"
     # - "node-name: {{ inventory_hostname }}"
     # - "node-external-ip: 10.0.1.5"
     - "write-kubeconfig-mode: 0644"
@@ -174,7 +175,8 @@
     - "selinux: false"
     - "control-plane-resource-requests: [ 'kube-apiserver-cpu=250m', 'kube-proxy=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=1000m' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
-    # rke2_agent_options:
+    rke2_agent_options:
+    - "node-ip: {{ ansible_host }}"
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     # k3s_become: true
