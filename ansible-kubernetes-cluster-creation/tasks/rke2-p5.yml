@@ -126,21 +126,7 @@
               bgp: "Enabled"
               # mtu: 9000
               nodeAddressAutodetectionV4:
-                cidrs:
-                - 10.0.1.11/18
-                - 10.0.1.12/18
-                - 10.0.1.13/18
-                - 10.0.1.21/18
-                - 10.0.1.22/18
-                - 10.0.1.23/18
-                - 10.0.1.24/18
-                - 10.0.1.25/18
-                - 10.0.1.26/18
-                - 10.0.1.27/18
-                - 10.0.1.28/18
-                - 10.0.1.29/18
-                - 10.0.1.30/18
-                - 10.0.1.31/18
+                skipInterface: vpnbr
                 firstFound: false
               # nodeAddressAutodetectionV6:
               #   cidrs:
