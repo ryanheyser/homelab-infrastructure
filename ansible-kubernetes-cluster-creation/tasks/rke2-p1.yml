@@ -176,7 +176,7 @@
     # - "node-external-ip: 10.0.1.5"
     - "write-kubeconfig-mode: 0644"
     - "embedded-registry: true"
-    - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=2500', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
+    - "etcd-arg: [ 'name={{ inventory_hostname }}', 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=2500', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
     - "selinux: false"
     - "control-plane-resource-requests: [ 'kube-apiserver-cpu=250m', 'kube-proxy=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=1000m' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
