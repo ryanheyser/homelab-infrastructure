@@ -127,7 +127,7 @@
               # mtu: 9000
               nodeAddressAutodetectionV4:
                 kubernetes: NodeInternalIP
-                firstFound: false
+                # firstFound: false
               # nodeAddressAutodetectionV6:
               #   cidrs:
               #   - fd00:11::/64
