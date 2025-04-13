@@ -247,7 +247,7 @@
         file: "{{ playbook_dir }}/tasks/rke2-p4.yml"
 
 - name: Post rke2 install part 4 - cni
-  hosts: kubernetes
+  hosts: localhost
   gather_facts: false
   # become_method: sudo
   vars:
@@ -256,6 +256,7 @@
     - setup
     - kubernetes
     - rke2
+    - cni
   tasks:
     - name: Setup | RKE2 Part 5
       ansible.builtin.include_tasks:
