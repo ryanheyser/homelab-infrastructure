@@ -89,10 +89,15 @@
     - 10.0.1.14
     - 10.0.1.15
     - madoo
+    - madoo.homelab.heyser.xyz
     - magoo
+    - magoo.homelab.heyser.xyz
     - mirra
+    - mirra.homelab.heyser.xyz
     - minny
+    - minny.homelab.heyser.xyz
     - moggy
+    - moggy.homelab.heyser.xyz
     # rke2_cluster_domain: homelab.heyser.xyz
     rke2_download_kubeconf: true
     rke2_server_node_taints:
