@@ -126,7 +126,7 @@
               bgp: "Enabled"
               # mtu: 9000
               nodeAddressAutodetectionV4:
-                interface: ens18
+                kubernetes: NodeInternalIP
                 firstFound: false
               # nodeAddressAutodetectionV6:
               #   cidrs:
