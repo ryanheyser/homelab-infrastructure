@@ -245,3 +245,18 @@
     - name: Setup | RKE2 Part 4
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/rke2-p4.yml"
+
+- name: Post rke2 install part 4 - cni
+  hosts: kubernetes
+  gather_facts: false
+  # become_method: sudo
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tags:
+    - setup
+    - kubernetes
+    - rke2
+  tasks:
+    - name: Setup | RKE2 Part 5
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/rke2-p5.yml"
