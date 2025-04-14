@@ -179,7 +179,7 @@
     # - "etcd-arg: [ 'name={{ inventory_hostname }}', 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=256', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
     - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=1000', 'snapshot-count=25000', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=32' ]"
     - "selinux: false"
-    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=250m', 'kube-proxy=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=1250m' ]"
+    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=350m', 'kube-proxy=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=1250m' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     rke2_agent_options:
     - "node-ip: {{ ansible_host }}"
