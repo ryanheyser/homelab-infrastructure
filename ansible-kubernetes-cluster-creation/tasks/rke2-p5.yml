@@ -127,7 +127,7 @@
               # mtu: 9000
               nodeAddressAutodetectionV4:
                 # kubernetes: NodeInternalIP
-                # firstFound: false
+                firstFound: false
                 interface: ens18
               nodeAddressAutodetectionV6: {}
               # nodeAddressAutodetectionV6:
