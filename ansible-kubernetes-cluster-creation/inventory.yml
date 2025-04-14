@@ -46,28 +46,28 @@ controlnodes:
       ansible_hostname: magoo
       k3s_control_node: true
       rke2_type: server
-      rke2_server_roles: [etcd]
+      rke2_disable_server_roles: [etcd]
     moggy:
       ansible_host: 10.0.1.13
       ansible_fqdn: moggy.homelab.heyser.xyz
       ansible_hostname: moggy
       k3s_control_node: true
       rke2_type: server
-      rke2_server_roles: [etcd]
+      rke2_disable_server_roles: [etcd]
     minny:
       ansible_host: 10.0.1.14
       ansible_fqdn: minny.homelab.heyser.xyz
       ansible_hostname: minny
       k3s_control_node: true
       rke2_type: server
-      rke2_server_roles: [control-plane]
+      rke2_disable_server_roles: [control-plane]
     mirra:
       ansible_host: 10.0.1.15
       ansible_fqdn: mirra.homelab.heyser.xyz
       ansible_hostname: mirra
       k3s_control_node: true
       rke2_type: server
-      rke2_server_roles: [control-plane]
+      rke2_disable_server_roles: [control-plane]
 workernodes:
   vars:
     ansible_user: ansible
