@@ -51,18 +51,18 @@ controlnodes:
       ansible_hostname: moggy
       k3s_control_node: true
       rke2_type: server
-    # minny:
-    #   ansible_host: 10.0.1.14
-    #   ansible_fqdn: minny.homelab.heyser.xyz
-    #   ansible_hostname: minny
-    #   k3s_control_node: true
-    #   rke2_type: server
-    # mirra:
-    #   ansible_host: 10.0.1.15
-    #   ansible_fqdn: mirra.homelab.heyser.xyz
-    #   ansible_hostname: mirra
-    #   k3s_control_node: true
-    #   rke2_type: server
+    minny:
+      ansible_host: 10.0.1.14
+      ansible_fqdn: minny.homelab.heyser.xyz
+      ansible_hostname: minny
+      k3s_control_node: true
+      rke2_type: server
+    mirra:
+      ansible_host: 10.0.1.15
+      ansible_fqdn: mirra.homelab.heyser.xyz
+      ansible_hostname: mirra
+      k3s_control_node: true
+      rke2_type: server
 workernodes:
   vars:
     ansible_user: ansible
