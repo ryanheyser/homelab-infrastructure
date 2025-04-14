@@ -101,6 +101,7 @@
             # clusterCIDRv6: "fd00:255::/56"
           installation:
             enabled: true
+            nonPrivileged: true
             kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
