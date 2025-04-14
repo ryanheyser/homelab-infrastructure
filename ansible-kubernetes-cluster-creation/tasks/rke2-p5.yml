@@ -129,6 +129,7 @@
                 # kubernetes: NodeInternalIP
                 # firstFound: false
                 interface: ens18
+              nodeAddressAutodetectionV6: {}
               # nodeAddressAutodetectionV6:
               #   cidrs:
               #   - fd00:11::/64
