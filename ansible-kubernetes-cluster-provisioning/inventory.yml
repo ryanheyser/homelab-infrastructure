@@ -111,16 +111,16 @@ workernodes:
       ansible_fqdn: pteran.homelab.heyser.xyz
       ansible_hostname: pteran
       rke2_type: agent
-    pacto:
-      ansible_host: 10.0.1.28
-      ansible_fqdn: pacto.homelab.heyser.xyz
-      ansible_hostname: pacto
-      rke2_type: agent
-    pasara:
-      ansible_host: 10.0.1.29
-      ansible_fqdn: pasara.homelab.heyser.xyz
-      ansible_hostname: pasara
-      rke2_type: agent
+    # pacto:
+    #   ansible_host: 10.0.1.28
+    #   ansible_fqdn: pacto.homelab.heyser.xyz
+    #   ansible_hostname: pacto
+    #   rke2_type: agent
+    # pasara:
+    #   ansible_host: 10.0.1.29
+    #   ansible_fqdn: pasara.homelab.heyser.xyz
+    #   ansible_hostname: pasara
+    #   rke2_type: agent
     pengy:
       ansible_host: 10.0.1.30
       ansible_fqdn: pengy.homelab.heyser.xyz
