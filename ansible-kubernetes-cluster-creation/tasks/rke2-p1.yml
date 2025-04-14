@@ -270,3 +270,33 @@
   become: true
   ansible.builtin.shell:
     cmd: "mount -o remount,noexec /var/tmp"
+- name: Disable Role Etcd
+  when: hostvars[groups['controlnodes'][0]].rke2_disable_server_roles is contains('etcd')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.yaml
+    line: 'disable-etcd: true'
+    create: true
+- name: Disable Role ApiServer
+  when: hostvars[groups['controlnodes'][0]].rke2_disable_server_roles is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.yaml
+    line: 'disable-apiserver: true'
+    create: true
+- name: Disable Role Controller Manager
+  when: hostvars[groups['controlnodes'][0]].rke2_disable_server_roles is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.yaml
+    line: 'disable-controller-manager: true'
+    create: true
+- name: Disable Role Scheduler
+  when: hostvars[groups['controlnodes'][0]].rke2_disable_server_roles is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.yaml
+    line: 'disable-scheduler: true'
+    create: true
+- name: Restart rke2
+  serial: 1
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: rke2-server
+    daemon_reload: true
