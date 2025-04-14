@@ -95,7 +95,9 @@
           felixConfiguration:
             featureDetectOverride: "ChecksumOffloadBroken=false"
           apiServer:
-            enabled: false
+            enabled: true
+            xdpEnabled: false
+            healthEnabled: false
           global:
             clusterCIDRv4: "10.255.0.0/16"
             # clusterCIDRv6: "fd00:255::/56"
