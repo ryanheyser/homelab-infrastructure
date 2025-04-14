@@ -295,7 +295,7 @@
     line: 'disable-scheduler: true'
     create: true
 - name: Restart rke2 systemd service
-  # serial: 1
+  throttle: 1
   ansible.builtin.systemd_service:
     state: restarted
     name: rke2-server
