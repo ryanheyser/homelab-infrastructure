@@ -176,7 +176,7 @@
       spec:
         valuesContent: |-
           rke2-whereabouts:
-            enabled: true
+            enabled: false
           pod:
             resources:
               enabled: true  
