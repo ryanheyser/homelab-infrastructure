@@ -112,7 +112,7 @@
             - key: node-role.kubernetes.io/etcd
               operator: Exists
               effect: NoExecute
-            controlPlaneReplicas: 3
+            controlPlaneReplicas: 2
             nodeUpdateStrategy:
               type: RollingUpdate
               rollingUpdate:
