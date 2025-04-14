@@ -296,6 +296,7 @@
     create: true
 - name: Restart rke2 systemd service
   throttle: 1
+  when: inventory_hostname in groups['controlnodes']
   ansible.builtin.systemd_service:
     state: restarted
     name: rke2-server
