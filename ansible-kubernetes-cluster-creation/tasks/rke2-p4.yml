@@ -17,27 +17,45 @@
 #       status: "True"
 #     wait_sleep: 5
 #     wait_timeout: 300
-- name: Add taint to controlplane nodes
+- name: Create Lists
+  ansible.builtin.set_fact:
+    controlplane: []
+    etcd: []
+- name: Append to etcd list
+  ansible.builtin.set_fact:
+    etcd: "{{ etcd + [item] }}"
+  loop: "{{ groups.controlnodes }}"
+  when: not hostvars[item]['rke2_disable_server_roles'] is contains('etcd')
+- name: Append to controlplane list
+  ansible.builtin.set_fact:
+    controlplane: "{{ controlplane + [item] }}"
+  loop: "{{ groups.controlnodes }}"
+  when: not hostvars[item]['rke2_disable_server_roles'] is contains('control-plane')
+- name: Add etcd taint to controlplane nodes
+  run_once: true
+  delegate_to: localhost
   kubernetes.core.k8s_taint:
     kubeconfig: "{{ home }}/.kube/config"
     state: present
-    name: "{{ inventory_hostname }}"
-    taints:
-    - effect: NoSchedule
-      key: node-role.kubernetes.io/control-plane
-  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  when: inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
-  # loop: "{{ inventory_hostname in groups.controlnodes }}"
-- name: Add taint to etcd nodes
-  kubernetes.core.k8s_taint:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    name: "{{ inventory_hostname }}"
+    name: "{{ item }}"
     taints:
     - effect: NoSchedule
       key: node-role.kubernetes.io/etcd
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  when: inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
+  loop: "{{ etcd | list | flatten(1) }}"
+  # loop: "{{ inventory_hostname in groups.controlnodes }}"
+- name: Add control-plane taint to controlplane nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s_taint:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    name: "{{ item }}"
+    taints:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+  loop: "{{ controlplane | list | flatten(1) }}"
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
   run_once: true
