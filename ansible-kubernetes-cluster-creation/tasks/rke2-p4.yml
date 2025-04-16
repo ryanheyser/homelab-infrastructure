@@ -18,8 +18,6 @@
 #     wait_sleep: 5
 #     wait_timeout: 300
 - name: Add taint to controlplane nodes
-  run_once: true
-  delegate_to: localhost
   kubernetes.core.k8s_taint:
     kubeconfig: "{{ home }}/.kube/config"
     state: present
@@ -28,12 +26,9 @@
     - effect: NoSchedule
       key: node-role.kubernetes.io/control-plane
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  loop: "{{ groups['controlnodes'] | list | flatten(1) }}"
   when: inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Add taint to etcd nodes
-  run_once: true
-  delegate_to: localhost
   kubernetes.core.k8s_taint:
     kubeconfig: "{{ home }}/.kube/config"
     state: present
@@ -42,7 +37,6 @@
     - effect: NoSchedule
       key: node-role.kubernetes.io/etcd
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  loop: "{{ groups['controlnodes'] | list | flatten(1) }}"
   when: inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
