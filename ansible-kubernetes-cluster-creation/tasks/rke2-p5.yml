@@ -101,6 +101,8 @@
           global:
             clusterCIDRv4: "10.255.0.0/16"
             # clusterCIDRv6: "fd00:255::/56"
+          ipamConfig:
+            strictAffinity: false
           installation:
             enabled: true
             nonPrivileged: "Enabled"
@@ -142,7 +144,7 @@
               - allowedUses:
                 - Workload
                 - Tunnel
-                blockSize: 26
+                blockSize: 32
                 cidr: 10.0.101.0/24
                 disableBGPExport: false
                 name: default
@@ -151,7 +153,7 @@
               - allowedUses:
                 - Workload
                 - Tunnel
-                blockSize: 26
+                blockSize: 32
                 cidr: 10.0.100.0/24
                 disableBGPExport: false
                 name: system
@@ -201,6 +203,7 @@
             - 10.254.0.10
           nodelocal:
             enabled: true
+            ipvs: true
           service:
             # clusterIP: 10.254.0.10
             # loadBalancerIP: 10.0.100.2
