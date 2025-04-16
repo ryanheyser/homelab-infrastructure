@@ -17,12 +17,6 @@
 #       status: "True"
 #     wait_sleep: 5
 #     wait_timeout: 300
-- name: Create facts
-  run_once: true
-  delegate_to: localhost
-  ansible.builtin.set_fact:
-    controlplane: "{{ inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane') | list | flatten(1) }}"
-    etcd: "{{ inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd') | list | flatten(1) }}"
 - name: Add taint to controlplane nodes
   run_once: true
   delegate_to: localhost
@@ -34,7 +28,8 @@
     - effect: NoSchedule
       key: node-role.kubernetes.io/control-plane
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  loop: "{{ controlplane }}"
+  loop: "{{ groups['controlnodes'] | list | flatten(1) }}"
+  when: "{{ inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane') }}"
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Add taint to etcd nodes
   run_once: true
@@ -47,7 +42,8 @@
     - effect: NoSchedule
       key: node-role.kubernetes.io/etcd
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  loop: "{{ etcd }}"
+  loop: "{{ groups['controlnodes'] | list | flatten(1) }}"
+  when: "{{ inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd') }}"
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
   run_once: true
