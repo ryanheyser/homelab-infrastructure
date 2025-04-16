@@ -18,15 +18,18 @@
 #     wait_sleep: 5
 #     wait_timeout: 300
 - name: Create Lists
+  run_once: true
   ansible.builtin.set_fact:
     controlplane: []
     etcd: []
 - name: Append to etcd list
+  run_once: true
   ansible.builtin.set_fact:
     etcd: "{{ etcd + [item] }}"
   loop: "{{ groups.controlnodes }}"
   when: not hostvars[item]['rke2_disable_server_roles'] is contains('etcd')
 - name: Append to controlplane list
+  run_once: true
   ansible.builtin.set_fact:
     controlplane: "{{ controlplane + [item] }}"
   loop: "{{ groups.controlnodes }}"
