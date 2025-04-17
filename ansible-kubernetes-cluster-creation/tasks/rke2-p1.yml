@@ -30,6 +30,14 @@
     mode: '0755'
     owner: root
     group: root
+- name: Create rke2 config.d directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/rancher/rke2/config.yaml.d
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
 - name: Create KubeletConfig File
   become: true
   ansible.builtin.copy:
@@ -52,6 +60,38 @@
       authentication:
         anonymous:
           enabled: true
+- name: Disable Role Etcd
+  when: >-
+    inventory_hostname in groups['controlnodes'] and
+    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.d/etcd.yaml
+    line: 'disable-etcd: true'
+    create: true
+- name: Disable Role ApiServer
+  when: >-
+    inventory_hostname in groups['controlnodes'] and
+    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    line: 'disable-apiserver: true'
+    create: true
+- name: Disable Role Controller Manager
+  when: >-
+    inventory_hostname in groups['controlnodes'] and
+    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    line: 'disable-controller-manager: true'
+    create: true
+- name: Disable Role Scheduler
+  when: >-
+    inventory_hostname in groups['controlnodes'] and
+    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+  ansible.builtin.lineinfile:
+    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    line: 'disable-scheduler: true'
+    create: true
 - name: Mount /var/tmp as executable
   become: true
   ansible.builtin.shell:
@@ -100,8 +140,8 @@
     - moggy.homelab.heyser.xyz
     # rke2_cluster_domain: homelab.heyser.xyz
     rke2_download_kubeconf: true
-    rke2_server_node_taints:
-    - "node-role.kubernetes.io/control-plane:NoSchedule"
+    # rke2_server_node_taints:
+    # - "node-role.kubernetes.io/control-plane:NoSchedule"
     # rke2_cni: 'none'
     rke2_token: "{{ rke2_server_token }}"
     rke2_cni:
@@ -168,7 +208,6 @@
     # - "bind-address: {{ ansible_host }}"
     # - "bind-address: 10.0.1.5"
     # - "cloud-provider-name: none"
-    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "disable-cloud-controller: true"
     - "node-ip: {{ ansible_host }}"
     # - "advertise-address: {{ ansible_host }}"
@@ -185,70 +224,6 @@
     - "node-ip: {{ ansible_host }}"
     # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
     # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
-    # k3s_become: true
-    # k3s_state: installed
-    # # k3s_primary_control_node: "{{ groups.controlnodes | first }}"
-    # k3s_registration_address: kubernetes.homelab.heyser.xyz
-    # # Set a specific release version or false for stable, latest for latest
-    # k3s_release_version: false
-    # k3s_build_cluster: true
-    # k3s_etcd_datastore: true
-    # k3s_use_unsupported_config: true
-    # k3s_use_experimental: true
-    # k3s_install_hard_links: true
-    # k3s_registries:
-    #   mirrors:
-    #     docker.io:
-    #     index.docker.io:
-    #     registry-1.docker.io:
-    #   configs:
-    #     docker.io:
-    #       auth:
-    #         username: "{{ (docker | from_yaml).docker_user }}"
-    #         password: "{{ (docker | from_yaml).docker_token }}"
-    #     index.docker.io:
-    #       auth:
-    #         username: "{{ (docker | from_yaml).docker_user }}"
-    #         password: "{{ (docker | from_yaml).docker_token }}"
-    #     registry-1.docker.io:
-    #       auth:
-    #         username: "{{ (docker | from_yaml).docker_user }}"
-    #         password: "{{ (docker | from_yaml).docker_token }}"
-    # k3s_server:
-    #   # listen-port: 6443
-    #   bind-address: "{{ ansible_host }}"
-    #   # bind-address: 0.0.0.0
-    #   cluster-cidr: 10.254.0.0/16
-    #   service-cidr: 10.255.0.0/16
-    #   # advertise-address: 10.255.0.1
-    #   # advertise-port: 443
-    #   no-flannel: true
-    #   flannel-backend: 'none'
-    #   secrets-encryption: true
-    #   etcd-expose-metrics: true
-    #   disable-network-policy: true
-    #   disable-kube-proxy: false
-    #   embedded-registry: true
-    #   write-kubeconfig-mode: '0644'
-    #   etcd-arg: "--election-timeout 10000"
-    #   node-taint:
-    #     - "node-role.kubernetes.io/control-plane:NoSchedule"
-    #   node-label:
-    #     - "node-role.kubernetes.io/control-plane=true"
-    #     - "topology.kubernetes.io/region=us-east-1"
-    #     - "topology.kubernetes.io/zone=us-east-1a"
-    #     - "route-reflector=true"
-    #   tls-san:
-    #     - "kubernetes.homelab.heyser.xyz"
-    #   disable:
-    #     - traefik
-    #     - coredns
-    #     - servicelb
-    # k3s_agent:
-    #   node-label:
-    #     - "topology.kubernetes.io/region=us-east-1"
-    #     - "topology.kubernetes.io/zone=us-east-1a"
-    #     - "route-reflector=true"
   ansible.builtin.import_role:
     name: "lablabs.rke2"
       #when: >-
@@ -270,42 +245,3 @@
   become: true
   ansible.builtin.shell:
     cmd: "mount -o remount,noexec /var/tmp"
-- name: Disable Role Etcd
-  when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
-  ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.yaml
-    line: 'disable-etcd: true'
-    create: true
-- name: Disable Role ApiServer
-  when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
-  ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.yaml
-    line: 'disable-apiserver: true'
-    create: true
-- name: Disable Role Controller Manager
-  when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
-  ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.yaml
-    line: 'disable-controller-manager: true'
-    create: true
-- name: Disable Role Scheduler
-  when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
-  ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.yaml
-    line: 'disable-scheduler: true'
-    create: true
-- name: Restart rke2 systemd service
-  throttle: 1
-  when: inventory_hostname in groups['controlnodes']
-  ansible.builtin.systemd_service:
-    state: restarted
-    name: rke2-server
-    daemon_reload: true
