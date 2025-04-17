@@ -235,6 +235,14 @@
       ansible.builtin.command: sudo mkfs.ext4 -F /dev/sdb1
       when: inventory_hostname in groups["controlnodes"]
       changed_when: true
+    - name: Mount
+      ansible.builtin.command: sudo mount -a
+      when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
+    - name: Set Permissions
+      ansible.builtin.command: sudo chmod -R a+w /var/lib/rancher
+      when: inventory_hostname in groups["controlnodes"]
+      changed_when: true
 
 # reboot
 - name: Reboot
