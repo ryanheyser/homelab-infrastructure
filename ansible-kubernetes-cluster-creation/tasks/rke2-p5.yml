@@ -105,7 +105,7 @@
             strictAffinity: false
           installation:
             enabled: true
-            nonPrivileged: "Enabled"
+            # nonPrivileged: "Enabled"
             kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
