@@ -221,6 +221,11 @@
     #   ansible.builtin.file:
     #     path: "/opt/cni/bin/multus-shim"
     #     state: absent
+    - name: Cleanup | Remove Rancher Config Directory
+      become: true
+      ansible.builtin.file:
+        path: "/etc/rancher"
+        state: absent
 
 - name: Reset ControlNodes
   hosts: controlnodes
