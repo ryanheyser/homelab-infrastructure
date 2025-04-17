@@ -65,7 +65,7 @@
     inventory_hostname in groups['controlnodes'] and
     hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
   ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.d/etcd.yaml
+    path: /etc/rancher/rke2/config.yaml.d/etcd.yaml
     line: 'disable-etcd: true'
     create: true
 - name: Disable Role ApiServer
@@ -73,7 +73,7 @@
     inventory_hostname in groups['controlnodes'] and
     hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-apiserver: true'
     create: true
 - name: Disable Role Controller Manager
@@ -81,7 +81,7 @@
     inventory_hostname in groups['controlnodes'] and
     hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-controller-manager: true'
     create: true
 - name: Disable Role Scheduler
@@ -89,7 +89,7 @@
     inventory_hostname in groups['controlnodes'] and
     hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
-    path: /etc/rancher/rke2/config.d/controlplane.yaml
+    path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-scheduler: true'
     create: true
 - name: Mount /var/tmp as executable
