@@ -24,8 +24,8 @@ experimental:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
       version: 1.4.2
-    kubernetesGateway:
-      enabled: true
+  kubernetesGateway:
+    enabled: true
 providers:
   kubernetesCRD:
     allowCrossNamespace: true
