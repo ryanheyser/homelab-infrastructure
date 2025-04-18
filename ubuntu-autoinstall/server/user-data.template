@@ -16,18 +16,74 @@ autoinstall:
   storage:
     swap:
       size: 0
-    layout:
-      name: lvm
-      sizing-policy: all
-      match:
-        path: /dev/sda
+    # layout:
+    #   name: lvm
+    #   sizing-policy: all
+    #   match:
+    #     path: /dev/sda
+    config:
+      ## Device
+      - {ptable: gpt, path: /dev/sda, wipe: superblock, preserve: false, name: '', grub_device: true, type: disk, id: disk-sda}
+      ## Partition 0 - Grub
+      - {device: disk-sda, size: 1048576, flag: bios_grub, number: 1, preserve: false, grub_device: false, type: partition, id: partition-0}
+      ## Partition 1 - /boot
+      - {device: disk-sda, size: 1073741824, wipe: superblock, flag: '', number: 2, preserve: false, grub_device: false, type: partition, id: partition-1}
+      - {fstype: ext4, volume: partition-1, preserve: false, type: format, id: format-0}
+      - {path: /boot, device: format-0, type: mount, id: mount-0}
+      ## Partition 2 - Volume Group
+      - {device: disk-sda, size: -1, wipe: superblock, flag: '', number: 3, preserve: false, grub_device: false, type: partition, id: partition-2}
+      - name: ubuntu-vg
+        devices: [partition-2]
+        preserve: false
+        type: lvm_volgroup
+        id: lvm_volgroup-0
+      ## /
+      - {name: ubuntu-lv-root, volgroup: lvm_volgroup-0, size: 100%, wipe: superblock, preserve: false, type: lvm_partition, id: lvm_partition-0}
+      - {fstype: ext4, volume: lvm_partition-0, preserve: false, type: format, id: lvmformat-0}
+      - {path: /, device: lvmformat-0, type: mount, id: lvmmount-0, options: noatime,nodiratime}
+      ### Below is broken by subiquity bug, need to workaround
+      # ## /tmp
+      # - id: tmpfs1
+      #   path: "/tmp"
+      #   type: mount
+      #   spec: "none"
+      #   options: "noatime,nodiratime,mode=1777,nosuid,nodev"
+      #   size: 1073741824
+      #   fstype: "tmpfs"
+      # ## /var/tmp
+      # - id: tmpfs2
+      #   path: "/var/tmp"
+      #   type: mount
+      #   spec: "none"
+      #   options: "noatime,nodiratime,mode=1777,nosuid,nodev"
+      #   size: 1073741824
+      #   fstype: "tmpfs"
+      # ## /var/log
+      # - id: tmpfs3
+      #   path: "/var/log"
+      #   type: mount
+      #   spec: "none"
+      #   options: "noatime,nodiratime,mode=1777,nosuid,nodev"
+      #   size: 1073741824
+      #   fstype: "tmpfs"
+  late-commands:
+  - curtin in-target --target=/target -- /usr/bin/bash -c "echo -e 'tmpfs\t/var/tmp\ttmpfs\tdefaults,noatime,nodiratime,nosuid,nodev,noexec,mode=0777,size=1G\t0 0' >>/etc/fstab"
+  - curtin in-target --target=/target -- /usr/bin/bash -c "echo -e 'tmpfs\t/var/log\ttmpfs\tdefaults,noatime,nodiratime,nosuid,nodev,noexec,mode=0777,size=1G\t0 0' >>/etc/fstab"
+  - curtin in-target --target=/target -- /usr/bin/bash -c "echo -e '/var/tmp\t/tmp\tnone\tdefaults,bind\t0 0' >>/etc/fstab"
   packages:
   - software-properties-common
   - nfs-common
   - nfs4-acl-tools
+  - open-vm-tools
+  - qemu-guest-agent
   apt:
     geoip: true
     fallback: offline-install
+    mirror-selection:
+      primary:
+      - uri: https://mirror.pilotfiber.com/ubuntu
+      - uri: https://mirror.math.princeton.edu/pub/ubuntu
+      - country-mirror
     sources:
       ansible:
         source: ppa:ansible/ansible
@@ -37,6 +93,8 @@ autoinstall:
     install: true
   kernel:
     flavor: hwe
+  kernel-crash-dumps:
+    enabled: false
   timezone: geoip
   network:
     version: 2
@@ -48,6 +106,16 @@ autoinstall:
         dhcp-identifier: mac
         dhcp6: false
         mtu: 9000
+    bridges:
+      vpnbr:
+        dhcp4: true
+        dhcp6: false
+        dhcp4-overrides:
+          route-metric: 200
+        dhcp6-overrides:
+          route-metric: 200
+        interfaces:
+          - vl99
     vlans:
       vl99:
         id: 99
@@ -537,8 +605,13 @@ autoinstall:
         then
           source <(kubectl completion bash)
         fi
-
         test -e /usr/share/bash-completion/bash_completion && . /usr/share/bash-completion/bash_completion
+    - path: /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
+      permissions: '0644'
+      content: |
+        [Service]
+        ExecStart=
+        ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --interface=ens18
     disable_root: false
     ntp:
       enabled: true
@@ -550,6 +623,7 @@ autoinstall:
     - age
     - ansible
     - bash-completion
+    - bridge-utils
     - build-essential
     - cmake
     - curl
@@ -561,20 +635,25 @@ autoinstall:
     - libglvnd-dev
     - linux-generic
     - linux-headers-generic
+    - mtr-tiny
+    - net-tools
     - nfs-common
     - open-vm-tools
     - openssl
+    - p7zip-full
+    - parted
+    - pciutils
     - pkg-config
     - python3
     - python3-dev
     - python3-pip
     - python3-venv
     - python3-virtualenv
-    - qemu-guest-agent
     - software-properties-common
     - tcpdump
     - vim
     - wget
+    - zstd
     timezone: US/Eastern
     drivers:
       nvidia:
@@ -611,6 +690,11 @@ autoinstall:
       ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ4hZb0hehdXA/yRmHJwDL1aMdpQwicDt0NBA80fezfb ansible@homelab.heyser.xyz
     runcmd:
+    - 'test -b /dev/sdb && (echo "type=83" | sfdisk /dev/sdb)'
+    - 'test -b /dev/sdb1 && mkfs.ext4 /dev/sdb1 && mkdir -m 0777 -p /var/lib/rancher && echo "/dev/sdb1 /var/lib/rancher  ext4  defaults,noatime,norelatime,nodiratime 0 0" >>/etc/fstab'
+    - systemctl daemon-reload
+    - systemctl enable ssh.service
+    - systemctl start --no-block ssh.service
     - find /home | grep '\.bashrc' | xargs sed -i -r 's/^([[:space:]]+?)(PS1.*)/\1# \2\n\1echo -n/g'
     - find /root | grep '\.bashrc' | xargs sed -i -r 's/^([[:space:]]+?)(PS1.*)/\1# \2\n\1echo -n/g'
     - sed -i -r 's/^([[:space:]]+?)(deb .*)/\1# \2/g' /var/lib/ubuntu-advantage/apt-esm/etc/apt/sources.list.d/ubuntu-esm-apps.list
@@ -641,10 +725,11 @@ autoinstall:
     - systemctl mask rsyslog.service
     - apt remove --purge snapd lxd-installer && apt-mark hold snapd
     - TEMP_DEB="$(mktemp)" && wget -O "$TEMP_DEB" 'https://github.com/Skyedra/UnspamifyUbuntu/blob/master/fake-ubuntu-advantage-tools/fake-ubuntu-advantage-tools.deb?raw=true' && sudo dpkg -i "$TEMP_DEB"; rm -f "$TEMP_DEB"
-    - SOPS_RELEASE="$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | jq -r '.name')" && curl -L https://github.com/getsops/sops/releases/${SOPS_RELEASE}/sops-${SOPS_RELEASE}.linux.amd64 -o /usr/local/bin/sops && chmod +x /usr/local/bin/sops
+    - INTEL_DEB="$(mktemp)" && wget -O "$INTEL_DEB" 'https://github.com/strongtz/i915-sriov-dkms/releases/download/2025.02.03/i915-sriov-dkms_2025.02.03_amd64.deb?raw=true' && sudo dpkg -i "$INTEL_DEB"; rm -f "$INTEL_DEB"
+    - SOPS_TEMP="$(mktemp)" && SOPS_RELEASE="$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | jq -r '.name')" && curl -L "https://github.com/getsops/sops/releases/download/${SOPS_RELEASE}/sops-${SOPS_RELEASE}.linux.amd64" -o "$SOPS_TEMP" && cp "$SOPS_TEMP" /usr/local/bin/sops && chmod a+rx /usr/local/bin/sops; rm -f "$SOPS_TEMP"
     - test -f /var/lib/ubuntu-advantage/messages/motd-esm-announce && rm /var/lib/ubuntu-advantage/messages/motd-esm-announce
-    - touch /var/lib/ubuntu-advantage/messages/motd-esm-announce && chattr +i /var/lib/ubuntu-advantage/messages/motd-esm-announce
-    - sed -i -r 's/^(GRUB_CMDLINE_LINUX_DEFAULT=\")(.*\")/\1mitigations=off ipv6.disable=1 spectre_v2_user=off nopti spec_store_bypass_disable=off l1tf=off mds=off tsx_async_abort=off nx_huge_pages=off kvm.nx_huge_pages=off srbds=off retbleed=off \2/g' /etc/default/grub && update-grub
+    - mkdir -p /var/lib/ubuntu-advantage/messages/ && touch /var/lib/ubuntu-advantage/messages/motd-esm-announce && chattr +i /var/lib/ubuntu-advantage/messages/motd-esm-announce
+    - sed -i -r 's/^(GRUB_CMDLINE_LINUX_DEFAULT=\")(.*\")/\1mitigations=off spectre_v2_user=off nopti spec_store_bypass_disable=off l1tf=off mds=off tsx_async_abort=off nx_huge_pages=off kvm.nx_huge_pages=off srbds=off retbleed=off \2/g' /etc/default/grub && update-grub
     power_state:
       delay: now
       mode: reboot
