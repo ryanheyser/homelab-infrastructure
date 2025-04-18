@@ -140,33 +140,6 @@
               #   - fd00:11::/64
               #   firstFound: false
               containerIPForwarding: "Enabled"
-              ipPools:
-              - allowedUses:
-                - Workload
-                - Tunnel
-                blockSize: 32
-                cidr: 10.0.101.0/24
-                disableBGPExport: false
-                name: default
-                natOutgoing: Enabled
-                nodeSelector: all()
-              - allowedUses:
-                - Workload
-                - Tunnel
-                blockSize: 32
-                cidr: 10.0.100.0/24
-                disableBGPExport: false
-                name: system
-                natOutgoing: Enabled
-                nodeSelector: all()
-              # - allowedUses:
-              #   - Workload
-              #   - Tunnel
-              #   blockSize: 122
-              #   cidr: fd00:255::/56
-              #   disableBGPExport: false
-              #   name: default-ipv6-ippool
-              #   nodeSelector: all()
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
