@@ -24,3 +24,4 @@ kubernetes-crd-definition-v1.yml
 kubernetes-crd-rbac.yml
 kubernetes-crd-resource.yml
 rke2.yaml
+vault-initial-secrets.yaml
