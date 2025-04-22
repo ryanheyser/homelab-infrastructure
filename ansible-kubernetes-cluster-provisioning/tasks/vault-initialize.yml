@@ -84,6 +84,15 @@
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
+- name: Create Authentik Secret Key Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret authentik-secret-key authentik-secret-key={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikSecretKey }}"
+  when: >-
+    kubeconfig.stat.exists and
+    vaultinitialsecretstoreinit is success
 - name: Create Cloudflare Zone ID Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
