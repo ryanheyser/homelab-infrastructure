@@ -53,7 +53,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret cloudflare-api-key cloudflare-api-key={{ (vaultinitial | ansible.builtin.from_yaml).cert_manager_system_cloudflare_api_key }}"
+    command: sh -c "vault kv put -mount=secret cloudflare-api-key api-key={{ (vaultinitial | ansible.builtin.from_yaml).cert_manager_system_cloudflare_api_key }}"
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
