@@ -277,6 +277,22 @@
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/vault.yml"
 
+# Initialize Vault
+- name: Initialize Vault
+  hosts: localhost
+  strategy: linear
+  tags:
+    - setup
+    - kubernetes
+    - vault
+    - Initializevault
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Setup | Vault
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/vault-initialize.yml"
+
 # External Secrets
 - name: Install External Secrets
   hosts: localhost
