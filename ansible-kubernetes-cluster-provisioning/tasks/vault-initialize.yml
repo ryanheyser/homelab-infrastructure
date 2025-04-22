@@ -98,7 +98,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret cloudflare-record-id wildcard-homelab-heyser-xyz={{ (vaultinitial | ansible.builtin.from_yaml).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_homelab_heyser_xyz }}"
+    command: sh -c "vault kv put -mount=secret cloudflare-record-id heyser-xyz={{ (vaultinitial | ansible.builtin.from_yaml).network_system_cloudflare_ddns_cloudflare_recordid_heyser_xyz }} wildcard-heyser-xyz={{ (vaultinitial | ansible.builtin.from_yaml).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_heyser_xyz }} wildcard-homelab-heyser-xyz={{ (vaultinitial | ansible.builtin.from_yaml).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_homelab_heyser_xyz }}"
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
