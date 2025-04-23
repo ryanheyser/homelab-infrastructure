@@ -80,7 +80,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret authentik-credentials adminPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_adminPassword }} userPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_userPassword }} replicationPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_replicationPassword }}"
+    command: sh -c "vault kv put -mount=secret authentik-credentials adminPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_adminPassword }} bootstrapPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_bootstrapPassword }} userPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_userPassword }} replicationPassword={{ (vaultinitial | ansible.builtin.from_yaml).network_system_authentik_authentikCredentials_replicationPassword }}"
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
