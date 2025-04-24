@@ -2,45 +2,45 @@
   ansible.builtin.stat:
     path: "{{ home }}/.kube/config"
   register: kubeconfig
-- name: Create Global BGP Config
-  when: kubeconfig.stat.exists
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    # apply: true
-    # server_side_apply:
-    #   field_manager: ansible
-    definition:
-      apiVersion: projectcalico.org/v3
-      kind: BGPConfiguration
-      metadata:
-        name: default
-        namespace: calico-system
-      spec:
-        nodeToNodeMeshEnabled: false
-        asNumber: 65001
-        serviceLoadBalancerIPs:
-          - cidr: 10.0.101.0/24
-          - cidr: 10.0.100.0/24
-        # communities:
-        #   - name: bgpdefault
-- name: Create Global BGP Peer Config
-  when: kubeconfig.stat.exists
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    # apply: true
-    # server_side_apply:
-    #   field_manager: ansible
-    definition:
-      apiVersion: projectcalico.org/v3
-      kind: BGPPeer
-      metadata:
-        name: bgppeer
-        namespace: calico-system
-      spec:
-        peerIP: 10.0.0.1
-        asNumber: 65000
+# - name: Create Global BGP Config
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     # apply: true
+#     # server_side_apply:
+#     #   field_manager: ansible
+#     definition:
+#       apiVersion: projectcalico.org/v3
+#       kind: BGPConfiguration
+#       metadata:
+#         name: default
+#         namespace: calico-system
+#       spec:
+#         nodeToNodeMeshEnabled: false
+#         asNumber: 65001
+#         serviceLoadBalancerIPs:
+#           - cidr: 10.0.101.0/24
+#           - cidr: 10.0.100.0/24
+#         # communities:
+#         #   - name: bgpdefault
+# - name: Create Global BGP Peer Config
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: present
+#     # apply: true
+#     # server_side_apply:
+#     #   field_manager: ansible
+#     definition:
+#       apiVersion: projectcalico.org/v3
+#       kind: BGPPeer
+#       metadata:
+#         name: bgppeer
+#         namespace: calico-system
+#       spec:
+#         peerIP: 10.0.0.1
+#         asNumber: 65000
 # - name: Create Status Config
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
