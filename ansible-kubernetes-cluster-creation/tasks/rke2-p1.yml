@@ -197,9 +197,9 @@
     # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
     - "--config=/etc/kubernetes/kubelet-config.yml"
-    rke2_kube_proxy_arg:
-    - "proxy-mode=ipvs"
-    - "ipvs-strict-arp=true"
+    # rke2_kube_proxy_arg:
+    # - "proxy-mode=ipvs"
+    # - "ipvs-strict-arp=true"
     rke2_kube_scheduler_arg:
     - "bind-address=0.0.0.0"
     rke2_kube_controller_manager_arg:
