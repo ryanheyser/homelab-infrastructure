@@ -163,7 +163,7 @@
         name: default
         namespace: network-system
       spec:
-        IPAddressPools:
+        ipAddressPools:
         - default
         - system
         aggregationLength: 24
