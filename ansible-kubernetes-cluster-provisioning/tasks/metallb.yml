@@ -121,6 +121,7 @@
       kind: BGPPeer
       metadata:
         name: default-ipv4
+        namespace: network-system
       spec:
         myASN: 65001
         peerASN: 65000
