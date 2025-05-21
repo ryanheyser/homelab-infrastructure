@@ -68,4 +68,10 @@
       'vars\\.ya?ml',
     ],
   },
+  'github-actions': {
+    managerFilePatterns: [
+      '/(^|/)(workflow-templates|.(?:github|gitea|forgejo)/(?:workflows|actions))/.+.ya?ml$/',
+      '/(^|/)action.ya?ml$/',
+    ],
+  },
 }
