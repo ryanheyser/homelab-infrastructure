@@ -37,12 +37,12 @@
     'setup/**',
     '.taskfiles/**',
     'vars.ya?ml',
-    'secrets/**'
-,  ],
+    'secrets/**',
+  ],
   ansible: {
-    fileMatch: [
-      "(^|/)playbook\\.ya?ml$",
-      "(^|/)tasks/(.*)?[^/]+\\.ya?ml$",
+    managerFilePatterns: [
+      '/(^|/)playbook\\.ya?ml$/',
+      '/(^|/)tasks/(.*)?[^/]+\\.ya?ml$/',
     ],
     ignorePaths: [
       '.github/**',
@@ -50,18 +50,18 @@
     ],
   },
   'helm-values': {
-    fileMatch: [
-      "(^|/)helm_values/[^/]+\\.ya?ml$",
-      "(^|/)tasks/(.*)?[^/]+\\.ya?ml$"
+    managerFilePatterns: [
+      '/(^|/)helm_values/[^/]+\\.ya?ml$/',
+      '/(^|/)tasks/(.*)?[^/]+\\.ya?ml$/',
     ],
     ignorePaths: [
       '.github/**',
       'vars\\.ya?ml',
     ],
   },
-  'helmv3': {
-    fileMatch: [
-      "(^|/)tasks/(.*)?[^/]+\\.ya?ml$"
+  helmv3: {
+    managerFilePatterns: [
+      '/(^|/)tasks/(.*)?[^/]+\\.ya?ml$/',
     ],
     ignorePaths: [
       '.github/**',
