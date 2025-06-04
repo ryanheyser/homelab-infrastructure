@@ -128,7 +128,9 @@
       "schedule": "after 1am and before 5am",
       "updateTypes": ["minor", "patch"],
       "packageNames": [
+        "metallb",
         "secrets-store-csi-driver",
+        "traefik",
         "vault"
       ]
     }
