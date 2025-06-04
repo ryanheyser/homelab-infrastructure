@@ -37,7 +37,7 @@
     name: metallb
     release_namespace: network-system
     chart_ref: metallb
-    chart_version: 0.14.9
+    chart_version: 0.15.0
     chart_repo_url: https://metallb.github.io/metallb
     values:
       controller:
