@@ -113,9 +113,9 @@
     # renovate: depName=rancher/rke2
     rke2_version: v1.33.1+rke2r1
     rke2_ha_mode: true
-    rke2_interface: ens18
-    rke2_api_ip: "10.0.1.10"
-    rke2_ha_mode_keepalived: true
+    # rke2_interface: ens18
+    # rke2_api_ip: "10.0.1.10"
+    # rke2_ha_mode_keepalived: true
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
