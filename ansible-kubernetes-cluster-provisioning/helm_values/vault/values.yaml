@@ -7,12 +7,20 @@ injector:
   logFormat: "json"
   certs:
     secretName: null
+  agentImage:
+    repository: "hashicorp/vault"
+    tag: "1.19.5"
   strategy:
     rollingUpdate:
       maxSurge: "25%"
       maxUnavailable: "25%"
     type: RollingUpdate
 server:
+  image:
+    repository: "hashicorp/vault"
+    tag: "1.19.5"
+    # Overrides the default Image Pull Policy
+    pullPolicy: IfNotPresent
   statefulset:
     securityContext:
       pod:
@@ -168,3 +176,7 @@ csi:
       maxUnavailable: "25%"
   agent:
     logFormat: json
+    image:
+      repository: "hashicorp/vault"
+      tag: "1.19.5"
+      pullPolicy: IfNotPresent
