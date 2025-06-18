@@ -73,6 +73,7 @@ server:
     accessMode: ReadWriteMany
   auditStorage:
     enabled: true
+    size: 10Gi
     annotations:
       nfs.io/storage-path: "containers/kubernetes/vault/audit"
     storageClass: "nfs-dynamic-ss"
