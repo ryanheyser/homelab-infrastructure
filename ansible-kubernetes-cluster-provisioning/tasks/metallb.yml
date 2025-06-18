@@ -41,6 +41,10 @@
     chart_repo_url: https://metallb.github.io/metallb
     values:
       controller:
+        livenessProbe:
+          enabled: true
+        readinessProbe:
+          enabled: true
         tolerations:
           - key: "node-role.kubernetes.io/control-plane"
             operator: "Exists"
