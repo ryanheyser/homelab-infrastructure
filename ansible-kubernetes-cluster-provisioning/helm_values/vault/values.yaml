@@ -15,6 +15,11 @@ injector:
       maxSurge: "25%"
       maxUnavailable: "25%"
     type: RollingUpdate
+  securityContext:
+    pod:
+      runAsNonRoot: true
+      runAsGroup: 3001
+      runAsUser: 1000
 server:
   image:
     repository: "hashicorp/vault"
@@ -25,14 +30,14 @@ server:
     securityContext:
       pod:
         runAsNonRoot: true
-        runAsGroup: 1000
+        runAsGroup: 3001
         runAsUser: 1000
-        fsGroup: 1000
+        fsGroup: 3001
         fsGroupChangePolicy: "OnRootMismatch"
         supplementalGroups: [568,911,1000,1001]
       container:
         allowPrivilegeEscalation: false
-        runAsGroup: 1000
+        runAsGroup: 3001
         runAsUser: 1000
   logLevel: "debug"
   logFormat: "json"
@@ -117,6 +122,13 @@ server:
     enabled: true
     replicas: 3
     # clusterAddr: vault.vault-system.svc.cluster.local
+    statefulSet:
+      securityContext:
+        pod:
+          runAsNonRoot: true
+          runAsGroup: 3001
+          runAsUser: 1000
+          fsGroup: 3001
     raft:
       enabled: true
       setNodeId: true
@@ -174,9 +186,14 @@ csi:
     updateStrategy:
       maxSurge: "25%"
       maxUnavailable: "25%"
+    pod:
+      runAsNonRoot: true
+      runAsGroup: 3001
+      runAsUser: 1000
   agent:
     logFormat: json
     image:
       repository: "hashicorp/vault"
       tag: "1.19.5"
       pullPolicy: IfNotPresent
+
