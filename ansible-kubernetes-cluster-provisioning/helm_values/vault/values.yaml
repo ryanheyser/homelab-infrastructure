@@ -50,12 +50,12 @@ server:
           - vault.homelab.heyser.xyz
           - vault-ui.homelab.heyser.xyz
   tolerations:
-    - key: node-role.kubernetes.io/master
-      operator: equal
-    - key: node-role.kubernetes.io/control-plane
-      operator: Equal
-    - key: node-role.kubernetes.io/etcd
-      operator: Equal
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+    - key: "node-role.kubernetes.io/etcd"
+      operator: "Exists"
   volumes:
     - name: pgp-keys
       configMap:
