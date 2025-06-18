@@ -46,6 +46,11 @@
           enabled: true
         readinessProbe:
           enabled: true
+        resources:
+          limits:
+            cpu: 3000m
+          requests:
+            cpu: 1000m
         tolerations:
           - key: "node-role.kubernetes.io/control-plane"
             operator: "Exists"
