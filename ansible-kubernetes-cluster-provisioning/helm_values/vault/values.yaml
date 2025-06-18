@@ -50,12 +50,12 @@ server:
           - vault.homelab.heyser.xyz
           - vault-ui.homelab.heyser.xyz
   tolerations:
-    - effect: PreferNoSchedule
-      key: node-role.kubernetes.io
-      value: master
+    - key: node-role.kubernetes.io/master
+      operator: equal
     - key: node-role.kubernetes.io/control-plane
       operator: Equal
-      effect: NoSchedule
+    - key: node-role.kubernetes.io/etcd
+      operator: Equal
   volumes:
     - name: pgp-keys
       configMap:
@@ -77,7 +77,8 @@ server:
       nfs.io/storage-path: "containers/kubernetes/vault/audit"
     storageClass: "nfs-dynamic-ss"
     accessMode: ReadWriteMany
-  # extraEnvironmentVars:
+  extraEnvironmentVars:
+    VAULT_CLIENT_TIMEOUT: "900s"
   #   VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
   # extraVolumes:
   #   - type: secret
