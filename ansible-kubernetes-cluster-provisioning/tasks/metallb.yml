@@ -41,6 +41,7 @@
     chart_repo_url: https://metallb.github.io/metallb
     values:
       controller:
+        logLevel: "debug"
         livenessProbe:
           enabled: true
         readinessProbe:
@@ -53,6 +54,10 @@
           - key: "node-role.kubernetes.io/etcd"
             operator: "Exists"
       speaker:
+        livenessProbe:
+          enabled: true
+        readinessProbe:
+          enabled: true
         tolerations:
           - key: "node-role.kubernetes.io/control-plane"
             operator: "Exists"
