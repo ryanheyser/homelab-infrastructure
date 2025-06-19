@@ -42,7 +42,7 @@
     state: present
     name: "{{ item }}"
     taints:
-    - effect: NoSchedule
+    - effect: NoExecute
       key: node-role.kubernetes.io/etcd
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
   loop: "{{ etcd | list | flatten(1) }}"
