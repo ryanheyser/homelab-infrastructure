@@ -21,6 +21,8 @@ injector:
       runAsGroup: 3001
       runAsUser: 1000
 server:
+  uid: 1000
+  gid: 3001
   image:
     repository: "hashicorp/vault"
     tag: "1.19.5"
