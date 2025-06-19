@@ -109,14 +109,11 @@
             kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
-              operator: Equal
-              effect: NoSchedule
-            - effect: PreferNoSchedule
-              key: node-role.kubernetes.io
-              value: master
+              operator: Exists
+            - key: node-role.kubernetes.io/master
+              value: Exists
             - key: node-role.kubernetes.io/etcd
               operator: Exists
-              effect: NoExecute
             controlPlaneReplicas: 3
             nodeUpdateStrategy:
               type: RollingUpdate
@@ -222,7 +219,7 @@
             - name: prometheus
               parameters: 0.0.0.0:9153
             - name: forward
-              parameters: . /etc/resolv.conf 10.0.0.1
+              parameters: . 10.0.0.1 /etc/resolv.conf
               configBlock: |-
                 except "cluster.local" "svc.cluster.local" ".svc"
                 policy sequential
