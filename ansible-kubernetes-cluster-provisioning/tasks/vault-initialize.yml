@@ -71,7 +71,7 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret mangayomi-server-secret-key secretKey={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_secretKey }}"
+    command: sh -c "vault kv put -mount=secret mangayomi-server-secret-key secret-key={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_secretKey }}"
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
