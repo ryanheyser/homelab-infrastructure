@@ -66,6 +66,24 @@
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
+- name: Create Mangayomi-Server Secret Key Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret mangayomi-server-secret-key secretKey={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_secretKey }}"
+  when: >-
+    kubeconfig.stat.exists and
+    vaultinitialsecretstoreinit is success
+- name: Create Mangayomi-Server Mongo Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret mangayomi-server-mongo-config mongo-config-database-user={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_databaseUser }} mongo-config-database-password={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_databasePassword }} mongo-config-database-url={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_databaseURL }} mongo-config-database-name={{ (vaultinitial | ansible.builtin.from_yaml).default_mangayomi_server_databaseName }}"
+  when: >-
+    kubeconfig.stat.exists and
+    vaultinitialsecretstoreinit is success
 - name: Create Vaultwarden admin token Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
