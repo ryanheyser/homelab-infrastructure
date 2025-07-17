@@ -43,6 +43,8 @@ providers:
     # ingressClass: traefik 
   kubernetesGateway:
     enabled: true
+    experimentalChannel: true
+    throttleDuration: "30s"
 # nodeSelector:
 #   ingress-ready: 'true'
 ingressClass:
