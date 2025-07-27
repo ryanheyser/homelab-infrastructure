@@ -9,7 +9,7 @@ injector:
     secretName: null
   agentImage:
     repository: "hashicorp/vault"
-    tag: "1.20.0"
+    tag: "1.20.1"
   strategy:
     rollingUpdate:
       maxSurge: "25%"
@@ -25,7 +25,7 @@ server:
   gid: 3001
   image:
     repository: "hashicorp/vault"
-    tag: "1.20.0"
+    tag: "1.20.1"
     # Overrides the default Image Pull Policy
     pullPolicy: IfNotPresent
   statefulset:
@@ -196,6 +196,6 @@ csi:
     logFormat: json
     image:
       repository: "hashicorp/vault"
-      tag: "1.20.0"
+      tag: "1.20.1"
       pullPolicy: IfNotPresent
 
