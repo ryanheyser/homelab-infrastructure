@@ -419,3 +419,24 @@
   changed_when: true
   # failed_when: >-
   #   {{vault_operator_init.root_token | b64encode}} == ""
+- name: Create Vault Unseal Secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: vault-unseal
+        namespace: vault-system
+      type: opaque
+      data:
+        shard0: "{{ unseal_keys_b64_0.stdout | b64encode }}"
+        shard1: "{{ unseal_keys_b64_1.stdout | b64encode }}"
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  changed_when: true
+  # failed_when: >-
+  #   {{vault_operator_init.root_token | b64encode}} == ""
