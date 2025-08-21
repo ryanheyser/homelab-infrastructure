@@ -285,7 +285,7 @@
     - setup
     - kubernetes
     - vault
-    - z
+    - initializevault
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
