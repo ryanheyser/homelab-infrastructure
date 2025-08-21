@@ -434,9 +434,8 @@
         shard0: "{{ unseal_keys_b64_0.stdout | b64encode }}"
         shard1: "{{ unseal_keys_b64_1.stdout | b64encode }}"
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    kubeconfig.stat.exists and
+    vault_operator_init is defined
   changed_when: true
   # failed_when: >-
   #   {{vault_operator_init.root_token | b64encode}} == ""
