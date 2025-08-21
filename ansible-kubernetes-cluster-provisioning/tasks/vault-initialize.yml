@@ -57,6 +57,25 @@
   when: >-
     kubeconfig.stat.exists and
     vaultinitialsecretstoreinit is success
+- name: Create Booklore Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret booklore-config booklore-database-username={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_config_database_username }} booklore-database-password={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_config_database_password }} database-database-url={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_config_database_url }}"
+  when: >-
+    kubeconfig.stat.exists and
+    vaultinitialsecretstoreinit is success
+
+- name: Create Booklore Database Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret booklore-database-config booklore-database-username={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_database_mysql_username }} booklore-database-password={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_database_mysql_password }} booklore-database-root-password={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_database_mysql_root_password }} booklore-database-name={{ (vaultinitial | ansible.builtin.from_yaml).default_booklore_database_mysql_database }}"
+  when: >-
+    kubeconfig.stat.exists and
+    vaultinitialsecretstoreinit is success
 - name: Create Calibre Credentials Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
