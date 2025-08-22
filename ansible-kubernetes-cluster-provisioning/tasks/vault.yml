@@ -148,6 +148,30 @@
     wait_condition:
       type: "PodScheduled"
       status: "True"
+- name: Wait for vault-3 to complete
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Pod
+    namespace: vault-system
+    label_selectors:
+      - app.kubernetes.io/name = vault
+      - apps.kubernetes.io/pod-index = "3"
+    wait: true
+    wait_condition:
+      type: "PodScheduled"
+      status: "True"
+- name: Wait for vault-4 to complete
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Pod
+    namespace: vault-system
+    label_selectors:
+      - app.kubernetes.io/name = vault
+      - apps.kubernetes.io/pod-index = "4"
+    wait: true
+    wait_condition:
+      type: "PodScheduled"
+      status: "True"
 - name: Pause for Vault Stability
   ansible.builtin.pause:
     seconds: 30
@@ -238,7 +262,7 @@
 - name: Debug Decode unseal_keys_b64[1]
   ansible.builtin.debug:
     msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
-- name: Unseal Vault 1
+- name: Unseal Vault 1 - vault-0
   when: >-
     vault_status.stdout is defined and
     (vault_status.stdout | from_json).sealed and
@@ -248,7 +272,7 @@
     namespace: vault-system
     pod: vault-0
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
-- name: Unseal Vault 2
+- name: Unseal Vault 2 - vault-0
   when: >-
     vault_status.stdout is defined and
     (vault_status.stdout | from_json).sealed and
@@ -352,6 +376,82 @@
   ansible.builtin.fail:
     message: "Vault is sealed"
   when: (vault_status_after_unseal_2.stdout | from_json).sealed
+- name: Unseal Vault 1 - vault-3
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-3
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
+- name: Unseal Vault 2 - vault-3
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-3
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Check Vault Status Again
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-3
+    command: "vault status -format=json"
+  register: vault_status_after_unseal_3
+  ignore_unreachable: true
+  # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
+  when: >-
+    kubeconfig.stat.exists
+- name: Debug vault_status_after_unseal_3
+  ansible.builtin.debug:
+    msg: "{{ vault_status_after_unseal_3 }}"
+- name: Fail vault status is sealed
+  ansible.builtin.fail:
+    message: "Vault is sealed"
+  when: (vault_status_after_unseal_3.stdout | from_json).sealed
+- name: Unseal Vault 1 - vault-4
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-4
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
+- name: Unseal Vault 2 - vault-4
+  when: >-
+    vault_status.stdout is defined and
+    (vault_status.stdout | from_json).sealed and
+    kubeconfig.stat.exists
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-4
+    command: "vault operator unseal -format=json {{ unseal_keys_b64_1.stdout }}"
+- name: Check Vault Status Again
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-4
+    command: "vault status -format=json"
+  register: vault_status_after_unseal_4
+  ignore_unreachable: true
+  # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
+  when: >-
+    kubeconfig.stat.exists
+- name: Debug vault_status_after_unseal_4
+  ansible.builtin.debug:
+    msg: "{{ vault_status_after_unseal_4 }}"
+- name: Fail vault status is sealed
+  ansible.builtin.fail:
+    message: "Vault is sealed"
+  when: (vault_status_after_unseal_4.stdout | from_json).sealed
 - name: Login to Vault - vault-0
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -400,6 +500,38 @@
   ansible.builtin.fail:
     message: "Vault Login Failed"
   when: (vault_login_2.stdout | from_json).auth.client_token == ""
+- name: Login to Vault - vault-3
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-3
+    command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
+  when: >-
+    vault_operator_init is defined and
+    vault_operator_init.root_token != "" and
+    kubeconfig.stat.exists
+  register: vault_login_3
+  # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+- name: Fail if Vault Login Fails - vault-3
+  ansible.builtin.fail:
+    message: "Vault Login Failed"
+  when: (vault_login_3.stdout | from_json).auth.client_token == ""
+- name: Login to Vault - vault-4
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-4
+    command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
+  when: >-
+    vault_operator_init is defined and
+    vault_operator_init.root_token != "" and
+    kubeconfig.stat.exists
+  register: vault_login_4
+  # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
+- name: Fail if Vault Login Fails - vault-4
+  ansible.builtin.fail:
+    message: "Vault Login Failed"
+  when: (vault_login_4.stdout | from_json).auth.client_token == ""
 - name: Create Vault Token Secret
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
