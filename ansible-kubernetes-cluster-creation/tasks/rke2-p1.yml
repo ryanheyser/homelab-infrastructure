@@ -112,6 +112,7 @@
   vars:
     # renovate: depName=rancher/rke2
     rke2_version: v1.33.4+rke2r1
+    rke2_allow_downgrade: true
     # rke2_ha_mode: true
     rke2_interface: ens18
     rke2_api_ip: "10.0.1.10"
@@ -213,11 +214,11 @@
     # - "node-name: {{ inventory_hostname }}"
     # - "node-external-ip: 10.0.1.5"
     - "write-kubeconfig-mode: 0644"
-    - "embedded-registry: true"
+    # - "embedded-registry: true"
     # - "etcd-arg: [ 'name={{ inventory_hostname }}', 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=256', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
     - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=32' ]"
     - "selinux: false"
-    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=500m', 'kube-proxy=100m', 'kube-scheduler-cpu=100m', 'etcd-cpu=3000m', 'etcd-mem=2048Mi' ]"
+    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=1000m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m', 'etcd-cpu=3000m', 'etcd-mem=4096Mi' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     rke2_agent_options:
     - "node-ip: {{ ansible_host }}"
