@@ -7,7 +7,7 @@
   kubernetes.core.helm_repository:
     kubeconfig: "{{ home }}/.kube/config"
     name: traefik
-    repo_url: https://helm.traefik.io/traefik
+    repo_url: https://traefik.github.io/charts
 # - name: Create network-system network policy
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
