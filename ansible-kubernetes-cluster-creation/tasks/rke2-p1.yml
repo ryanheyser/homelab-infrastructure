@@ -122,7 +122,6 @@
     rke2_api_cidr: 18
     rke2_additional_sans:
     - kubernetes.homelab.heyser.xyz
-    - 10.0.1.10
     - 10.0.1.11
     - 10.0.1.12
     - 10.0.1.13
