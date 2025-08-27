@@ -48,13 +48,18 @@
     content: |
       apiVersion: kubelet.config.k8s.io/v1beta1
       kind: KubeletConfiguration
+      syncFrequency: "5m"
+      fileCheckFrequency: "1m"
+      httpCheckFrequency: "1m"
       imageGCHighThresholdPercent: 75
       imageGCLowThresholdPercent: 60
       clusterDNS: 
       - 10.254.0.10
       cgroupDriver: systemd
       maxPods: 64
+      podsPerCore: 32
       address: 0.0.0.0
+      readOnlyPort: 10255
       authorization:
         mode: AlwaysAllow
       authentication:
