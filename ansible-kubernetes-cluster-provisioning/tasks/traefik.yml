@@ -2,12 +2,12 @@
   ansible.builtin.stat:
     path: "{{ home }}/.kube/config"
   register: kubeconfig
-- name: Add traefik repository
-  when: kubeconfig.stat.exists
-  kubernetes.core.helm_repository:
-    kubeconfig: "{{ home }}/.kube/config"
-    name: traefik
-    repo_url: https://traefik.github.io/charts
+# - name: Add traefik repository
+#   when: kubeconfig.stat.exists
+#   kubernetes.core.helm_repository:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     name: traefik
+#     repo_url: https://traefik.github.io/charts
 # - name: Create network-system network policy
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
@@ -142,10 +142,10 @@
     kubeconfig: "{{ home }}/.kube/config"
     name: traefik
     release_namespace: network-system
-    # renovate: registryUrl=https://helm.traefik.io/traefik
+    # renovate: registryUrl=https://traefik.github.io/charts
     chart_ref: traefik
     chart_version: 37.0.0
-    chart_repo_url: https://helm.traefik.io/traefik
+    chart_repo_url: https://traefik.github.io/charts
     values_files:
       - "{{ traefikvalues.stat.path }}"
 - name: Check for crowdsec bouncer config
