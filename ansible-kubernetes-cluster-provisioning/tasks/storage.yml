@@ -64,12 +64,15 @@
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-        - effect: PreferNoSchedule
-          key: node-role.kubernetes.io
-          value: master
         - key: node-role.kubernetes.io/control-plane
-          operator: Equal
-          effect: NoSchedule
+          operator: Exists
+          effect: PreferNoSchedule
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+          effect: PreferNoSchedule
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -119,12 +122,15 @@
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-        - effect: PreferNoSchedule
-          key: node-role.kubernetes.io
-          value: master
         - key: node-role.kubernetes.io/control-plane
-          operator: Equal
-          effect: NoSchedule
+          operator: Exists
+          effect: PreferNoSchedule
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+          effect: PreferNoSchedule
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
