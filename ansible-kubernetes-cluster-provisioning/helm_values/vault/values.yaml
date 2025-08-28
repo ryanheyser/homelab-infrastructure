@@ -165,7 +165,7 @@ csi:
   daemonSet:
     updateStrategy:
       type: RollingUpdate
-      maxUnavailable: 1
+      maxUnavailable: "1"
     securityContext:
       pod:
         runAsNonRoot: true
