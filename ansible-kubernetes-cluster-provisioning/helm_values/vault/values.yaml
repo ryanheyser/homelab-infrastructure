@@ -7,7 +7,12 @@ injector:
   logFormat: "json"
   certs:
     secretName: null
+  image:
+    # renovate: repository=hashicorp/vault-k8s
+    repository: "hashicorp/vault-k8s"
+    tag: "1.7.0"
   agentImage:
+    # renovate: repository=hashicorp/vault
     repository: "hashicorp/vault"
     tag: "1.20.2"
   strategy:
@@ -24,10 +29,12 @@ server:
   uid: 1000
   gid: 3001
   image:
+    # renovate: repository=hashicorp/vault
     repository: "hashicorp/vault"
     tag: "1.20.2"
     # Overrides the default Image Pull Policy
     pullPolicy: IfNotPresent
+  updateStrategyType: "RollingUpdate"
   statefulset:
     securityContext:
       pod:
@@ -95,35 +102,11 @@ server:
     accessMode: ReadWriteMany
   extraEnvironmentVars:
     VAULT_CLIENT_TIMEOUT: "900s"
-  #   VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
-  # extraVolumes:
-  #   - type: secret
-  #     name: tls-server
-  #   - type: secret
-  #     name: tls-ca
-  # extraInitContainers:
-  #   - name: chmod
-  #     image: alpine
-  #     command: [sh, -c]
-  #     args:
-  #       - if [[ -f /vault/data/vault.db ]]; then echo "chmod 600 vault.db"; chmod 600 /vault/data/vault.db; fi; if [[ -f /vault/data/raft/raft.db ]]; then echo "chmod 600 raft.db"; chmod 600 /vault/data/raft/raft.db; fi
-  #     volumeMounts:
-  #       - name: data
-  #         mountPath: /vault/data
-  #   - name: chown
-  #     image: alpine
-  #     command: [sh, -c]
-  #     args:
-  #       - if [[ -d /vault/data/ ]]; then echo "chown vault/data"; chown -R 100:1000 /vault/data/; fi
-  #     volumeMounts:
-  #       - name: data
-  #         mountPath: /vault/data
   standalone:
     enabled: false
   ha:
     enabled: true
     replicas: 5
-    # clusterAddr: vault.vault-system.svc.cluster.local
     statefulSet:
       securityContext:
         pod:
@@ -131,6 +114,10 @@ server:
           runAsGroup: 3001
           runAsUser: 1000
           fsGroup: 3001
+        container:
+          allowPrivilegeEscalation: false
+          runAsGroup: 3001
+          runAsUser: 1000
     raft:
       enabled: true
       setNodeId: true
@@ -144,9 +131,9 @@ server:
           tls_disable = 1
           address = "0.0.0.0:8200"
           cluster_address = "0.0.0.0:8201"
-          # tls_cert_file = "/vault/userconfig/tls-server/fullchain.pem"
-          # tls_key_file = "/vault/userconfig/tls-server/server.key"
-          # tls_client_ca_file = "/vault/userconfig/tls-server/client-auth-ca.pem"
+          telemetry {
+            unauthenticated_metrics_access = "true"
+          }
         }
         disable_sealwrap = true
         storage "raft" {
@@ -156,46 +143,43 @@ server:
             auto_join_port = 8200
             auto_join_scheme = "http"
           }
-          # retry_join {
-          #   leader_api_addr = "http://vault-0.vault-internal:8200"
-          #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-          #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
-          #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
-          # }
-          # retry_join {
-          #   leader_api_addr = "http://vault-1.vault-internal:8200"
-          #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-          #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
-          #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
-          # }
-          # retry_join {
-          #   leader_api_addr = "http://vault-2.vault-internal:8200"
-          #   # leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-          #   # leader_client_cert_file = "/vault/userconfig/tls-server/server.crt"
-          #   # leader_client_key_file = "/vault/userconfig/tls-server/server.key"
-          # }
         }
         autopilot {
           last_contact_failure_threshold = "15m"
           server_stabilization_time = "30s"
+        }
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname = true
         }
         service_registration "kubernetes" {}
 ui:
   enabled: true
 csi:
   enabled: true
+  image:
+    # renovate: repository=hashicorp/vault-csi-provider
+    repository: "hashicorp/vault-csi-provider"
+    tag: "1.5.1"
+    pullPolicy: IfNotPresent
   daemonSet:
     updateStrategy:
-      maxSurge: "25%"
-      maxUnavailable: "25%"
-    pod:
-      runAsNonRoot: true
-      runAsGroup: 3001
-      runAsUser: 1000
+      type: RollingUpdate
+      maxUnavailable: 1
+    securityContext:
+      pod:
+        runAsNonRoot: true
+        runAsGroup: 3001
+        runAsUser: 1000
+        fsGroup: 3001
+      container:
+        allowPrivilegeEscalation: false
+        runAsGroup: 3001
+        runAsUser: 1000
   agent:
     logFormat: json
     image:
+      # renovate: repository=hashicorp/vault
       repository: "hashicorp/vault"
       tag: "1.20.2"
       pullPolicy: IfNotPresent
-
