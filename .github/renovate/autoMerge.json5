@@ -19,7 +19,8 @@
         "codercom/code-server",
         "adguard/adguardhome",
         "cert-manager/cert-manager",
-        "emberstack/kubernetes-reflector"
+        "emberstack/kubernetes-reflector",
+        "hashicorp/vault"
       ]
     },
     // auto-updates - weekly
