@@ -144,7 +144,7 @@
     release_namespace: network-system
     # renovate: registryUrl=https://traefik.github.io/charts
     chart_ref: traefik
-    chart_version: 37.0.0
+    chart_version: 37.1.0
     chart_repo_url: https://traefik.github.io/charts
     values_files:
       - "{{ traefikvalues.stat.path }}"
