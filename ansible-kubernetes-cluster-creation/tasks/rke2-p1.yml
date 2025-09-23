@@ -134,6 +134,8 @@
       value: false
     - param: bgp_enable
       value: true
+    - param: bgp_routerid
+      value: "10.0.0.1"
     - param: bgp_as
       value: 65002
     - param: bgp_peeras
@@ -141,7 +143,7 @@
     - param: bgp_multihop
       value: true
     - param: bgp_peeraddress
-      value: 10.0.0.1
+      value: "10.0.0.1"
     - param: bgp_sourceif
       value: ens18
     # rke2_bind_address: "{{ ansible_host }}"
