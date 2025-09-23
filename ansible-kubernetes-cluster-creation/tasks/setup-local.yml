@@ -20,7 +20,7 @@
 - name: Setup | Add Helm GPG to system
   become: true
   ansible.builtin.shell: |
-    echo "{{ helmgpg.stdout }}" | sudo gpg --dearmor -o /usr/share/keyrings/helm.gpg
+    echo "{{ helmgpg.stdout }}" | sudo gpg --yes --dearmor -o /usr/share/keyrings/helm.gpg
   # when: not helm_gpg_file.stat.exists
   changed_when: true
 - name: Setup | Add Helm apt source
