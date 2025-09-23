@@ -123,6 +123,8 @@
     rke2_ha_mode_kubevip_interface: ens18
     rke2_kubevip_svc_enable: false
     rke2_kubevip_ipvs_lb_enable: true
+    rke2_kubevip_service_election_enable: false
+    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.0
     rke2_kubevip_args:
     - param: cp_enable
       value: true
