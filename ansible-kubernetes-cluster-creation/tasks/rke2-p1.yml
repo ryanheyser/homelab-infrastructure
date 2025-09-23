@@ -128,8 +128,6 @@
     rke2_kubevip_args:
     - param: bgp_enable
       value: "true"
-    - param: bgp_routerid
-      value: "{{ ansible_host }}"
     - param: bgp_as
       value: "65002"
     - param: bgp_peeras
