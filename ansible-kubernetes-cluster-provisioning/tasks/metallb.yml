@@ -142,6 +142,7 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         disableMP: true
+        interface: ens18
 # - name: Create Default IPv6 BGPPeer Config
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
