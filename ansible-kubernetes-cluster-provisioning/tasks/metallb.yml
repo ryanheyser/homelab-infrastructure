@@ -141,7 +141,7 @@
         peerASN: 65000
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
-        disableMP: true
+        dualStackAddressFamily: false
         interface: ens18
 # - name: Create Default IPv6 BGPPeer Config
 #   when: kubeconfig.stat.exists
