@@ -6,7 +6,7 @@
 - name: Unencrypt Docker Secrets
   delegate_to: localhost
   ansible.builtin.set_fact:
-      docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
+    docker: "{{ lookup('file', playbook_dir + '/secrets/docker.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml }}"
   when: dockersecretsfile.stat.exists
   failed_when: not dockersecretsfile.stat.exists
 - name: Disable Service | ufw
@@ -67,32 +67,28 @@
           enabled: true
 - name: Disable Role Etcd
   when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
+    inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('etcd')
   ansible.builtin.lineinfile:
     path: /etc/rancher/rke2/config.yaml.d/etcd.yaml
     line: 'disable-etcd: true'
     create: true
 - name: Disable Role ApiServer
   when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+    inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
     path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-apiserver: true'
     create: true
 - name: Disable Role Controller Manager
   when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+    inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
     path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-controller-manager: true'
     create: true
 - name: Disable Role Scheduler
   when: >-
-    inventory_hostname in groups['controlnodes'] and
-    hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
+    inventory_hostname in groups['controlnodes'] and hostvars[inventory_hostname]['rke2_disable_server_roles'] is contains('control-plane')
   ansible.builtin.lineinfile:
     path: /etc/rancher/rke2/config.yaml.d/controlplane.yaml
     line: 'disable-scheduler: true'
@@ -121,11 +117,36 @@
     rke2_ha_mode: true
     rke2_interface: ens18
     rke2_api_ip: "10.0.1.10"
-    rke2_ha_mode_keepalived: true
+    rke2_api_cidr: 18
+    rke2_ha_mode_keepalived: false
+    rke2_ha_mode_kubevip: true
+    rke2_ha_mode_kubevip_interface: ens18
+    rke2_kubevip_svc_enable: false
+    rke2_kubevip_ipvs_lb_enable: true
+    rke2_kubevip_args:
+    - param: cp_enable
+      value: true
+    - param: address
+      value: kubernetes.homelab.heyser.xyz
+    - param: vip_leaderelection
+      value: false
+    - param: svc_election
+      value: false
+    - param: bgp_enable
+      value: true
+    - param: bgp_as
+      value: 65002
+    - param: bgp_peeras
+      value: 65000
+    - param: bgp_multihop
+      value: true
+    - param: bgp_peeraddress
+      value: 10.0.0.1
+    - param: bgp_sourceif
+      value: ens18
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
-    rke2_api_cidr: 18
     rke2_additional_sans:
     - kubernetes.homelab.heyser.xyz
     - 10.0.1.11
