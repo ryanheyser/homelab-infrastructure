@@ -11,6 +11,17 @@
   ansible.builtin.file:
     path: "/etc/apt/sources.list.d/ansible-ubuntu-ansible-noble.sources"
     state: absent
+- name: Cleanup | Remove old helm repo configuration if exists
+  become: true
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.list
+  register: old_helm_repo
+- name: Cleanup | Remove old helm repo configuration
+  become: true
+  ansible.builtin.file:
+    path: "{{ old_helm_repo.stat.path }}"
+    state: absent
+  when: old_helm_repo.stat.exists
 - name: Setup | Apt Update/Upgrade
   ansible.builtin.apt:
     update_cache: "yes"
@@ -74,17 +85,6 @@
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
     state: present
-- name: Setup | Remove old helm repo configuration if exists
-  become: true
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.list
-  register: old_helm_repo
-- name: Setup | Remove old helm repo configuration
-  become: true
-  ansible.builtin.file:
-    path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.list
-    state: absent
-  when: old_helm_repo.stat.exists
 - name: Setup | Get Helm GPG
   ansible.builtin.shell: |
     curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey

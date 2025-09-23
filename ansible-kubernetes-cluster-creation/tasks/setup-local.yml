@@ -1,9 +1,9 @@
-- name: Setup | Remove old helm repo configuration if exists
+- name: Cleanup | Remove old helm repo configuration if exists
   become: true
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.list
   register: old_helm_repo
-- name: Setup | Remove old helm repo configuration
+- name: Cleanup | Remove old helm repo configuration
   become: true
   ansible.builtin.file:
     path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.list
