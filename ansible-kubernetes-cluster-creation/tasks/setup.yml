@@ -75,9 +75,8 @@
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
     state: present
 - name: Setup | Get Helm GPG
-  ansible.builtin.uri:
-    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
-    return_content: true
+  ansible.builtin.shell: |
+    curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
   register: helmgpg
 - name: Setup | Check to see if helm gpg exists
   ansible.builtin.stat:
