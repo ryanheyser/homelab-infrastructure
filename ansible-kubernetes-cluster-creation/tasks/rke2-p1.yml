@@ -126,30 +126,20 @@
     rke2_kubevip_service_election_enable: false
     rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.0
     rke2_kubevip_args:
-    - param: cp_enable
-      value: true
-    - param: address
-      value: kubernetes.homelab.heyser.xyz
-    - param: vip_leaderelection
-      value: false
-    - param: svc_election
-      value: false
-    - param: lb_enable
-      value: true
     - param: bgp_enable
-      value: true
+      value: "true"
     - param: bgp_routerid
       value: "{{ ansible_host }}"
     - param: bgp_as
-      value: 65002
+      value: "65002"
     - param: bgp_peeras
-      value: 65000
+      value: "65000"
     - param: bgp_multihop
-      value: true
+      value: "true"
     - param: bgp_peeraddress
       value: "10.0.0.1"
     - param: bgp_sourceif
-      value: ens18
+      value: "ens18"
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
