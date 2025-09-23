@@ -52,32 +52,32 @@
           requests:
             cpu: 1000m
         tolerations:
-          - key: "node-role.kubernetes.io/control-plane"
-            operator: "Exists"
-          - key: "node-role.kubernetes.io/master"
-            operator: "Exists"
-          - key: "node-role.kubernetes.io/etcd"
-            operator: "Exists"
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+        - key: "node-role.kubernetes.io/etcd"
+          operator: "Exists"
       speaker:
         livenessProbe:
           enabled: true
         readinessProbe:
           enabled: true
         tolerations:
-          - key: "node-role.kubernetes.io/control-plane"
-            operator: "Exists"
-          - key: "node-role.kubernetes.io/master"
-            operator: "Exists"
-          - key: "node-role.kubernetes.io/etcd"
-            operator: "Exists"
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+        - key: "node-role.kubernetes.io/etcd"
+          operator: "Exists"
 - name: Wait for metallb controller to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
     kind: Deployment
     namespace: network-system
     label_selectors:
-      - app.kubernetes.io/name = metallb
-      - app.kubernetes.io/component = controller
+    - app.kubernetes.io/name = metallb
+    - app.kubernetes.io/component = controller
     wait: true
     wait_condition:
       type: "Available"
@@ -104,7 +104,7 @@
         namespace: network-system
       spec:
         addresses:
-          - 10.0.101.0/24
+        - 10.0.101.0/24
 - name: Create System IPAddressPool Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -121,7 +121,7 @@
         namespace: network-system
       spec:
         addresses:
-          - 10.0.100.0/24
+        - 10.0.100.0/24
 - name: Create Default IPv4 BGPPeer Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -142,7 +142,6 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         dualStackAddressFamily: false
-        interface: ens18
 # - name: Create Default IPv6 BGPPeer Config
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
@@ -224,14 +223,14 @@
           app.kubernetes.io/name: rke2-coredns
           k8s-app: kube-dns
         ports:
-          - name: udp-53
-            port: 53
-            protocol: UDP
-            targetPort: 53
-          - name: tcp-53
-            port: 53
-            protocol: TCP
-            targetPort: 53
+        - name: udp-53
+          port: 53
+          protocol: UDP
+          targetPort: 53
+        - name: tcp-53
+          port: 53
+          protocol: TCP
+          targetPort: 53
         externalTrafficPolicy: Cluster
         loadBalancerIP: 10.0.100.2
         type: LoadBalancer
