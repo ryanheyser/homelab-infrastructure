@@ -60,19 +60,6 @@
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
   loop: "{{ controlplane | list | flatten(1) }}"
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
-- name: Add master taint to controlplane nodes
-  run_once: true
-  delegate_to: localhost
-  kubernetes.core.k8s_taint:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: present
-    name: "{{ item }}"
-    taints:
-    - effect: NoSchedule
-      key: node-role.kubernetes.io/master
-  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
-  loop: "{{ controlplane | list | flatten(1) }}"
-  # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
   run_once: true
   delegate_to: localhost
@@ -97,6 +84,7 @@
       metadata:
         labels:
           node-role.kubernetes.io/control-plane: "true"
+          node-role.kubernetes.io/master: "true"
           topology.kubernetes.io/region: "us-east-1"
           topology.kubernetes.io/zone: "us-east-1a"
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
