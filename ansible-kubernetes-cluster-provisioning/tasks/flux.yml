@@ -13,7 +13,7 @@
   register: flux_precheck_out
   changed_when: true
   failed_when:
-    - flux_precheck_out.rc != 0
+  - flux_precheck_out.rc != 0
 - name: Check github secrets encrypted file
   ansible.builtin.stat:
     path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
@@ -34,10 +34,10 @@
       --branch=main \
       --private=false \
       --network-policy=false \
-      --token-auth=false \
+      --token-auth=true \
       --reconcile \
       --force
   register: flux_bootstrap_out
   changed_when: true
   failed_when:
-    - flux_bootstrap_out.rc != 0
+  - flux_bootstrap_out.rc != 0
