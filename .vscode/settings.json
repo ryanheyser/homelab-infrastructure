@@ -1,5 +1,8 @@
 {
     "yaml.schemas": {
         "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/rumblpak/git/github.com/ryanheyser/homelab-infrastructure/ansible-kubernetes-cluster-provisioning/tasks/traefik.yml"
-    }
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": [],
+    "ansible.python.interpreterPath": "/bin/python"
 }

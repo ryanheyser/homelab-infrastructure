@@ -249,6 +249,19 @@
       when: inventory_hostname in groups["controlnodes"]
       changed_when: true
 
+# upgrades
+- name: Setup | Apt Update/Upgrade
+  hosts: all
+  tasks:
+    - name: Setup | Apt Update/Upgrade
+      ansible.builtin.apt:
+        update_cache: "yes"
+        upgrade: "yes"
+        autoclean: "yes"
+        autoremove: "yes"
+        state: "latest"
+      changed_when: true
+
 # reboot
 - name: Reboot
   hosts: kubernetes
