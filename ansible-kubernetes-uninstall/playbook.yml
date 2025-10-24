@@ -251,7 +251,8 @@
 
 # upgrades
 - name: Setup | Apt Update/Upgrade
-  hosts: all
+  hosts: kubernetes
+  gather_facts: false
   tasks:
     - name: Setup | Ensure dpkg is configured
       become: true
