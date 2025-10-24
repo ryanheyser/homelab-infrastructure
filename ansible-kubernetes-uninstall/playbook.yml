@@ -253,6 +253,10 @@
 - name: Setup | Apt Update/Upgrade
   hosts: all
   tasks:
+    - name: Setup | Ensure dpkg is configured
+      become: true
+      ansible.builtin.command: dpkg --configure -a
+      changed_when: true
     - name: Setup | Apt Update/Upgrade
       ansible.builtin.apt:
         update_cache: "yes"
@@ -260,6 +264,7 @@
         autoclean: "yes"
         autoremove: "yes"
         state: "latest"
+      become: true
       changed_when: true
 
 # reboot
