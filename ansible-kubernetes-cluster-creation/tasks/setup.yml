@@ -21,6 +21,11 @@
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/packages_buildkite_com_helm_linux_helm_debian_any.list
   register: old_helm_repo2
+- name: Cleanup | Remove proxmox-truenas repo configuration if exists
+  become: true
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/proxmox-truenas.list
+  register: proxmox_truenas_repo
 - name: Cleanup | Remove old helm repo configuration
   become: true
   ansible.builtin.file:
@@ -33,6 +38,12 @@
     path: "{{ old_helm_repo2.stat.path }}"
     state: absent
   when: old_helm_repo2.stat.exists
+- name: Cleanup | Remove proxmox-truenas repo configuration
+  become: true
+  ansible.builtin.file:
+    path: "{{ proxmox_truenas_repo.stat.path }}"
+    state: absent
+  when: proxmox_truenas_repo.stat.exists
 - name: Setup | Apt Update/Upgrade
   ansible.builtin.apt:
     update_cache: "yes"
