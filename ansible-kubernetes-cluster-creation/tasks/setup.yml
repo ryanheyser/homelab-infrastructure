@@ -19,7 +19,7 @@
 - name: Cleanup | Remove old helm repo configuration if exists
   become: true
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/baltocdn_com_helm_stable_debian.listpackages_buildkite_com_helm_linux_helm_debian_any.list
+    path: /etc/apt/sources.list.d/packages_buildkite_com_helm_linux_helm_debian_any.list
   register: old_helm_repo2
 - name: Cleanup | Remove old helm repo configuration
   become: true
