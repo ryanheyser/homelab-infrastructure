@@ -47,12 +47,12 @@
         # server: "storage.homelab.heyser.xyz"
         path: "/mnt/kracko"
         mountOptions:
-          - "vers=4"
-          - "minorversion=1"
-          - "local_lock=posix"
-          - "proto=tcp"
-          - "noresvport"
-          - "ac"
+        - "vers=4"
+        - "minorversion=1"
+        - "local_lock=posix"
+        - "proto=tcp"
+        - "noresvport"
+        - "ac"
       storageClass:
         defaultClass: true
         name: "nfs-dynamic"
@@ -64,25 +64,25 @@
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: PreferNoSchedule
-        - key: node-role.kubernetes.io/etcd
-          operator: Exists
-          effect: PreferNoSchedule
-        - key: node-role.kubernetes.io/master
-          operator: Exists
-          effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/etcd
+        operator: Exists
+        effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - nfs-subdir-external-provisioner
-              topologyKey: "kubernetes.io/hostname"
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nfs-subdir-external-provisioner
+            topologyKey: "kubernetes.io/hostname"
 - name: Deploy nfs-subdir-external-provisioner chart for statefulsets
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
@@ -105,12 +105,12 @@
         # server: "storage.homelab.heyser.xyz"
         path: "/mnt/kracko"
         mountOptions:
-          - "vers=4"
-          - "minorversion=1"
-          - "local_lock=posix"
-          - "proto=tcp"
-          - "noresvport"
-          - "ac"
+        - "vers=4"
+        - "minorversion=1"
+        - "local_lock=posix"
+        - "proto=tcp"
+        - "noresvport"
+        - "ac"
       storageClass:
         defaultClass: false
         name: "nfs-dynamic-ss"
@@ -122,32 +122,32 @@
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: PreferNoSchedule
-        - key: node-role.kubernetes.io/etcd
-          operator: Exists
-          effect: PreferNoSchedule
-        - key: node-role.kubernetes.io/master
-          operator: Exists
-          effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/etcd
+        operator: Exists
+        effect: PreferNoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - nfs-subdir-external-provisioner-ss
-              topologyKey: "kubernetes.io/hostname"
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nfs-subdir-external-provisioner-ss
+            topologyKey: "kubernetes.io/hostname"
 - name: Wait for nfs-subdir-external-provisioner to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
     kind: Deployment
     namespace: storage-system
     label_selectors:
-      - app = nfs-subdir-external-provisioner
+    - app = nfs-subdir-external-provisioner
     wait: true
     wait_condition:
       type: "Available"
@@ -164,7 +164,7 @@
     kind: Deployment
     namespace: storage-system
     label_selectors:
-      - app = nfs-subdir-external-provisioner-ss
+    - app = nfs-subdir-external-provisioner-ss
     wait: true
     wait_condition:
       type: "Available"
@@ -175,3 +175,20 @@
   # until: nfsstatus.resources[0].status.readyReplicas | int > 0
   # retries: 20
   # delay: 15
+- name: Deploy cloudnative-pg chart
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: cloudnative-pg
+    release_namespace: storage-system
+    # renovate: registryUrl=https://cloudnative-pg.github.io/charts
+    chart_ref: cloudnative-pg
+    chart_version: 0.26.1
+    chart_repo_url: https://cloudnative-pg.github.io/charts
+    values:
+      replicaCount: 3
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 1
