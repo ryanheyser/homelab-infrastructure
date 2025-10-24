@@ -95,7 +95,7 @@
     # wait: true
     force: true
     values_files:
-      - "{{ playbook_dir }}/helm_values/vault/values.yaml"
+    - "{{ playbook_dir }}/helm_values/vault/values.yaml"
 # - name: Deploy csi-secrets-store chart
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.helm:
@@ -118,8 +118,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-      - app.kubernetes.io/name = vault
-      - apps.kubernetes.io/pod-index = "0"
+    - app.kubernetes.io/name = vault
+    - apps.kubernetes.io/pod-index = "0"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -130,8 +130,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-      - app.kubernetes.io/name = vault
-      - apps.kubernetes.io/pod-index = "1"
+    - app.kubernetes.io/name = vault
+    - apps.kubernetes.io/pod-index = "1"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -142,8 +142,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-      - app.kubernetes.io/name = vault
-      - apps.kubernetes.io/pod-index = "2"
+    - app.kubernetes.io/name = vault
+    - apps.kubernetes.io/pod-index = "2"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -154,8 +154,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-      - app.kubernetes.io/name = vault
-      - apps.kubernetes.io/pod-index = "3"
+    - app.kubernetes.io/name = vault
+    - apps.kubernetes.io/pod-index = "3"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -166,8 +166,8 @@
     kind: Pod
     namespace: vault-system
     label_selectors:
-      - app.kubernetes.io/name = vault
-      - apps.kubernetes.io/pod-index = "4"
+    - app.kubernetes.io/name = vault
+    - apps.kubernetes.io/pod-index = "4"
     wait: true
     wait_condition:
       type: "PodScheduled"
@@ -186,8 +186,7 @@
   register: vault_operator_init
   ignore_unreachable: true
   when: >-
-    (not vault_operator_init_file.stat.exists) and
-    kubeconfig.stat.exists
+    (not vault_operator_init_file.stat.exists) and kubeconfig.stat.exists
 - name: Pause for Vault Stability
   ansible.builtin.pause:
     seconds: 30
@@ -202,8 +201,7 @@
     owner: "{{ username }}"
     group: "{{ username }}"
   when: >-
-    vault_operator_init is defined and
-    (not vault_operator_init is skipped)
+    vault_operator_init is defined and (not vault_operator_init is skipped)
   register: vault_operator_init_config
 - name: Write Vault Configuration to Encrypted File
   become: false
@@ -212,12 +210,11 @@
     path: "{{ playbook_dir }}/secrets/vault-operator-init-secret.key.enc"
     age: "{{ age_public_key.stdout }}"
   when: >-
-    vault_operator_init_config is defined and
-    (not vault_operator_init_config is skipped)
+    vault_operator_init_config is defined and (not vault_operator_init_config is skipped)
 - name: Read Vault Configuration from File
   become: true
   ansible.builtin.set_fact:
-    vault_operator_init: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-init-secret.key') }}"
+    vault_operator_init: "{{ lookup('file', playbook_dir + '/secrets/vault-operator-init-secret.key') | from_json }}"
 - name: Check Vault Status
   when: kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
@@ -264,9 +261,7 @@
     msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
 - name: Unseal Vault 1 - vault-0
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -274,9 +269,7 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2 - vault-0
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -302,9 +295,7 @@
   when: (vault_status_after_unseal.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-1
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -312,9 +303,7 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2 - vault-1
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -340,9 +329,7 @@
   when: (vault_status_after_unseal_1.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-2
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -350,9 +337,7 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2 - vault-2
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -378,9 +363,7 @@
   when: (vault_status_after_unseal_2.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-3
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -388,9 +371,7 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2 - vault-3
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -416,9 +397,7 @@
   when: (vault_status_after_unseal_3.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-4
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -426,9 +405,7 @@
     command: "vault operator unseal -format=json {{ unseal_keys_b64_0.stdout }}"
 - name: Unseal Vault 2 - vault-4
   when: >-
-    vault_status.stdout is defined and
-    (vault_status.stdout | from_json).sealed and
-    kubeconfig.stat.exists
+    vault_status.stdout is defined and (vault_status.stdout | from_json).sealed and kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
@@ -459,9 +436,7 @@
     pod: vault-0
     command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
-    vault_operator_init is defined and
-    vault_operator_init.root_token != "" and
-    kubeconfig.stat.exists
+    vault_operator_init is defined and vault_operator_init.root_token != "" and kubeconfig.stat.exists
   register: vault_login_0
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Fail if Vault Login Fails - vault-0
@@ -475,9 +450,7 @@
     pod: vault-1
     command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
-    vault_operator_init is defined and
-    vault_operator_init.root_token != "" and
-    kubeconfig.stat.exists
+    vault_operator_init is defined and vault_operator_init.root_token != "" and kubeconfig.stat.exists
   register: vault_login_1
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Fail if Vault Login Fails - vault-1
@@ -491,9 +464,7 @@
     pod: vault-2
     command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
-    vault_operator_init is defined and
-    vault_operator_init.root_token != "" and
-    kubeconfig.stat.exists
+    vault_operator_init is defined and vault_operator_init.root_token != "" and kubeconfig.stat.exists
   register: vault_login_2
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Fail if Vault Login Fails - vault-2
@@ -507,9 +478,7 @@
     pod: vault-3
     command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
-    vault_operator_init is defined and
-    vault_operator_init.root_token != "" and
-    kubeconfig.stat.exists
+    vault_operator_init is defined and vault_operator_init.root_token != "" and kubeconfig.stat.exists
   register: vault_login_3
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Fail if Vault Login Fails - vault-3
@@ -523,9 +492,7 @@
     pod: vault-4
     command: sh -c "vault login -format=json - < <(echo {{ vault_operator_init.root_token | quote }})"
   when: >-
-    vault_operator_init is defined and
-    vault_operator_init.root_token != "" and
-    kubeconfig.stat.exists
+    vault_operator_init is defined and vault_operator_init.root_token != "" and kubeconfig.stat.exists
   register: vault_login_4
   # failed_when: (vault_login.stdout | from_json).auth.client_token == ""
 - name: Fail if Vault Login Fails - vault-4
@@ -546,8 +513,7 @@
       data:
         token: "{{ vault_operator_init.root_token | b64encode }}"
   when: >-
-    kubeconfig.stat.exists and
-    vault_operator_init is defined
+    kubeconfig.stat.exists and vault_operator_init is defined
   changed_when: true
   # failed_when: >-
   #   {{vault_operator_init.root_token | b64encode}} == ""
@@ -566,8 +532,7 @@
         shard0: "{{ unseal_keys_b64_0.stdout | b64encode }}"
         shard1: "{{ unseal_keys_b64_1.stdout | b64encode }}"
   when: >-
-    kubeconfig.stat.exists and
-    vault_operator_init is defined
+    kubeconfig.stat.exists and vault_operator_init is defined
   changed_when: true
   # failed_when: >-
   #   {{vault_operator_init.root_token | b64encode}} == ""
