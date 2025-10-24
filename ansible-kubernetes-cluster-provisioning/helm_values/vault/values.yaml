@@ -43,7 +43,7 @@ server:
         runAsUser: 1000
         fsGroup: 3001
         fsGroupChangePolicy: "OnRootMismatch"
-        supplementalGroups: [568,911,1000,1001]
+        supplementalGroups: [ 568, 911, 1000, 1001 ]
       container:
         allowPrivilegeEscalation: false
         runAsGroup: 3001
@@ -64,28 +64,28 @@ server:
     ingressClassName: traefik
     pathType: Prefix
     hosts:
-      - host: vault.homelab.heyser.xyz
-      - host: vault-ui.homelab.heyser.xyz
+    - host: vault.homelab.heyser.xyz
+    - host: vault-ui.homelab.heyser.xyz
     tls:
-      - secretName: vault-homelab-heyser-xyz-tls
-        hosts:
-          - vault.homelab.heyser.xyz
-          - vault-ui.homelab.heyser.xyz
+    - secretName: vault-homelab-heyser-xyz-tls
+      hosts:
+      - vault.homelab.heyser.xyz
+      - vault-ui.homelab.heyser.xyz
   tolerations:
-    - key: "node-role.kubernetes.io/control-plane"
-      operator: "Exists"
-    - key: "node-role.kubernetes.io/master"
-      operator: "Exists"
-    - key: "node-role.kubernetes.io/etcd"
-      operator: "Exists"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/etcd"
+    operator: "Exists"
   volumes:
-    - name: pgp-keys
-      configMap:
-        name: vault-pgp-key
+  - name: pgp-keys
+    configMap:
+      name: vault-pgp-key
   volumeMounts:
-    - name: pgp-keys
-      mountPath: /vault/config/pgp-keys
-      readOnly: true
+  - name: pgp-keys
+    mountPath: /vault/config/pgp-keys
+    readOnly: true
   dataStorage:
     enabled: true
     size: 40Gi
@@ -126,7 +126,6 @@ server:
         maxUnavailable: 1
       config: |
         ui = true
-        disable_mlock = true
         listener "tcp" {
           tls_disable = 1
           address = "0.0.0.0:8200"
