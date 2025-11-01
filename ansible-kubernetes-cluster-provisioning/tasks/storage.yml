@@ -66,13 +66,10 @@
       tolerations:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
-        effect: PreferNoSchedule
       - key: node-role.kubernetes.io/etcd
         operator: Exists
-        effect: PreferNoSchedule
       - key: node-role.kubernetes.io/master
         operator: Exists
-        effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -124,13 +121,10 @@
       tolerations:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
-        effect: PreferNoSchedule
       - key: node-role.kubernetes.io/etcd
         operator: Exists
-        effect: PreferNoSchedule
       - key: node-role.kubernetes.io/master
         operator: Exists
-        effect: PreferNoSchedule
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -175,6 +169,84 @@
   # until: nfsstatus.resources[0].status.readyReplicas | int > 0
   # retries: 20
   # delay: 15
+- name: Deploy csi-nfs chart
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: csi-nfs
+    release_namespace: storage-system
+    # renovate: registryUrl=https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+    chart_ref: csi-nfs
+    chart_version: 4.12.1
+    chart_repo_url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+    values:
+      controller:
+        replicas: 3
+        strategyType: RollingUpdate
+        defaultOnDeletePolicy: retain
+        tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - csi-nfs
+              topologyKey: "kubernetes.io/hostname"
+      node:
+        maxUnavailable: 1
+        tolerations:
+        - operator: Exists
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - csi-nfs
+              topologyKey: "kubernetes.io/hostname"
+      externalSnapshotter:
+        enabled: true
+        controller:
+          replicas: 2
+        customResourceDefinitions:
+          enabled: true
+      volumeSnapshotClass:
+        create: true
+      storageClass:
+        create: true
+        name: nfs-dynamic-database
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "false"
+        parameters:
+          server: "10.0.0.8"
+          share: "/mnt/kracko/database"
+          subdir: "${pvc.metadata.name}"
+        reclaimPolicy: Retain
+        volumeBindingMode: Immediate
+        mountOptions:
+        - "vers=4"
+        - "minorversion=1"
+        - "local_lock=posix"
+        - "proto=tcp"
+        - "noresvport"
+        - "ac"
 - name: Deploy cloudnative-pg chart
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
