@@ -64,6 +64,7 @@
       maxParallelImagePulls: 3
       featureGates:
         RotateKubeletServerCertificate: true
+        ImageVolume: true
       authorization:
         mode: AlwaysAllow
       authentication:
@@ -218,6 +219,7 @@
     - "--kubelet-timeout=30s"
     - "--request-timeout=5m0s"
     - "--event-ttl=30m0s"
+    - "--feature-gates=kube:ImageVolume=true,kube:RotateKubeletServerCertificate=true"
     # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
     - "--config=/etc/kubernetes/kubelet-config.yml"
