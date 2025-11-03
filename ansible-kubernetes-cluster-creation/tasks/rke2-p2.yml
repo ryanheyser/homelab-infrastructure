@@ -18,7 +18,7 @@
   delegate_to: localhost
   run_once: true
   ansible.builtin.command: |
-    kubectl config set-cluster default --server=https://10.0.1.10:6443
+    kubectl config set-cluster default --server=https://kubernetes.homelab.heyser.xyz:6443
   environment:
     KUBECONFIG: "{{ rke2_yaml.stat.path }}"
   become: true
@@ -26,4 +26,4 @@
   changed_when: true
   when: rke2_yaml.stat.exists
   failed_when:
-    - kubectl_precheck_out.rc != 0
+  - kubectl_precheck_out.rc != 0

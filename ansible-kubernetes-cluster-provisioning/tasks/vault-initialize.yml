@@ -81,6 +81,14 @@
     command: sh -c "vault kv put -mount=secret calibreCredentials calibreUser={{ (vaultinitial | ansible.builtin.from_yaml).default_calibre_calibreUser }} calibrePassword={{ (vaultinitial | ansible.builtin.from_yaml).default_calibre_calibrePassword }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Immich Minio Credentials Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret minioCredentials minioUser={{ (vaultinitial | ansible.builtin.from_yaml).default_immich_minio_user }} minioPassword={{ (vaultinitial | ansible.builtin.from_yaml).default_immich_minio_password }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Server Secret Key Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
