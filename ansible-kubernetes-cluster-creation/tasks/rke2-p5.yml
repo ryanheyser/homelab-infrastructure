@@ -93,6 +93,7 @@
         valuesContent: |-
           priorityClassName: system-cluster-critical
           felixConfiguration:
+            defaultEndpointToHostAction: "ACCEPT"
             # featureDetectOverride: "ChecksumOffloadBroken=false"
           apiServer:
             enabled: true
@@ -106,6 +107,7 @@
           installation:
             enabled: true
             # nonPrivileged: "Enabled"
+            natOutgoing: "Disabled"
             kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
