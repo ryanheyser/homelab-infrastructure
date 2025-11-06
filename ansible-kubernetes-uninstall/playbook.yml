@@ -94,11 +94,13 @@
     #   # when: >-
     #   # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     #   register: installk3s
-    - name: Ensure that packing is fixed
+    - name: Ensure that packaging is fixed
       become: true
-      ansible.builtin.command: DEBIAN_FRONTEND=noninteractive apt --fix-broken install
+      ansible.builtin.command: apt --fix-broken install
+      environment:
+        DEBIAN_FRONTEND: noninteractive
       changed_when: true
-    - name: Ensure that packing is reset
+    - name: Ensure that packaging is reset
       become: true
       ansible.builtin.command: sudo dpkg --configure -a
       changed_when: true
