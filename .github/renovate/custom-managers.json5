@@ -31,6 +31,20 @@
     },
     {
       "customType": "regex",
+      "description": "Process image version",
+      "fileMatch": ["\\.y(a)?ml$"],
+      "ignorePaths": ["flux-system/**"],
+      "matchStringsStrategy": "recursive",
+      "matchStrings": [
+        "#(\\s+)?renovate:(\\s+)((\\S)?repository=(?<registryUrl>\\S+))( depName=(?<depName>\\S+))?",
+        "repository:(\\s+)?((?<depName>.*))",
+        "(tag|image|rke2_kubevip_image)?:(\\s+)?((?<currentValue>.*))",
+      ],
+      "datasourceTemplate": "docker",
+      //"versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    {
+      "customType": "regex",
       "description": "Process ansible playbook",
       "fileMatch": ["\\.y(a)?ml$"],
       "matchStringsStrategy": "combination",
