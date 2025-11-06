@@ -15,12 +15,12 @@
   failed_when: not dockersecretsfile.stat.exists
 - name: Format docker config
   ansible.builtin.command: |
-    echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker | from_yaml).docker_user }}","email":"{{ (docker | from_yaml).docker_email }}","auth":"{{ (docker | from_yaml).docker_token }}"}}}'
+    echo -n '{"auths":{"https://index.docker.io/v1/":{"username":"{{ (docker).docker_user }}","email":"{{ (docker).docker_email }}","auth":"{{ (docker).docker_token }}"}}}'
   register: dockercfg
   changed_when: true
   failed_when:
-    - dockercfg.rc != 0
-    - dockercfg.stdout == ""
+  - dockercfg.rc != 0
+  - dockercfg.stdout == ""
 - name: Create Secret | docker-registry-credentials
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:

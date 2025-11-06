@@ -25,7 +25,7 @@
   failed_when: not githubsecretsfile.stat.exists
 - name: Flux bootstrap
   environment:
-    GITHUB_TOKEN: "{{ (github | from_yaml).GITHUB_TOKEN }}"
+    GITHUB_TOKEN: "{{ (github).GITHUB_TOKEN }}"
     KUBECONFIG: "{{ kubeconfig.stat.path }}"
   ansible.builtin.command: |
     flux bootstrap github \
