@@ -61,7 +61,7 @@
       address: 0.0.0.0
       readOnlyPort: 10255
       serializeImagePulls: false
-      maxParallelImagePulls: 3
+      maxParallelImagePulls: 5
       featureGates:
         RotateKubeletServerCertificate: true
         ImageVolume: true
