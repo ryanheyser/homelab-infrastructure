@@ -96,7 +96,7 @@
     #   register: installk3s
     - name: Ensure that packing is fixed
       become: true
-      ansible.builtin.command: DEBIAN_FRONTEND=noninteractive sudo apt --fix-broken install
+      ansible.builtin.command: DEBIAN_FRONTEND=noninteractive apt --fix-broken install
       changed_when: true
     - name: Ensure that packing is reset
       become: true
