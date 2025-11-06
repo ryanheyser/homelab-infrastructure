@@ -94,6 +94,14 @@
     #   # when: >-
     #   # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
     #   register: installk3s
+    - name: Setup | Apt Cleanup
+      ansible.builtin.apt:
+        update_cache: "yes"
+        autoclean: "yes"
+        autoremove: "yes"
+        state: "latest"
+      become: true
+      changed_when: true
     - name: Ensure that packaging is fixed
       become: true
       ansible.builtin.command: apt --fix-broken install
