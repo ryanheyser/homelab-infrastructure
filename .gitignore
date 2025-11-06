@@ -25,3 +25,4 @@ kubernetes-crd-rbac.yml
 kubernetes-crd-resource.yml
 rke2.yaml
 vault-initial-secrets.yaml
+.ansible/.lock
