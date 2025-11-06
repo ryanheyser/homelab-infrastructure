@@ -93,7 +93,7 @@
         valuesContent: |-
           priorityClassName: system-cluster-critical
           felixConfiguration:
-            # defaultEndpointToHostAction: "ACCEPT"
+            defaultEndpointToHostAction: "ACCEPT"
             # featureDetectOverride: "ChecksumOffloadBroken=false"
           apiServer:
             enabled: true
