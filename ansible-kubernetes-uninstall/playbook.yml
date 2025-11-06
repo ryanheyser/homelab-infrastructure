@@ -1,6 +1,7 @@
 ---
 - name: Ping Hosts
   hosts: all
+  any_errors_fatal: true
   tasks:
     - name: Ping all hosts
       delegate_to: localhost
@@ -16,6 +17,7 @@
 # k3s
 - name: K3s | uninstall kubernetes
   hosts: kubernetes
+  any_errors_fatal: true
   tasks:
     - name: Check docker secrets encrypted file
       delegate_to: localhost
@@ -270,6 +272,7 @@
 # upgrades
 - name: Setup | Apt Update/Upgrade
   hosts: kubernetes
+  any_errors_fatal: true
   gather_facts: false
   tasks:
     - name: Setup | Ensure dpkg is configured
@@ -289,6 +292,7 @@
 # reboot
 - name: Reboot
   hosts: kubernetes
+  any_errors_fatal: true
   gather_facts: false
   # serial: 1
   tasks:
