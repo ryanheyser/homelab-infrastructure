@@ -295,6 +295,13 @@
   any_errors_fatal: true
   gather_facts: false
   tasks:
+    - name: Ensure python3-psycopg2 is installed
+      delegate_to: localhost
+      delegate_facts: true
+      ansible.builtin.package:
+        name: python3-psycopg2
+        state: present
+
     - name: Get External Datastore Postgres Secrets
       delegate_to: localhost
       delegate_facts: true
