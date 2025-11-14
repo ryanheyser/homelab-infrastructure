@@ -289,6 +289,34 @@
       become: true
       changed_when: true
 
+# database Cleanup
+- name: Database Cleanup
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: false
+  tasks:
+    - name: Get External Datastore Postgres Secrets
+      delegate_to: localhost
+      delegate_facts: true
+      changed_when: true
+      ansible.builtin.set_fact:
+        rke2_etcd_external_postgres_address: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_ADDRESS }}"
+        rke2_etcd_external_postgres_port: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_PORT }}"
+        rke2_etcd_external_postgres_database: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_DATABASE }}"
+        rke2_etcd_external_postgres_username: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_USERNAME }}"
+        rke2_etcd_external_postgres_password: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_PASSWORD }}"
+    - name: Drop rke2 database
+      delegate_to: localhost
+      delegate_facts: true
+      ansible.builtin.postgresql_db:
+        state: absent
+        name: "{{ rke2_etcd_external_postgres_database }}"
+        login_user: {{ rke2_etcd_external_postgres_username }}
+        login_password: {{ rke2_etcd_external_postgres_password }}
+        login_host: {{ rke2_etcd_external_postgres_address }}
+        login_port: {{ rke2_etcd_external_postgres_port }}
+      changed_when: true
+
 # reboot
 - name: Reboot
   hosts: kubernetes
