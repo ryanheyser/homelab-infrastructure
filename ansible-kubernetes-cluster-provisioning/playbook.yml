@@ -1,6 +1,7 @@
 ---
 - name: Ping Hosts
   hosts: all
+  any_errors_fatal: true
   tags:
     - ping
   tasks:
@@ -18,6 +19,7 @@
 # Load Variables
 - name: Load Variables
   hosts: all
+  any_errors_fatal: true
   tags:
     - vars
   vars:
@@ -35,6 +37,7 @@
 # Age/Sops
 - name: Age/Sops
   hosts: localhost
+  any_errors_fatal: true
   tags:
     - setup
     - kubernetes
@@ -59,6 +62,7 @@
 # CNI
 - name: Configure CNI
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -73,6 +77,7 @@
 # Reflector
 - name: Reflector
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -87,6 +92,7 @@
 # Docker Registry Credentials
 - name: Create docker hub registry credential
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -101,6 +107,7 @@
 # Metallb
 - name: Metallb Install
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -115,6 +122,7 @@
 # Traefik
 - name: Traefik
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tags:
@@ -250,6 +258,7 @@
 # Storage
 - name: Install Storage Provisioner
   hosts: localhost
+  any_errors_fatal: true
   strategy: linear
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
@@ -265,6 +274,7 @@
 # Vault
 - name: Install Vault
   hosts: localhost
+  any_errors_fatal: true
   strategy: linear
   tags:
     - setup
@@ -280,6 +290,7 @@
 # Initialize Vault
 - name: Initialize Vault
   hosts: localhost
+  any_errors_fatal: true
   strategy: linear
   tags:
     - setup
@@ -296,6 +307,7 @@
 # External Secrets
 - name: Install External Secrets
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     # kubeconfig: "{{ home }}/.kube/config"
@@ -311,6 +323,7 @@
 # Cert-Manager
 - name: Install Cert-Manager
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     # kubeconfig: "{{ home }}/.kube/config"
@@ -326,6 +339,7 @@
 # Flux
 - name: Bootstrap Flux
   hosts: localhost
+  any_errors_fatal: true
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     # kubeconfig: "{{ home }}/.kube/config"
