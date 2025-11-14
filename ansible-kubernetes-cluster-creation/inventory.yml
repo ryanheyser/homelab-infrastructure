@@ -39,22 +39,22 @@ controlnodes:
       rke2_type: server
       rke2_disable_server_roles: [ etcd ]
       rke2_enable_external_datastore: [ postgres ]
-    minny:
-      ansible_host: 10.0.1.14
-      ansible_fqdn: minny.homelab.heyser.xyz
-      ansible_hostname: minny
-      k3s_control_node: true
-      rke2_type: server
-      rke2_disable_server_roles: [ control-plane, etcd ]
-      rke2_enable_external_datastore: [ postgres ]
-    mirra:
-      ansible_host: 10.0.1.15
-      ansible_fqdn: mirra.homelab.heyser.xyz
-      ansible_hostname: mirra
-      k3s_control_node: true
-      rke2_type: server
-      rke2_disable_server_roles: [ control-plane, etcd ]
-      rke2_enable_external_datastore: [ postgres ]
+    # minny:
+    #   ansible_host: 10.0.1.14
+    #   ansible_fqdn: minny.homelab.heyser.xyz
+    #   ansible_hostname: minny
+    #   k3s_control_node: true
+    #   rke2_type: server
+    #   rke2_disable_server_roles: [ control-plane, etcd ]
+    #   rke2_enable_external_datastore: [ postgres ]
+    # mirra:
+    #   ansible_host: 10.0.1.15
+    #   ansible_fqdn: mirra.homelab.heyser.xyz
+    #   ansible_hostname: mirra
+    #   k3s_control_node: true
+    #   rke2_type: server
+    #   rke2_disable_server_roles: [ control-plane, etcd ]
+    #   rke2_enable_external_datastore: [ postgres ]
 workernodes:
   vars:
     ansible_user: ansible
