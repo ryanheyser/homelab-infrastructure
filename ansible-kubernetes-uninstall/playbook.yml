@@ -294,6 +294,8 @@
   hosts: localhost
   any_errors_fatal: true
   gather_facts: false
+  vars:
+    home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
   tasks:
     - name: Ensure python3-psycopg2 is installed
       ansible.builtin.package:
