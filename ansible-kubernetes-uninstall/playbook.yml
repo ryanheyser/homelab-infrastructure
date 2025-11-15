@@ -291,37 +291,45 @@
 
 # database Cleanup
 - name: Database Cleanup
-  hosts: all
+  hosts: localhost
   any_errors_fatal: true
   gather_facts: false
   tasks:
     - name: Ensure python3-psycopg2 is installed
-      delegate_to: localhost
-      delegate_facts: true
       ansible.builtin.package:
         name: python3-psycopg2
         state: present
-
+    - name: Stat age.key
+      ansible.builtin.stat:
+        path: "{{ home }}/.config/sops/age/keys.txt"
+      register: age_key_file
+    - name: Fail if Age Keyfile does not exist
+      ansible.builtin.fail:
+        message: "{{ home }}/.config/sops/age/keys.txt does not exist"
+      when: not age_key_file.stat.exists
+    - name: Get Age Public Key
+      ansible.builtin.command: |
+        grep -Po '(?<=public key: ).*' {{ home }}/.config/sops/age/keys.txt
+      register: age_public_key
+      when: age_key_file.stat.exists
+      changed_when: true
+    - name: Debug Age Public Key
+      ansible.builtin.debug:
+        msg: "age public key: \"{{ age_public_key.stdout }}\""
     - name: Get External Datastore Postgres Secrets
-      delegate_to: localhost
-      delegate_facts: true
       changed_when: true
       ansible.builtin.set_fact:
         rke2_etcd_external_postgres_address: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_ADDRESS }}"
         rke2_etcd_external_postgres_port: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_PORT }}"
         rke2_etcd_external_postgres_database: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_DATABASE }}"
-        rke2_etcd_external_postgres_username: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_USERNAME }}"
-        rke2_etcd_external_postgres_password: "{{ (lookup('file', playbook_dir + '/secrets/rke2.sops.yaml.enc') | community.sops.decrypt | ansible.builtin.from_yaml).RKE2_ETCD_EXTERNAL_POSTGRES_PASSWORD }}"
     - name: Drop rke2 database
-      delegate_to: localhost
-      delegate_facts: true
-      ansible.builtin.postgresql_db:
+      community.postgresql.postgresql_db:
         state: absent
         name: "{{ rke2_etcd_external_postgres_database }}"
-        login_user: {{ rke2_etcd_external_postgres_username }}
-        login_password: {{ rke2_etcd_external_postgres_password }}
-        login_host: {{ rke2_etcd_external_postgres_address }}
-        login_port: {{ rke2_etcd_external_postgres_port }}
+        login_user: "{{ rke2_etcd_external_postgres_username }}"
+        login_password: "{{ rke2_etcd_external_postgres_password }}"
+        login_host: "{{ rke2_etcd_external_postgres_address }}"
+        login_port: "{{ rke2_etcd_external_postgres_port }}"
       changed_when: true
 
 # reboot

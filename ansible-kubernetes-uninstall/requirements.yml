@@ -1,8 +1,9 @@
 roles:
-  - src: bertvv.bind
-  - src: xanmanning.k3s
+- src: bertvv.bind
+- src: xanmanning.k3s
 collections:
-  - name: community.sops
-  - name: kubernetes.core
-  - name: ansible.posix
-  - name: ansible.netcommon
+- name: community.sops
+- name: community.postgresql
+- name: kubernetes.core
+- name: ansible.posix
+- name: ansible.netcommon
