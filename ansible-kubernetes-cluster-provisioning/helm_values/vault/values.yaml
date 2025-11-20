@@ -14,7 +14,7 @@ injector:
   agentImage:
     # renovate: repository=hashicorp/vault
     repository: "hashicorp/vault"
-    tag: "1.21.0"
+    tag: "1.21.1"
   strategy:
     rollingUpdate:
       maxSurge: "25%"
@@ -31,7 +31,7 @@ server:
   image:
     # renovate: repository=hashicorp/vault
     repository: "hashicorp/vault"
-    tag: "1.21.0"
+    tag: "1.21.1"
     # Overrides the default Image Pull Policy
     pullPolicy: IfNotPresent
   updateStrategyType: "RollingUpdate"
@@ -180,5 +180,5 @@ csi:
     image:
       # renovate: repository=hashicorp/vault
       repository: "hashicorp/vault"
-      tag: "1.21.0"
+      tag: "1.21.1"
       pullPolicy: IfNotPresent
