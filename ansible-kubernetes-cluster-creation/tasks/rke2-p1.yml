@@ -133,7 +133,7 @@
 - name: Deploy | Install RKE2
   vars:
     # renovate: depName=rancher/rke2
-    rke2_version: v1.34.1+rke2r1
+    rke2_version: v1.34.2+rke2r1
     rke2_allow_downgrade: true
     rke2_ha_mode: true
     rke2_interface: ens18
