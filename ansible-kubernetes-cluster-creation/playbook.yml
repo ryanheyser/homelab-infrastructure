@@ -200,6 +200,7 @@
     - setup
     - kubernetes
     - rke2
+    - rke2-install
   vars:
     registry_hosts: |
       {% set var = [] %}
@@ -222,6 +223,7 @@
     - setup
     - kubernetes
     - rke2
+    - rke2-post-install
   tasks:
     - name: Setup | RKE2 Part 2
       ansible.builtin.include_tasks:
@@ -238,6 +240,7 @@
     - setup
     - kubernetes
     - rke2
+    - rke2-post-install
   tasks:
     - name: Setup | RKE2 Part 3
       ansible.builtin.include_tasks:
@@ -254,6 +257,7 @@
     - setup
     - kubernetes
     - rke2
+    - rke2-post-install
   tasks:
     - name: Setup | RKE2 Part 4
       ansible.builtin.include_tasks:
