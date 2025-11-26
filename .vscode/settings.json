@@ -1,6 +1,8 @@
 {
     "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/rumblpak/git/github.com/ryanheyser/homelab-infrastructure/ansible-kubernetes-cluster-provisioning/tasks/traefik.yml"
+        "kubernetes": "*.yaml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json": "file:///home/rumblpak/git/github.com/ryanheyser/homelab-infrastructure/ansible-kubernetes-cluster-provisioning/tasks/traefik.yml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///home/rumblpak/git/ryanheyser/homelab-infrastructure/ansible-kubernetes-cluster-creation/tasks/rke2-p1.yml"
     },
     "python-envs.defaultEnvManager": "ms-python.python:system",
     "python-envs.pythonProjects": [],

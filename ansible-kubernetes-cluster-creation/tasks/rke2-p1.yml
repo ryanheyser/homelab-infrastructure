@@ -149,31 +149,31 @@
     rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.1
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
     rke2_kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
-    rke2_kubevip_args:
-    - param: enable_node_labeling
-      value: "\"true\""
-    - param: bgp_enable
-      value: "\"true\""
-    - param: bgp_as
-      value: "\"65002\""
-    - param: bgp_peeras
-      value: "\"65000\""
-    - param: bgp_multihop
-      value: "\"true\""
-    - param: bgp_peeraddress
-      value: "\"10.0.0.1\""
-    - param: bgp_sourceif
-      value: "\"ens18\""
-    - param: bgp_sourceip
-      valueFrom:
-        fieldRef:
-          fieldPath: status.hostIP`
-    - param: bgp_routerid
-      valueFrom:
-        fieldRef:
-          fieldPath: status.hostIP`
-    - param: bgp_routerinterface
-      value: "\"ens18\""
+    # rke2_kubevip_args:
+    # - param: enable_node_labeling
+    #   value: "\"true\""
+    # - param: bgp_enable
+    #   value: "\"true\""
+    # - param: bgp_as
+    #   value: "\"65002\""
+    # - param: bgp_peeras
+    #   value: "\"65000\""
+    # - param: bgp_multihop
+    #   value: "\"true\""
+    # - param: bgp_peeraddress
+    #   value: "\"10.0.0.1\""
+    # - param: bgp_sourceif
+    #   value: "\"ens18\""
+    # - param: bgp_sourceip
+    #   valueFrom:
+    #     fieldRef:
+    #       fieldPath: status.hostIP`
+    # - param: bgp_routerid
+    #   valueFrom:
+    #     fieldRef:
+    #       fieldPath: status.hostIP`
+    # - param: bgp_routerinterface
+    #   value: "\"ens18\""
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
