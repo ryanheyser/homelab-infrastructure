@@ -152,6 +152,8 @@
     rke2_kubevip_args:
     - param: "\"enable_node_labeling\""
       value: "\"true\""
+    - param: "\"vip_loglevel\""
+      value: "\"-4\""
     - param: "\"bgp_enable\""
       value: "\"true\""
     - param: "\"bgp_as\""
