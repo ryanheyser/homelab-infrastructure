@@ -176,6 +176,7 @@
       value: |-
         "valueFrom:
           fieldRef:
+            apiVersion: v1
             fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
