@@ -23,6 +23,7 @@ controlnodes:
       rke2_type: server
       rke2_disable_server_roles: [ etcd ]
       rke2_enable_external_datastore: [ postgres ]
+      rke2_kubevip_bgp_routerid: 1.1.1.1
     magoo:
       ansible_host: 10.0.1.12
       ansible_fqdn: magoo.homelab.heyser.xyz
@@ -31,6 +32,7 @@ controlnodes:
       rke2_type: server
       rke2_disable_server_roles: [ etcd ]
       rke2_enable_external_datastore: [ postgres ]
+      rke2_kubevip_bgp_routerid: 1.1.1.2
     moggy:
       ansible_host: 10.0.1.13
       ansible_fqdn: moggy.homelab.heyser.xyz
@@ -39,6 +41,7 @@ controlnodes:
       rke2_type: server
       rke2_disable_server_roles: [ etcd ]
       rke2_enable_external_datastore: [ postgres ]
+      rke2_kubevip_bgp_routerid: 1.1.1.3
     # minny:
     #   ansible_host: 10.0.1.14
     #   ansible_fqdn: minny.homelab.heyser.xyz
