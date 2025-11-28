@@ -173,10 +173,10 @@
     - param: "\"bgp_routerinterface\""
       value: "\"ens18\""
     - param: "\"bgp_routerid\""
-      value:
-        valueFrom:
+      value: |-
+        "\"valueFrom:
           fieldRef:
-            fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
+            fieldPath: metadata.labels['kube-vip.io/bgp-routerid']\""
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
