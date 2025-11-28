@@ -50,6 +50,7 @@ controlnodes:
     #   rke2_type: server
     #   rke2_disable_server_roles: [ control-plane, etcd ]
     #   rke2_enable_external_datastore: [ postgres ]
+    #   rke2_kubevip_bgp_routerid: 1.1.1.4
     # mirra:
     #   ansible_host: 10.0.1.15
     #   ansible_fqdn: mirra.homelab.heyser.xyz
@@ -58,6 +59,7 @@ controlnodes:
     #   rke2_type: server
     #   rke2_disable_server_roles: [ control-plane, etcd ]
     #   rke2_enable_external_datastore: [ postgres ]
+    #   rke2_kubevip_bgp_routerid: 1.1.1.5
 workernodes:
   vars:
     ansible_user: ansible
@@ -70,56 +72,67 @@ workernodes:
       ansible_fqdn: peezer.homelab.heyser.xyz
       ansible_hostname: peezer
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.1
     peloo:
       ansible_host: 10.0.1.22
       ansible_fqdn: peloo.homelab.heyser.xyz
       ansible_hostname: peloo
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.2
     peran:
       ansible_host: 10.0.1.23
       ansible_fqdn: peran.homelab.heyser.xyz
       ansible_hostname: peran
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.3
     perara:
       ansible_host: 10.0.1.24
       ansible_fqdn: perara.homelab.heyser.xyz
       ansible_hostname: perara
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.4
     phanta:
       ansible_host: 10.0.1.25
       ansible_fqdn: phanta.homelab.heyser.xyz
       ansible_hostname: phanta
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.5
     posura:
       ansible_host: 10.0.1.26
       ansible_fqdn: posura.homelab.heyser.xyz
       ansible_hostname: posura
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.6
     pteran:
       ansible_host: 10.0.1.27
       ansible_fqdn: pteran.homelab.heyser.xyz
       ansible_hostname: pteran
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.7
     pacto:
       ansible_host: 10.0.1.28
       ansible_fqdn: pacto.homelab.heyser.xyz
       ansible_hostname: pacto
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.8
     pasara:
       ansible_host: 10.0.1.29
       ansible_fqdn: pasara.homelab.heyser.xyz
       ansible_hostname: pasara
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.9
     pengy:
       ansible_host: 10.0.1.30
       ansible_fqdn: pengy.homelab.heyser.xyz
       ansible_hostname: pengy
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.10
     perot:
       ansible_host: 10.0.1.31
       ansible_fqdn: perot.homelab.heyser.xyz
       ansible_hostname: perot
       rke2_type: agent
+      rke2_kubevip_bgp_routerid: 1.1.2.11
 kubernetes:
   vars:
     ansible_user: ansible
