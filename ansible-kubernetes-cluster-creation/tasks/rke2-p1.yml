@@ -164,10 +164,10 @@
       value: "\"10.0.0.1\""
     - param: "\"bgp_sourceif\""
       value: "\"ens18\""
-    - param: "\"bgp_sourceip\""
-      valueFrom:
-        fieldRef:
-          fieldPath: status.hostIP`
+    # - param: "\"bgp_sourceip\""
+    #   valueFrom:
+    #     fieldRef:
+    #       fieldPath: status.hostIP`
     - param: "\"bgp_routerinterface\""
       value: "\"ens18\""
     # rke2_bind_address: "{{ ansible_host }}"
