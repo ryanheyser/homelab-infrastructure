@@ -149,9 +149,9 @@
     rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.1
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
     rke2_kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
-    # rke2_kubevip_args:
-    # - param: enable_node_labeling
-    #   value: "\"true\""
+    rke2_kubevip_args:
+    - param: "\"enable_node_labeling\""
+      value: "\"true\""
     # - param: bgp_enable
     #   value: "\"true\""
     # - param: bgp_as
