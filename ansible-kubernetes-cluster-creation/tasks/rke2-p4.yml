@@ -93,6 +93,8 @@
 
 # fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
 - name: Apply strategic merge patch to DaemonSet
+  run_once: true
+  delegate_to: localhost
   kubernetes.core.k8s:
     state: patched
     definition:
