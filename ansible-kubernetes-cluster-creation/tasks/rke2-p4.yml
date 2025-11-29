@@ -67,9 +67,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     state: patched
     name: "{{ item }}"
-    api_version: v1
-    kind: Node
     definition:
+      apiVersion: v1
+      kind: Node
       metadata:
         labels:
           kube-vip.io/bgp-routerid: "{{ rke2_kubevip_bgp_routerid }}"
