@@ -116,9 +116,9 @@
                 valueFrom:
                   fieldRef:
                     fieldPath: spec.nodeName # Injects the name of the node the pod is on
-            volumeMounts:
-            - name: config
-              mountPath: /data
+              volumeMounts:
+              - name: config
+                mountPath: /data
             containers:
               - name: kube-vip
                 env:
