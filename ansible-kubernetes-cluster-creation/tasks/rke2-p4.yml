@@ -107,15 +107,28 @@
       spec:
         template:
           spec:
+            initContainers:
+            - name: get-node-label
+              image: curlimages/curl:latest # A lightweight image with curl
+              command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env"]
+              env:
+              - name: NODE_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName # Injects the name of the node the pod is on
+            volumeMounts:
+            - name: config
+              mountPath: /data
             containers:
               - name: kube-vip
                 env:
                   # Append the new environment variable
                   - name: "bgp_routerid"
                     valueFrom:
-                      fieldRef:
-                        # This gets the name of the node where the pod is running
-                        fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
+                      path: config.env
+                      volumeName: config
+                      key: bgp_routerid
+                      optional: false
     # Use strategic merge patch to append to the existing env list
     merge_type: strategic-merge
 
