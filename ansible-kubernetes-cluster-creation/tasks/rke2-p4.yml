@@ -65,7 +65,7 @@
   delegate_to: localhost
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
-    state: present
+    state: patched
     name: "{{ item }}"
     api_version: v1
     kind: Node
