@@ -90,6 +90,14 @@
           kube-vip.io/bgp-routerid: "{{ rke2_kubevip_bgp_routerid }}"
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
+- name: Restart kube-vip
+  become: true
+  run_once: true
+  delegate_to: localhost
+  ansible.builtin.shell: |
+    kubectl -n kube-system rollout restart daemonset kube-vip-ds
+  # when: not helm_gpg_file.stat.exists
+  changed_when: true
 - name: Add labels to worker nodes
   run_once: true
   delegate_to: localhost
