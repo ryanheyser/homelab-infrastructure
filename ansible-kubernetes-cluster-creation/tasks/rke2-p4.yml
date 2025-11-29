@@ -110,7 +110,7 @@
             initContainers:
             - name: get-node-label
               image: badouralix/curl-jq:latest # A lightweight image with curl
-              command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env"]
+              command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env; cat /data/config.env"]
               env:
               - name: NODE_NAME
                 valueFrom:
