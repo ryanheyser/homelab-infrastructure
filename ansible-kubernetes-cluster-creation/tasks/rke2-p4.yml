@@ -87,7 +87,7 @@
           node-role.kubernetes.io/master: "true"
           topology.kubernetes.io/region: "us-east-1"
           topology.kubernetes.io/zone: "us-east-1a"
-          kube-vip.io/bgp-routerid: "{{ rke2_kubevip_bgp_routerid }}"
+          kube-vip.io/bgp-routerid: "{{ hostvars[item]['rke2_kubevip_bgp_routerid'] }}"
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
 
