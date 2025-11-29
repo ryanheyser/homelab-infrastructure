@@ -90,6 +90,32 @@
           kube-vip.io/bgp-routerid: "{{ rke2_kubevip_bgp_routerid }}"
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
+
+# fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+- name: Apply strategic merge patch to DaemonSet
+  kubernetes.core.k8s:
+    state: patched
+    definition:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: kube-vip-da
+        namespace: kube-system
+      spec:
+        template:
+          spec:
+            containers:
+              - name: kube-vip
+                env:
+                  # Append the new environment variable
+                  - name: "{{ env_var_name }}"
+                    valueFrom:
+                      fieldRef:
+                        # This gets the name of the node where the pod is running
+                        fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+    # Use strategic merge patch to append to the existing env list
+    merge_type: strategic-merge
+
 - name: Restart kube-vip
   become: true
   run_once: true
