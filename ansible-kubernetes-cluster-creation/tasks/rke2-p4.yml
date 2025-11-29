@@ -125,10 +125,11 @@
                   # Append the new environment variable
                   - name: "bgp_routerid"
                     valueFrom:
-                      path: config.env
-                      volumeName: config
-                      key: bgp_routerid
-                      optional: false
+                      fileKeyRef:
+                        path: config.env
+                        volumeName: config
+                        key: bgp_routerid
+                        optional: false
     # Use strategic merge patch to append to the existing env list
     merge_type: strategic-merge
 
