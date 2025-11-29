@@ -108,7 +108,7 @@
               - name: kube-vip
                 env:
                   # Append the new environment variable
-                  - name: "{{ env_var_name }}"
+                  - name: "bgp_routerid"
                     valueFrom:
                       fieldRef:
                         # This gets the name of the node where the pod is running
