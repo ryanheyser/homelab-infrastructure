@@ -96,6 +96,7 @@
   run_once: true
   delegate_to: localhost
   kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
     state: patched
     definition:
       apiVersion: apps/v1
