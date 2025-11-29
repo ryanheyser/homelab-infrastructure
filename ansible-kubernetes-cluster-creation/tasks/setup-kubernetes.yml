@@ -13,5 +13,6 @@
       - bind9-utils 
       - bind9-dnsutils 
       - containernetworking-plugins
+      - python3-kubernetes
   become: true
   changed_when: true
