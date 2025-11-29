@@ -115,7 +115,7 @@
                     valueFrom:
                       fieldRef:
                         # This gets the name of the node where the pod is running
-                        fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+                        fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
     # Use strategic merge patch to append to the existing env list
     merge_type: strategic-merge
 
