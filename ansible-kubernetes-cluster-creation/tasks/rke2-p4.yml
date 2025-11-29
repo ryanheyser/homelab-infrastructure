@@ -60,6 +60,20 @@
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
   loop: "{{ controlplane | list | flatten(1) }}"
   # loop: "{{ inventory_hostname in groups.controlnodes }}"
+- name: Add controlplane labels to controlplane nodes
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    name: "{{ item }}"
+    api_version: v1
+    kind: Node
+    definition:
+      metadata:
+        labels:
+          kube-vip.io/bgp-routerid: "{{ rke2_kubevip_bgp_routerid }}"
+  loop: "{{ controlplane | list | flatten(1) }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
   run_once: true
   delegate_to: localhost
