@@ -119,6 +119,9 @@
               volumeMounts:
               - name: config
                 mountPath: /data
+            volumes:
+            - name: config
+              emptyDir: {}
             containers:
               - name: kube-vip
                 env:
