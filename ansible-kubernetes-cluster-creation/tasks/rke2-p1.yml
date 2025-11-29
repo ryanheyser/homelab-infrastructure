@@ -139,8 +139,8 @@
     rke2_interface: ens18
     rke2_api_ip: "10.0.1.10"
     rke2_api_cidr: 18
-    k8s_node_label:
-    - "kube-vip.io/bgp-routerid: {{ rke2_kubevip_bgp_routerid }}"
+    # k8s_node_label:
+    # - "kube-vip.io/bgp-routerid: {{ rke2_kubevip_bgp_routerid }}"
     rke2_ha_mode_keepalived: false
     rke2_ha_mode_kubevip: true
     rke2_ha_mode_kubevip_interface: "ens18"
