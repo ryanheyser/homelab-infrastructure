@@ -93,75 +93,75 @@
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
 
-# fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
-- name: Apply strategic merge patch to DaemonSet
-  run_once: true
-  delegate_to: localhost
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    state: patched
-    definition:
-      apiVersion: apps/v1
-      kind: DaemonSet
-      metadata:
-        name: kube-vip-ds
-        namespace: kube-system
-      spec:
-        template:
-          spec:
-            initContainers:
-            - name: get-node-label
-              image: badouralix/curl-jq:latest # A lightweight image with curl
-              command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env; cat /data/config.env"]
-              env:
-              - name: NODE_NAME
-                valueFrom:
-                  fieldRef:
-                    fieldPath: spec.nodeName # Injects the name of the node the pod is on
-              volumeMounts:
-              - name: config
-                mountPath: /data
-            volumes:
-            - name: config
-              emptyDir: {}
-            containers:
-              - name: kube-vip
-                env:
-                  # Append the new environment variable
-                  - name: "bgp_routerid"
-                    valueFrom:
-                      fileKeyRef:
-                        path: config.env
-                        volumeName: config
-                        key: bgp_routerid
-                        optional: false
-    # Use strategic merge patch to append to the existing env list
-    merge_type: strategic-merge
+# # fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+# - name: Apply strategic merge patch to DaemonSet
+#   run_once: true
+#   delegate_to: localhost
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     state: patched
+#     definition:
+#       apiVersion: apps/v1
+#       kind: DaemonSet
+#       metadata:
+#         name: kube-vip-ds
+#         namespace: kube-system
+#       spec:
+#         template:
+#           spec:
+#             initContainers:
+#             - name: get-node-label
+#               image: badouralix/curl-jq:latest # A lightweight image with curl
+#               command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env; cat /data/config.env"]
+#               env:
+#               - name: NODE_NAME
+#                 valueFrom:
+#                   fieldRef:
+#                     fieldPath: spec.nodeName # Injects the name of the node the pod is on
+#               volumeMounts:
+#               - name: config
+#                 mountPath: /data
+#             volumes:
+#             - name: config
+#               emptyDir: {}
+#             containers:
+#               - name: kube-vip
+#                 env:
+#                   # Append the new environment variable
+#                   - name: "bgp_routerid"
+#                     valueFrom:
+#                       fileKeyRef:
+#                         path: config.env
+#                         volumeName: config
+#                         key: bgp_routerid
+#                         optional: false
+#     # Use strategic merge patch to append to the existing env list
+#     merge_type: strategic-merge
 
-- name: Restart kube-vip
-  become: true
-  run_once: true
-  delegate_to: localhost
-  ansible.builtin.shell: |
-    kubectl --kubeconfig "{{ home }}/.kube/config" -n kube-system rollout restart daemonset kube-vip-ds
-  # when: not helm_gpg_file.stat.exists
-  changed_when: true
-- name: Add labels to worker nodes
-  run_once: true
-  delegate_to: localhost
-  kubernetes.core.k8s:
-    kubeconfig: "{{ home }}/.kube/config"
-    kind: Node
-    state: patched
-    name: "{{ item }}"
-    definition:
-      metadata:
-        labels:
-          topology.kubernetes.io/region: "us-east-1"
-          topology.kubernetes.io/zone: "us-east-1a"
-          metallb.io/bgp-routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
-  # loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
-  loop: "{{ groups.workernodes | list | flatten(1) }}"
+# - name: Restart kube-vip
+#   become: true
+#   run_once: true
+#   delegate_to: localhost
+#   ansible.builtin.shell: |
+#     kubectl --kubeconfig "{{ home }}/.kube/config" -n kube-system rollout restart daemonset kube-vip-ds
+#   # when: not helm_gpg_file.stat.exists
+#   changed_when: true
+# - name: Add labels to worker nodes
+#   run_once: true
+#   delegate_to: localhost
+#   kubernetes.core.k8s:
+#     kubeconfig: "{{ home }}/.kube/config"
+#     kind: Node
+#     state: patched
+#     name: "{{ item }}"
+#     definition:
+#       metadata:
+#         labels:
+#           topology.kubernetes.io/region: "us-east-1"
+#           topology.kubernetes.io/zone: "us-east-1a"
+#           metallb.io/bgp-routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
+#   # loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+#   loop: "{{ groups.workernodes | list | flatten(1) }}"
 
 # - name: Exit Early
 #   ansible.builtin.fail:
