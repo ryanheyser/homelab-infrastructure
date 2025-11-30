@@ -88,6 +88,8 @@
           topology.kubernetes.io/region: "us-east-1"
           topology.kubernetes.io/zone: "us-east-1a"
           kube-vip.io/bgp-routerid: "{{ hostvars[item]['rke2_kubevip_bgp_routerid'] }}"
+          # metallb_bgp_routerid: 1.1.2.1
+          metallb.io/bgp-routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
   # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
 
