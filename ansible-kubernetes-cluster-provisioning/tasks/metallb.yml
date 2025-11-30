@@ -144,7 +144,7 @@
         dualStackAddressFamily: false
         routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
         nodeSelectors:
-          matchExpression:
+        - matchExpression:
           - key: metallb.io/bgp-routerid
             operator: In
             values: [ "{{ hostvars[item]['metallb_bgp_routerid'] }}" ]
