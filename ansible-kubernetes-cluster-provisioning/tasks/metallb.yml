@@ -134,7 +134,7 @@
       apiVersion: metallb.io/v1beta2
       kind: BGPPeer
       metadata:
-        name: default-ipv4
+        name: default-ipv4-{{ item }}
         namespace: network-system
       spec:
         myASN: 65001
@@ -142,6 +142,8 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         dualStackAddressFamily: false
+        routerid: 
+  loop: "{{ groups.kubernetes | list | flatten(1) }}"
 # - name: Create Default IPv6 BGPPeer Config
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:
