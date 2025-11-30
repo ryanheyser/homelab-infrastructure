@@ -143,6 +143,7 @@
         ebgpMultiHop: true
         dualStackAddressFamily: false
         routerid: 1.1.1.1
+        enableGracefulRestart: true
   #       nodeSelectors:
   #       - matchExpression:
   #         - key: metallb.io/bgp-routerid
