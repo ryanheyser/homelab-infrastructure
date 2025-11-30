@@ -159,6 +159,7 @@
         labels:
           topology.kubernetes.io/region: "us-east-1"
           topology.kubernetes.io/zone: "us-east-1a"
+          metallb.io/bgp-routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
   # loop: "{{ groups.workernodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
   loop: "{{ groups.workernodes | list | flatten(1) }}"
 
