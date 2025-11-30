@@ -134,7 +134,7 @@
       apiVersion: metallb.io/v1beta2
       kind: BGPPeer
       metadata:
-        name: default-ipv4-{{ item }}
+        name: default-ipv4
         namespace: network-system
       spec:
         myASN: 65001
@@ -142,33 +142,33 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         dualStackAddressFamily: false
-        routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
-        nodeSelectors:
-        - matchExpression:
-          - key: metallb.io/bgp-routerid
-            operator: In
-            values: [ "{{ hostvars[item]['metallb_bgp_routerid'] }}" ]
-  loop: "{{ groups.kubernetes | list | flatten(1) }}"
-# - name: Create Default IPv6 BGPPeer Config
-#   when: kubeconfig.stat.exists
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     state: present
-#     # apply: true
-#     # server_side_apply:
-#     #   field_manager: ansible
-#     definition:
-#       apiVersion: metallb.io/v1beta2
-#       kind: BGPPeer
-#       metadata:
-#         name: default-ipv6
-#         namespace: network-system
-#       spec:
-#         myASN: 65001
-#         peerASN: 65000
-#         peerAddress: "fd00:11::1/64"
-#         ebgpMultiHop: true
-#         disableMP: true
+        routerid: 1.1.1.1
+  #       nodeSelectors:
+  #       - matchExpression:
+  #         - key: metallb.io/bgp-routerid
+  #           operator: In
+  #           values: [ "{{ hostvars[item]['metallb_bgp_routerid'] }}" ]
+  # loop: "{{ groups.kubernetes | list | flatten(1) }}"
+  # - name: Create Default IPv6 BGPPeer Config
+  #   when: kubeconfig.stat.exists
+  #   kubernetes.core.k8s:
+  #     kubeconfig: "{{ home }}/.kube/config"
+  #     state: present
+  #     # apply: true
+  #     # server_side_apply:
+  #     #   field_manager: ansible
+  #     definition:
+  #       apiVersion: metallb.io/v1beta2
+  #       kind: BGPPeer
+  #       metadata:
+  #         name: default-ipv6
+  #         namespace: network-system
+  #       spec:
+  #         myASN: 65001
+  #         peerASN: 65000
+  #         peerAddress: "fd00:11::1/64"
+  #         ebgpMultiHop: true
+  #         disableMP: true
 - name: Create BGP Adverstisement Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
