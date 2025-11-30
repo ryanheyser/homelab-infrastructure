@@ -142,7 +142,7 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         dualStackAddressFamily: false
-        routerid: 1.1.1.1
+        routerid: 1.1.1.2
         enableGracefulRestart: true
   #       nodeSelectors:
   #       - matchExpression:
