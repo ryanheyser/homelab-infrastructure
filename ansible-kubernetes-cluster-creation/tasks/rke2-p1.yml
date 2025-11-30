@@ -282,7 +282,7 @@
     # - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=32' ]"
     - "selinux: false"
     # - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2500m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m', 'etcd-cpu=3000m', 'etcd-mem=4096Mi' ]"
-    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2500m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m' ]"
+    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2000m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m' ]"
     # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     rke2_agent_options:
     - "node-ip: {{ ansible_host }}"
