@@ -263,3 +263,15 @@
         rollingUpdate:
           maxSurge: 1
           maxUnavailable: 1
+- name: Deploy plugin-barman-cloud chart
+  when: kubeconfig.stat.exists
+  kubernetes.core.helm:
+    kubeconfig: "{{ home }}/.kube/config"
+    name: plugin-barman-cloud
+    release_namespace: storage-system
+    # renovate: registryUrl=https://cloudnative-pg.github.io/charts
+    chart_ref: plugin-barman-cloud
+    chart_version: 0.3.1
+    chart_repo_url: https://cloudnative-pg.github.io/charts
+    values:
+      replicaCount: 1
