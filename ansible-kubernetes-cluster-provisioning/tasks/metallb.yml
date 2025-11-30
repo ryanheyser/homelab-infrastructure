@@ -142,7 +142,12 @@
         peerAddress: 10.0.0.1
         ebgpMultiHop: true
         dualStackAddressFamily: false
-        routerid: 
+        routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
+        nodeSelectors:
+          matchExpression:
+          - key: metallb.io/bgp-routerid
+            operator: In
+            values: [ "{{ hostvars[item]['metallb_bgp_routerid'] }}" ]
   loop: "{{ groups.kubernetes | list | flatten(1) }}"
 # - name: Create Default IPv6 BGPPeer Config
 #   when: kubeconfig.stat.exists
