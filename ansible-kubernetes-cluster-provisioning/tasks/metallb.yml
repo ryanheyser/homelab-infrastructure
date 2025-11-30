@@ -139,8 +139,7 @@
       spec:
         myASN: 65001
         peerASN: 65000
-        peerAddress: 10.0.0.1
-        peerPort: 8179
+        peerAddress: 10.0.0.2
         ebgpMultiHop: true
         dualStackAddressFamily: false
         routerID: 1.1.3.1
