@@ -10,7 +10,7 @@ injector:
   image:
     # renovate: repository=hashicorp/vault-k8s
     repository: "hashicorp/vault-k8s"
-    tag: "1.7.0"
+    tag: "1.7.1"
   agentImage:
     # renovate: repository=hashicorp/vault
     repository: "hashicorp/vault"
