@@ -159,7 +159,7 @@ csi:
   image:
     # renovate: repository=hashicorp/vault-csi-provider
     repository: "hashicorp/vault-csi-provider"
-    tag: "1.6.0"
+    tag: "1.7.0"
     pullPolicy: IfNotPresent
   daemonSet:
     updateStrategy:
