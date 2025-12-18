@@ -148,7 +148,7 @@
     rke2_kubevip_service_election_enable: "false"
     rke2_kubevip_ipvs_lb_enable: "false"
     # renovate: repository=ghcr.io/kube-vip/kube-vip depName=ghcr.io/kube-vip/kube-vip
-    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.2
+    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.3
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
     rke2_kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
     rke2_kubevip_args:
