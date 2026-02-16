@@ -89,6 +89,14 @@
     command: sh -c "vault kv put -mount=secret minioCredentials minioUser={{ (vaultinitial).default_immich_minio_user }} minioPassword={{ (vaultinitial).default_immich_minio_password }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Homepage Pve Token Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret homepage-pve-token pve-token={{ (vaultinitial).default_homepage_homepagePveToken }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Server Secret Key Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
