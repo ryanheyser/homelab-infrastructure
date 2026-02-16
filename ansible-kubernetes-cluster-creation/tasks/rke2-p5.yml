@@ -213,10 +213,10 @@
             - name: ready
             # Required to query kubernetes API for data
             - name: kubernetes
-              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+              parameters: cluster.local in-addr.arpa ip6.arpa homelab.heyser.xyz
               configBlock: |-
                 pods insecure
-                fallthrough in-addr.arpa ip6.arpa homelab.heyser.lan homelab.heyser.xyz
+                fallthrough in-addr.arpa ip6.arpa homelab.heyser.xyz
                 ttl 30
             - name: prometheus
               parameters: 0.0.0.0:9153
