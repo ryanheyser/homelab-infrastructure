@@ -133,7 +133,7 @@
 - name: Deploy | Install RKE2
   vars:
     # renovate: depName=rancher/rke2
-    rke2_version: v1.34.2+rke2r1
+    rke2_version: v1.34.3+rke2r3
     rke2_allow_downgrade: true
     rke2_ha_mode: true
     rke2_interface: ens18
@@ -148,7 +148,7 @@
     rke2_kubevip_service_election_enable: "false"
     rke2_kubevip_ipvs_lb_enable: "false"
     # renovate: repository=ghcr.io/kube-vip/kube-vip depName=ghcr.io/kube-vip/kube-vip
-    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.2
+    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.0.4
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
     rke2_kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
     rke2_kubevip_args:

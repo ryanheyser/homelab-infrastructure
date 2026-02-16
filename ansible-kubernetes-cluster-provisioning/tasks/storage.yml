@@ -271,7 +271,7 @@
     release_namespace: storage-system
     # renovate: registryUrl=https://cloudnative-pg.github.io/charts
     chart_ref: plugin-barman-cloud
-    chart_version: 0.3.1
+    chart_version: 0.5.0
     chart_repo_url: https://cloudnative-pg.github.io/charts
     values:
       replicaCount: 1
