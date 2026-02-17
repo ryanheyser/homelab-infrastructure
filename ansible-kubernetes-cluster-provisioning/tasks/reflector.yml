@@ -10,7 +10,7 @@
     name: reflector
     release_namespace: kube-system
     chart_ref: reflector
-    chart_version: 10.0.8
+    chart_version: 10.0.9
     chart_repo_url: https://emberstack.github.io/helm-charts
     values:
       tolerations:
