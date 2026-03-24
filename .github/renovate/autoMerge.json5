@@ -20,7 +20,8 @@
         "adguard/adguardhome",
         "cert-manager/cert-manager",
         "emberstack/kubernetes-reflector",
-        "hashicorp/vault"
+        "hashicorp/vault",
+        "hashicorp/vault-csi-provider"
       ]
     },
     // auto-updates - weekly
