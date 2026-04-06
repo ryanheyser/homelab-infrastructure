@@ -21,7 +21,8 @@
         "cert-manager/cert-manager",
         "emberstack/kubernetes-reflector",
         "hashicorp/vault",
-        "hashicorp/vault-csi-provider"
+        "hashicorp/vault-csi-provider",
+        "ghcr.io/kube-vip/kube-vip"
       ]
     },
     // auto-updates - weekly
