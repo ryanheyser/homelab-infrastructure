@@ -56,7 +56,8 @@
         "nfs-subdir-external-provisioner",
         "cert-manager",
         "external-secrets",
-        "reflector"
+        "reflector",
+        "plugin-barman-cloud"
       ]
     },
     {
