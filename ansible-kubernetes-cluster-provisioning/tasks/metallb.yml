@@ -40,6 +40,8 @@
     chart_version: 0.15.3
     chart_repo_url: https://metallb.github.io/metallb
     values:
+      crds:
+        enabled: true
       prometheus:
         rbacProxy:
           repository: registry.k8s.io/kubebuilder/kube-rbac-proxy
