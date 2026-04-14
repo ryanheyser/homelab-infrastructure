@@ -122,6 +122,27 @@
       spec:
         addresses:
         - 10.0.100.0/24
+- name: Create BFDProfile Config
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    # apply: true
+    # server_side_apply:
+    #   field_manager: ansible
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: BFDProfile
+      metadata:
+        name: bfd-profile
+        namespace: network-system
+      spec:
+        receiveInterval: 300
+        transmitInterval: 300
+        detectMultiplier: 3
+        echoMode: false
+        passiveMode: false
+        minimumTtl: 200
 - name: Create Default IPv4 BGPPeer Config
   when: kubeconfig.stat.exists
   kubernetes.core.k8s:
@@ -144,6 +165,7 @@
         dualStackAddressFamily: false
         routerID: 1.1.3.1
         enableGracefulRestart: true
+        bfdProfile: bfd-profile
   #       nodeSelectors:
   #       - matchExpression:
   #         - key: metallb.io/bgp-routerid
