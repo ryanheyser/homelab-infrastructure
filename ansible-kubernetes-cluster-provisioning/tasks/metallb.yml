@@ -40,6 +40,11 @@
     chart_version: 0.15.3
     chart_repo_url: https://metallb.github.io/metallb
     values:
+      prometheus:
+        rbacProxy:
+          repository: registry.k8s.io/kubebuilder/kube-rbac-proxy
+      frrk8s:
+        enabled: true
       controller:
         logLevel: "debug"
         livenessProbe:
@@ -140,8 +145,8 @@
         receiveInterval: 300
         transmitInterval: 300
         detectMultiplier: 3
-        echoMode: false
-        passiveMode: false
+        echoMode: true
+        passiveMode: true
         minimumTtl: 200
 - name: Create Default IPv4 BGPPeer Config
   when: kubeconfig.stat.exists
