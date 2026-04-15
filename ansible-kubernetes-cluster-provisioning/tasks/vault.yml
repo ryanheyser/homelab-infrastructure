@@ -268,9 +268,21 @@
 - name: Debug
   ansible.builtin.debug:
     msg: "{{ ( vault_operator_init ) }}"
-- name: Debug
+- name: Debug Vault Status - vault-0
   ansible.builtin.debug:
-    msg: "{{ ( vault_status ) }}"
+    msg: "{{ ( vault_status_vault_0 ) }}"
+- name: Debug Vault Status - vault-1
+  ansible.builtin.debug:
+    msg: "{{ ( vault_status_vault_1 ) }}"
+- name: Debug Vault Status - vault-2
+  ansible.builtin.debug:
+    msg: "{{ ( vault_status_vault_2 ) }}"
+- name: Debug Vault Status - vault-3
+  ansible.builtin.debug:
+    msg: "{{ ( vault_status_vault_3 ) }}"
+- name: Debug Vault Status - vault-4
+  ansible.builtin.debug:
+    msg: "{{ ( vault_status_vault_4 ) }}"
 - name: Debug
   ansible.builtin.debug:
     msg: "echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
