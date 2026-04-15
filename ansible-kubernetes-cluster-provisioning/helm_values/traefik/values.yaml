@@ -54,8 +54,8 @@ ingressClass:
 service:
   annotations:
     cni.projectcalico.org/ipAddrs: '["10.0.100.1"]'
-    metallb.universe.tf/address-pool: "system"
-    metallb.universe.tf/loadBalancerIPs: 10.0.100.1
+    metallb.io/address-pool: "system"
+    metallb.io/loadBalancerIPs: 10.0.100.1
     traefik.ingress.kubernetes.io/service.nativelb: "true"
   spec:
     # loadBalancerIP: 10.0.100.1
