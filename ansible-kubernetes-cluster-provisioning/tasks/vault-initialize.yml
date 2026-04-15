@@ -56,21 +56,21 @@
     command: sh -c "vault kv put -mount=secret cloudflare-api-key api-key={{ (vaultinitial).cert_manager_system_cloudflare_api_key }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
-- name: Create Booklore Config Secret
+- name: Create grimmory Config Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret booklore-config booklore-database-username={{ (vaultinitial).default_booklore_config_database_username }} booklore-database-password={{ (vaultinitial).default_booklore_config_database_password }} database-database-url={{ (vaultinitial).default_booklore_config_database_url }}"
+    command: sh -c "vault kv put -mount=secret grimmory-config grimmory-database-username={{ (vaultinitial).default_grimmory_config_database_username }} grimmory-database-password={{ (vaultinitial).default_grimmory_config_database_password }} database-database-url={{ (vaultinitial).default_grimmory_config_database_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 
-- name: Create Booklore Database Config Secret
+- name: Create grimmory Database Config Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret booklore-database-config booklore-database-username={{ (vaultinitial).default_booklore_database_mysql_username }} booklore-database-password={{ (vaultinitial).default_booklore_database_mysql_password }} booklore-database-root-password={{ (vaultinitial).default_booklore_database_mysql_root_password }} booklore-database-name={{ (vaultinitial).default_booklore_database_mysql_database }}"
+    command: sh -c "vault kv put -mount=secret grimmory-database-config grimmory-database-username={{ (vaultinitial).default_grimmory_database_mysql_username }} grimmory-database-password={{ (vaultinitial).default_grimmory_database_mysql_password }} grimmory-database-root-password={{ (vaultinitial).default_grimmory_database_mysql_root_password }} grimmory-database-name={{ (vaultinitial).default_grimmory_database_mysql_database }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Calibre Credentials Secret
