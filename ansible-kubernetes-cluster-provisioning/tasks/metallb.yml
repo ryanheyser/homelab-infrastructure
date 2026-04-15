@@ -42,11 +42,6 @@
     values:
       crds:
         enabled: true
-      prometheus:
-        rbacProxy:
-          repository: registry.k8s.io/kubebuilder/kube-rbac-proxy
-      frrk8s:
-        enabled: true
       controller:
         logLevel: "debug"
         livenessProbe:
