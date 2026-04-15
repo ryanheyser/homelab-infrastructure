@@ -14,7 +14,7 @@
       metadata:
         annotations:
           # cni.projectcalico.org/ipv4pools: '["system"]'
-          metallb.universe.tf/address-pool: "system"
+          metallb.io/address-pool: "system"
         labels:
           pod-security.kubernetes.io/enforce: privileged
           pod-security.kubernetes.io/audit: privileged
@@ -31,7 +31,7 @@
       metadata:
         annotations:
           # cni.projectcalico.org/ipv4pools: '["system"]'
-          metallb.universe.tf/address-pool: "system"
+          metallb.io/address-pool: "system"
         labels:
           pod-security.kubernetes.io/enforce: privileged
           pod-security.kubernetes.io/audit: privileged
@@ -48,7 +48,7 @@
       metadata:
         annotations:
           # cni.projectcalico.org/ipv4pools: '["system"]'
-          metallb.universe.tf/address-pool: "system"
+          metallb.io/address-pool: "system"
         labels:
           pod-security.kubernetes.io/enforce: privileged
           pod-security.kubernetes.io/audit: privileged
@@ -184,7 +184,7 @@
             # externalTrafficPolicy: Local
             serviceType: ClusterIP
             annotations:
-              metallb.universe.tf/allow-shared-ip: coredns
+              metallb.io/allow-shared-ip: coredns
           rbac:
             create: true
           prometheus:

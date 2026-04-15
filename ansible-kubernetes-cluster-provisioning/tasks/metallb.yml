@@ -20,7 +20,7 @@
       metadata:
         annotations:
           # cni.projectcalico.org/ipv4pools: '["system"]'
-          metallb.universe.tf/address-pool: "system"
+          metallb.io/address-pool: "system"
         labels:
           pod-security.kubernetes.io/enforce: privileged
           pod-security.kubernetes.io/audit: privileged
@@ -246,9 +246,9 @@
     definition:
       metadata:
         annotations:
-          metallb.universe.tf/allow-shared-ip: coredns
-          metallb.universe.tf/loadBalancerIPs: 10.0.100.2
-          metallb.universe.tf/address-pool: system
+          metallb.io/allow-shared-ip: coredns
+          metallb.io/loadBalancerIPs: 10.0.100.2
+          metallb.io/address-pool: system
       spec:
         selector:
           app.kubernetes.io/instance: rke2-coredns
