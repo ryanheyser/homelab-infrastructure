@@ -1,29 +1,39 @@
 global:
   checkNewVersion: true
   sendAnonymousUsage: false
+  notAppendXForwardedFor: false
 deployment:
-  replicas: null 
+  kind: DaemonSet
+  replicas: null
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 0
 logs:
   general:
-    level: DEBUG
+    level: INFO
     format: json
   access:
     enabled: true
     format: json
 resources:
   requests:
-    cpu: "100m"
-    memory: "50Mi"
+    cpu: "500m"
+    memory: "200Mi"
   limits:
-    cpu: "300m"
-    memory: "150Mi"
+    cpu: "1000m"
+    memory: "400Mi"
 experimental:
   plugins:
     # enabled: true
     bouncer:
       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
       # renovate: depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-      version: 1.4.7
+      version: 1.5.1
+    real-ip:
+      moduleName: github.com/Paxxs/traefik-get-real-ip
+      version: v1.0.4
   kubernetesGateway:
     enabled: true
 providers:
@@ -43,6 +53,7 @@ providers:
     # ingressClass: traefik 
   kubernetesGateway:
     enabled: true
+    nativeLBByDefault: true
     experimentalChannel: true
     throttleDuration: "30s"
 # nodeSelector:
@@ -51,10 +62,29 @@ ingressClass:
   enabled: true
   isDefaultClass: true
   name: traefik
+gateway:
+  enabled: true
+  listeners:
+    web:
+      port: 80
+      protocol: HTTP
+      namespacePolicy:
+        from: All
+    websecure:
+      port: 443
+      protocol: HTTPS
+      namespacePolicy:
+        from: All
+      certificateRefs:
+      - kind: Secret
+        name: wildcard-homelab-heyser-xyz-tls
+        namespace: network-system
+      mode: Terminate
 service:
   annotations:
     cni.projectcalico.org/ipAddrs: '["10.0.100.1"]'
     metallb.io/address-pool: "system"
+    metallb.io/allow-shared-ip: "traefik-share"
     metallb.io/loadBalancerIPs: 10.0.100.1
     traefik.ingress.kubernetes.io/service.nativelb: "true"
   spec:
@@ -63,34 +93,50 @@ service:
     - 10.0.100.1
     externalTrafficPolicy: Cluster
 ports:
+  traefik:
+    port: 9090
+    containerPort: 9090
+    hostPort: 9090
   websecure:
+    port: 443
+    containerPort: 443
+    hostPort: 443
     asDefault: true
+    allowACMEByPass: true
+    forwardedHeaders:
+      insecure: true
+      trustedIPs:
+      - 10.0.0.0/18
+      - 10.254.0.0/16
+      - 10.255.0.0/16
+    proxyProtocol:
+      insecure: true
+      trustedIPs:
+      - 10.0.0.0/18
+      - 10.254.0.0/16
+      - 10.255.0.0/16
     http3:
       enabled: true
       advertisedPort: 443
-    middlewares:
-      # - network-system-authentik@kubernetescrd
   web:
-    middlewares:
-      # - network-system-authentik@kubernetescrd
-tolerations:
-  - key: node-role.kubernetes.io/control-plane
-    operator: Equal
-    effect: NoSchedule
-  - effect: PreferNoSchedule
-    key: node-role.kubernetes.io
-    value: master
-podDisruptionBudget:
-  enabled: true
-  maxUnavailable: 1
-autoscaling:
-  enabled: true
-  minReplicas: 3
-  maxReplicas: 5
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 80
+    port: 80
+    containerPort: 80
+    hostPort: 80
+    forwardedHeaders:
+      insecure: true
+      trustedIPs:
+      - 10.0.0.0/18
+      - 10.254.0.0/16
+      - 10.255.0.0/16
+    proxyProtocol:
+      insecure: true
+      trustedIPs:
+      - 10.0.0.0/18
+      - 10.254.0.0/16
+      - 10.255.0.0/16
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
