@@ -33,7 +33,7 @@ experimental:
       version: 1.5.1
     real-ip:
       moduleName: github.com/Paxxs/traefik-get-real-ip
-      version: v1.0.4
+      version: v1.0.8
   kubernetesGateway:
     enabled: true
 providers:
