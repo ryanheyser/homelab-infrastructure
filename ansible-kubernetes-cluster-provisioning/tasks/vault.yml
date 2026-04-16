@@ -333,18 +333,18 @@
     namespace: vault-system
     pod: vault-0
     command: "vault status -format=json"
-  register: vault_status_after_unseal
+  register: vault_status_after_unseal_vault_0
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
     kubeconfig.stat.exists
-- name: Debug vault_status_after_unseal
+- name: Debug vault_status_after_unseal_vault_0
   ansible.builtin.debug:
-    msg: "{{ vault_status_after_unseal }}"
+    msg: "{{ vault_status_after_unseal_vault_0 }}"
 - name: Fail vault status is sealed
   ansible.builtin.fail:
     message: "Vault is sealed"
-  when: (vault_status_after_unseal.stdout | from_json).sealed
+  when: (vault_status_after_unseal_vault_0.stdout | from_json).sealed
 - name: Unseal Vault 1 - vault-1
   when: >-
     vault_status_vault_1.stdout is defined and (vault_status_vault_1.stdout | from_json).sealed and kubeconfig.stat.exists
