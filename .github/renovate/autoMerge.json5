@@ -57,7 +57,8 @@
         "cert-manager",
         "external-secrets",
         "reflector",
-        "plugin-barman-cloud"
+        "plugin-barman-cloud",
+        "cloudnative-pg"
       ]
     },
     {
