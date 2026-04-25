@@ -65,6 +65,7 @@
       featureGates:
         RotateKubeletServerCertificate: true
         ImageVolume: true
+        MutatingAdmissionPolicy: true
       authorization:
         mode: AlwaysAllow
       authentication:
