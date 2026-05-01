@@ -390,6 +390,22 @@
     command: sh -c "vault kv put -mount=secret cloudflare-api-key api-key={{ (vaultinitial).cert_manager_system_cloudflare_api_key }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Etherpad Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret etherpadConfig adminPassword={{ (vaultinitial).default_etherpad_config_admin_password }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Etherpad Database Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret etherpadDatabaseConfig databaseHost={{ (vaultinitial).default_etherpad_database_database_host }} databasePort={{ (vaultinitial).default_etherpad_database_database_port }} databaseName={{ (vaultinitial).default_etherpad_database_database_name }} databaseUser={{ (vaultinitial).default_etherpad_database_database_user }} databasePassword={{ (vaultinitial).default_etherpad_database_database_password }} databaseType={{ (vaultinitial).default_etherpad_database_database_type }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create grimmory Config Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -429,6 +445,22 @@
     namespace: vault-system
     pod: vault-0
     command: sh -c "vault kv put -mount=secret homepage-pve-token pve-token={{ (vaultinitial).default_homepage_homepagePveToken }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Linkwarden Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret linkwardenConfig nextAuthSecret={{ (vaultinitial).default_linkwarden_config_next_auth_secret }} meiliMasterKey={{ (vaultinitial).default_linkwarden_config_next_meili_master_key }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Linkwarden Database Config Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret linkwardenDatabaseConfig databasePassword={{ (vaultinitial).default_linkwarden_database_database_password }} databaseURL={{ (vaultinitial).default_linkwarden_database_database_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Server Secret Key Secret
