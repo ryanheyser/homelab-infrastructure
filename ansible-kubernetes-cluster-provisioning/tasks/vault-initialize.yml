@@ -414,7 +414,6 @@
     command: sh -c "vault kv put -mount=secret grimmory-config grimmory-database-username={{ (vaultinitial).default_grimmory_config_database_username }} grimmory-database-password={{ (vaultinitial).default_grimmory_config_database_password }} database-database-url={{ (vaultinitial).default_grimmory_config_database_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
-
 - name: Create grimmory Database Config Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
@@ -437,6 +436,14 @@
     namespace: vault-system
     pod: vault-0
     command: sh -c "vault kv put -mount=secret minioCredentials minioUser={{ (vaultinitial).default_immich_minio_user }} minioPassword={{ (vaultinitial).default_immich_minio_password }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Immich Database Credentials Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: sh -c "vault kv put -mount=secret immich-database-credentials db-url={{ (vaultinitial).default_immich_database_credentials_db_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Homepage Pve Token Secret
