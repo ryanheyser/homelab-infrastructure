@@ -22,7 +22,8 @@
         "emberstack/kubernetes-reflector",
         "hashicorp/vault",
         "hashicorp/vault-csi-provider",
-        "ghcr.io/kube-vip/kube-vip"
+        "ghcr.io/kube-vip/kube-vip",
+        "hashicorp/vault-k8s"
       ]
     },
     // auto-updates - weekly
