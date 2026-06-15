@@ -66,6 +66,9 @@
 - name: Configure RKE2-Calico-Crd
   run_once: true
   delegate_to: localhost
+  when:
+    - primarycni == "calico"
+    - kubeconfig.stat.exists
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     api_version: helm.cattle.io/v1
@@ -81,6 +84,9 @@
 - name: Configure RKE2-Calico
   run_once: true
   delegate_to: localhost
+  when:
+    - primarycni == "calico"
+    - kubeconfig.stat.exists
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     api_version: helm.cattle.io/v1
@@ -94,21 +100,22 @@
           priorityClassName: system-cluster-critical
           felixConfiguration:
             defaultEndpointToHostAction: "ACCEPT"
-            # featureDetectOverride: "ChecksumOffloadBroken=false"
+            featureDetectOverride: "ChecksumOffloadBroken=true"
+            wireguardEnabled: true
           apiServer:
             enabled: true
             xdpEnabled: false
             healthEnabled: false
           global:
-            clusterCIDRv4: "10.255.0.0/16"
+            clusterCIDRv4: "{{ cluster_cidr }}"
             # clusterCIDRv6: "fd00:255::/56"
           ipamConfig:
             strictAffinity: false
           installation:
             enabled: true
             # nonPrivileged: "Enabled"
-            # natOutgoing: "Disabled"
-            kubernetesProvider: ''
+            natOutgoing: "Disabled"
+            kubernetesProvider: "RKE2"
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
@@ -116,35 +123,114 @@
               value: Exists
             - key: node-role.kubernetes.io/etcd
               operator: Exists
-            controlPlaneReplicas: 3
+            controlPlaneReplicas: 2
             nodeUpdateStrategy:
               type: RollingUpdate
               rollingUpdate:
                 maxUnavailable: 1
             serviceCIDRs:
-            - 10.254.0.0/16
+            - "{{ service_cidr }}"
             # - fd00:254::/56
             calicoNetwork:
               multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
+              linuxDataplane: "Nftables"
               bgp: "Enabled"
               # mtu: 9000
-              mtu: 1420
+              mtu: "{{ calico_mtu }}"
               nodeAddressAutodetectionV4:
                 # kubernetes: NodeInternalIP
                 firstFound: false
                 # interface: ens18
                 cidrs:
-                - 10.0.0.0/18
+                - "{{ node_internal_cidr }}"
               nodeAddressAutodetectionV6: {}
               # nodeAddressAutodetectionV6:
               #   cidrs:
               #   - fd00:11::/64
               #   firstFound: false
               containerIPForwarding: "Enabled"
+              kubeProxyManagement: "Enabled"
+- name: Wait for Calico pods to become ready
+  delegate_to: localhost
+  run_once: true
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Pod
+    namespace: calico-system
+    wait: true
+    wait_condition:
+      type: "Ready"
+      status: "True"
+    wait_sleep: 10
+    wait_timeout: 300
+  changed_when: false
+- name: Configure RKE2-Cilium
+  run_once: true
+  delegate_to: localhost
+  when:
+    - primarycni == "cilium"
+    - kubeconfig.stat.exists
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    api_version: helm.cattle.io/v1
+    kind: HelmChartConfig
+    name: rke2-cilium
+    namespace: kube-system
+    state: present
+    definition:
+      spec:
+        valuesContent: |-
+          autoDirectNodeRoutes: true
+          kubeProxyReplacement: true
+          k8sServiceHost: "localhost"
+          k8sServicePort: 6443
+          priorityClassName: system-cluster-critical
+          bgpControlPlane:
+            enabled: true
+          pmtuDiscovery:
+            enabled: true
+          cni:
+            chainingMode: "portmap"
+            enableRouteMTUForCNIChaining: true
+            iptablesRemoveAWSRules: false
+          ciliumEndpointSlice:
+            enabled: true
+          encryption:
+            enabled: true
+            type: wireguard
+          nodeIPAM:
+            enabled: true
+          ipam:
+            operator:
+              clusterPoolIPv4PodCIDRList: ["{{ cluster_cidr }}"]
+              clusterPoolIPv4MaskSize: 24
+              clusterPoolIPv6PodCIDRList: ["fd00:255::/104"]
+              clusterPoolIPv6MaskSize: 120
+          ipv4:
+            enabled: true
+          ipv6:
+            enabled: false
+          k8s:
+            requireIPv4PodCIDR: true
+            requireIPv6PodCIDR: false
+          l2NeighDiscovery:
+            enabled: true
+          enableIPv4BIGTCP: true
+          enableIPv6BIGTCP: false
+          ipv4NativeRoutingCIDR: "{{ node_internal_cidr }}"
+          MTU: "{{ calico_mtu }}"
+          hubble:
+            enabled: false
+            relay:
+              enabled: false
+            ui:
+              enabled: false
 - name: Configure RKE2-Multus
   run_once: true
   delegate_to: localhost
+  when: kubeconfig.stat.exists
   kubernetes.core.k8s:
     kubeconfig: "{{ home }}/.kube/config"
     api_version: helm.cattle.io/v1
@@ -174,11 +260,11 @@
       spec:
         valuesContent: |-
           global:
-            clusterDNS: 
-            - 10.254.0.10
+            clusterDNS:
+            - "{{ kube_dns }}"
           nodelocal:
             enabled: true
-            # ipvs: true
+            ipvs: true
           service:
             # clusterIP: 10.254.0.10
             # loadBalancerIP: 10.0.100.2
@@ -196,10 +282,11 @@
                 prometheus.io/port: "9153"
             monitor:
               enabled: false
+          replicaCount: 3
           autoscaler:
-            enabled: true
-            min: 2
-            max: 5
+            enabled: false
+            # min: 2
+            # max: 5
           servers:
           - zones:
             - zone: .

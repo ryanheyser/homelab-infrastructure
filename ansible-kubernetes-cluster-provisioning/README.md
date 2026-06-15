@@ -71,3 +71,13 @@ ansible-lint --exclude=secrets/*.sops.yaml
 ```bash
  ansible-playbook playbook.yml -i inventory.yml --ask-vault-pass --ask-become-pass
 ```
+
+### Bootstrap (install collections)
+
+Run the helper script to install required Ansible collections before running the playbook or linter:
+
+```bash
+./scripts/bootstrap-ansible.sh
+```
+
+For CI, prefer `ansible-galaxy collection install -r requirements.yml` as a step in your pipeline.

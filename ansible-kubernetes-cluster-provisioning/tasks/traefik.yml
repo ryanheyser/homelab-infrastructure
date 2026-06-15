@@ -74,19 +74,37 @@
   failed_when: traefik_release_json is failed
 - name: Download Traefik CRD Definition
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+    url: >-
+      {{ 'https://raw.githubusercontent.com/traefik/traefik/' +
+         traefik_release_json.json.tag_name +
+         '/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml' }}
     dest: "{{ playbook_dir }}/kubernetes-crd-definition-v1.yml"
     mode: '0664'
   register: traefikcrddefv1
 - name: Download Traefik CRD RBAC Definition
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
+    url: >-
+      {{ 'https://raw.githubusercontent.com/traefik/traefik/' +
+         traefik_release_json.json.tag_name +
+         '/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml' }}
+    dest: "{{ playbook_dir }}/kubernetes-crd-rbac.yml"
+    mode: '0664'
+  register: traefikcrddefv1
+- name: Download Traefik CRD RBAC Definition
+  ansible.builtin.get_url:
+    url: >-
+      {{ 'https://raw.githubusercontent.com/traefik/traefik/' +
+         traefik_release_json.json.tag_name +
+         '/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml' }}
     dest: "{{ playbook_dir }}/kubernetes-crd-rbac.yml"
     mode: '0664'
   register: traefikcrdrbacdef
 # - name: Download Traefik CRD Resource Definition
 #   ansible.builtin.get_url:
-#     url: https://raw.githubusercontent.com/traefik/traefik/{{ traefik_release_json.json.tag_name }}/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml
+#     url: >-
+#       {{ 'https://raw.githubusercontent.com/traefik/traefik/' +
+#         traefik_release_json.json.tag_name +
+#         '/docs/content/reference/dynamic-configuration/kubernetes-crd-resource.yml' }}
 #     dest: "{{ playbook_dir }}/kubernetes-crd-resource.yml"
 #     mode: '0664'
 #   register: traefikcrdresourcedef
@@ -118,11 +136,6 @@
   when: >-
     traefikcrdrbacdef is not none and
     kubeconfig.stat.exists
-# - name: Install Traefik CRD Resource
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     src: "{{ traefikcrdresourcedef.dest }}"
-#     namespace: network-system
 #     state: present
 #     apply: true
 #     force: true

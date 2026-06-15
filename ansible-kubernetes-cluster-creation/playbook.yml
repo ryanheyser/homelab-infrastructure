@@ -208,6 +208,7 @@
         {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
       {% endfor %}
       {{ var }}
+    primarycni: calico 
   tasks:
     - name: Setup | RKE2 Part 1
       ansible.builtin.include_tasks:
@@ -270,6 +271,7 @@
   # become_method: sudo
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    primarycni: calico
   tags:
     - setup
     - kubernetes

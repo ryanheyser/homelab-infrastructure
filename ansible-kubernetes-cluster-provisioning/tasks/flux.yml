@@ -5,15 +5,18 @@
     path: "{{ home }}/.kube/config"
   register: kubeconfig
 - name: Flux pre-checks
-  ansible.builtin.command: |
-    flux check --pre
+  ansible.builtin.command:
+    argv:
+      - flux
+      - check
+      - --pre
   environment:
     KUBECONFIG: "{{ kubeconfig.stat.path }}"
   become: true
   register: flux_precheck_out
   changed_when: true
   failed_when:
-  - flux_precheck_out.rc != 0
+    - flux_precheck_out.rc != 0
 - name: Check github secrets encrypted file
   ansible.builtin.stat:
     path: "{{ playbook_dir + '/secrets/github.sops.yaml.enc' }}"
@@ -27,17 +30,20 @@
   environment:
     GITHUB_TOKEN: "{{ (github).GITHUB_TOKEN }}"
     KUBECONFIG: "{{ kubeconfig.stat.path }}"
-  ansible.builtin.command: |
-    flux bootstrap github \
-      --owner=ryanheyser \
-      --repository=homelab-ops \
-      --branch=main \
-      --private=false \
-      --network-policy=false \
-      --token-auth=true \
-      --reconcile \
-      --force
+  ansible.builtin.command:
+    argv:
+      - flux
+      - bootstrap
+      - github
+      - --owner=ryanheyser
+      - --repository=homelab-ops
+      - --branch=main
+      - --private=false
+      - --network-policy=false
+      - --token-auth=true
+      - --reconcile
+      - --force
   register: flux_bootstrap_out
   changed_when: true
   failed_when:
-  - flux_bootstrap_out.rc != 0
+    - flux_bootstrap_out.rc != 0

@@ -54,7 +54,7 @@
       imageGCHighThresholdPercent: 75
       imageGCLowThresholdPercent: 60
       clusterDNS: 
-      - 10.254.0.10
+      - "{{ kube_dns }}"
       cgroupDriver: systemd
       maxPods: 64
       podsPerCore: 32
@@ -137,21 +137,21 @@
     rke2_version: v1.35.5+rke2r2
     rke2_allow_downgrade: true
     rke2_ha_mode: true
-    rke2_interface: ens18
-    rke2_api_ip: "10.0.1.10"
-    rke2_api_cidr: 18
+    rke2_interface: "{{ kubevip_bgp_source_interface }}"
+    rke2_api_ip: "{{ api_virtual_ip }}"
+    rke2_api_cidr: "{{ api_virtual_ip_cidr }}"
     # k8s_node_label:
     # - "kube-vip.io/bgp-routerid: {{ rke2_kubevip_bgp_routerid }}"
     rke2_ha_mode_keepalived: false
     rke2_ha_mode_kubevip: true
-    rke2_ha_mode_kubevip_interface: "ens18"
+    rke2_ha_mode_kubevip_interface: "{{ kubevip_bgp_source_interface }}"
     rke2_kubevip_svc_enable: "false"
     rke2_kubevip_service_election_enable: "false"
     rke2_kubevip_ipvs_lb_enable: "false"
     # renovate: repository=ghcr.io/kube-vip/kube-vip depName=ghcr.io/kube-vip/kube-vip
-    rke2_kubevip_image: ghcr.io/kube-vip/kube-vip:v1.2.0
+    rke2_kubevip_image: "{{ kubevip_image }}"
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
-    rke2_kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
+    rke2_kubevip_cloud_provider_image: "{{ kubevip_cloud_provider_image }}"
     rke2_kubevip_args:
     - param: "\"enable_node_labeling\""
       value: "\"true\""
@@ -160,21 +160,21 @@
     - param: "\"bgp_enable\""
       value: "\"true\""
     - param: "\"bgp_as\""
-      value: "\"64998\""
+      value: "\"{{ kubevip_bgp_as }}\""
     - param: "\"bgp_peeras\""
-      value: "\"64999\""
+      value: "\"{{ kubevip_bgp_peer_as }}\""
     - param: "\"bgp_multihop\""
       value: "\"true\""
     - param: "\"bgp_peeraddress\""
-      value: "\"10.0.0.1\""
+      value: "\"{{ kubevip_bgp_peer_address }}\""
     - param: "\"bgp_sourceif\""
-      value: "\"ens18\""
+      value: "\"{{ kubevip_bgp_source_interface }}\""
     # - param: "\"bgp_sourceip\""
     #   valueFrom:
     #     fieldRef:
     #       fieldPath: status.hostIP`
     - param: "\"bgp_routerinterface\""
-      value: "\"ens18\""
+      value: "\"{{ kubevip_bgp_source_interface }}\""
     # - param: "\"bgp_routerid\""
     #   value: |-
     #     "valueFrom:
@@ -184,23 +184,7 @@
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
-    rke2_additional_sans:
-    - kubernetes.homelab.heyser.xyz
-    - 10.0.1.11
-    - 10.0.1.12
-    - 10.0.1.13
-    # - 10.0.1.14
-    # - 10.0.1.15
-    - madoo
-    - madoo.homelab.heyser.xyz
-    - magoo
-    - magoo.homelab.heyser.xyz
-    # - mirra
-    # - mirra.homelab.heyser.xyz
-    # - minny
-    # - minny.homelab.heyser.xyz
-    - moggy
-    - moggy.homelab.heyser.xyz
+    rke2_additional_sans: "{{ api_sans + (groups.controlnodes | map('extract', hostvars, 'ansible_host') | list) + (groups.controlnodes | list) + (groups.controlnodes | map('extract', hostvars, 'ansible_fqdn') | list) }}"
     # rke2_cluster_domain: homelab.heyser.xyz
     rke2_download_kubeconf: true
     # rke2_server_node_taints:
@@ -209,12 +193,12 @@
     rke2_token: "{{ rke2_server_token }}"
     rke2_cni:
     - multus
-    - calico
+    - "{{ primarycni }}"
     rke2_cluster_cidr:
-    - 10.255.0.0/16
+    - "{{ cluster_cidr }}"
     # - fd00:255::/56
     rke2_service_cidr:
-    - 10.254.0.0/16
+    - "{{ service_cidr }}"
     # - fd00:254::/56
     rke2_node_name: "{{ inventory_hostname }}"
     rke2_cluster_group_name: kubernetes

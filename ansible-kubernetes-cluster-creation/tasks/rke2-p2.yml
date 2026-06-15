@@ -6,24 +6,35 @@
     src: /etc/rancher/rke2/rke2.yaml
     dest: "{{ playbook_dir }}/rke2.yaml"
     flat: true
-      # when: >-
-      #installrke2 is defined
+    # when: >-
+    # installrke2 is defined
 - name: Check if rke2.yaml File Exists
   delegate_to: localhost
   run_once: true
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/rke2.yaml"
   register: rke2_yaml
+
+- name: Wait for kubeconfig file
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.wait_for:
+    path: "{{ playbook_dir }}/rke2.yaml"
+    state: present
+    timeout: 120
+  when: rke2_yaml.stat.exists
+
 - name: Update server config
   delegate_to: localhost
   run_once: true
   ansible.builtin.command: |
-    kubectl config set-cluster default --server=https://10.0.1.10:6443
+    kubectl config set-cluster default --server=https://{{ api_virtual_ip }}:6443
   environment:
     KUBECONFIG: "{{ rke2_yaml.stat.path }}"
   become: true
   register: kubectl_precheck_out
   changed_when: true
+  until: kubectl_precheck_out.rc == 0
+  retries: 5
+  delay: 5
   when: rke2_yaml.stat.exists
-  failed_when:
-  - kubectl_precheck_out.rc != 0

@@ -4,19 +4,60 @@
   ansible.builtin.stat:
     path: "{{ home }}/.kube/config"
   register: kubeconfig
-# - name: Wait for all nodes
-#   delegate_to: localhost
-#   run_once: true
-#   kubernetes.core.k8s_info:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     kind: Node
-#     name: "{{ ansible_host }}"
-#     wait: true
-#     wait_condition:
-#       type: "Ready"
-#       status: "True"
-#     wait_sleep: 5
-#     wait_timeout: 300
+- name: Wait for kubeconfig to become available
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.wait_for:
+    path: "{{ home }}/.kube/config"
+    state: present
+    timeout: 120
+  when: kubeconfig.stat.exists
+  changed_when: false
+- name: Wait for Kubernetes API to become available
+  delegate_to: localhost
+  run_once: true
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Node
+    wait: true
+    wait_sleep: 5
+    wait_timeout: 120
+  register: node_api_info
+  failed_when: false
+  changed_when: false
+- name: Wait for all nodes to become Ready
+  delegate_to: localhost
+  run_once: true
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    kind: Node
+    wait: true
+    wait_condition:
+      type: "Ready"
+      status: "True"
+    wait_sleep: 10
+    wait_timeout: 300
+  register: node_ready_info
+  failed_when: false
+  changed_when: false
+  when: kubeconfig.stat.exists
+- name: Set cluster readiness facts
+  run_once: true
+  delegate_to: localhost
+  ansible.builtin.set_fact:
+    rke2_cluster_api_ready: "{{ node_api_info is defined and not node_api_info.failed }}"
+    rke2_nodes_ready: "{{ node_ready_info is defined and not node_ready_info.failed }}"
+  when: kubeconfig.stat.exists
+- name: Debug cluster readiness summary
+  run_once: true
+  delegate_to: localhost
+  ansible.builtin.debug:
+    msg:
+      kubeconfig_exists: "{{ kubeconfig.stat.exists | default(false) }}"
+      api_ready: "{{ rke2_cluster_api_ready | default(false) }}"
+      nodes_ready: "{{ rke2_nodes_ready | default(false) }}"
+      nodes_seen: "{{ node_api_info.resources | length if node_api_info is defined and node_api_info.resources is defined else 0 }}"
+  when: kubeconfig.stat.exists
 - name: Create Lists
   run_once: true
   ansible.builtin.set_fact:
@@ -42,11 +83,16 @@
     state: present
     name: "{{ item }}"
     taints:
-    - effect: NoExecute
-      key: node-role.kubernetes.io/etcd
-  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      - effect: NoExecute
+        key: node-role.kubernetes.io/etcd
+  register: etcd_taint_result
+  retries: 5
+  delay: 10
+  until: not etcd_taint_result.failed
+  when:
+    - kubeconfig.stat.exists
+    - rke2_cluster_api_ready | default(false)
   loop: "{{ etcd | list | flatten(1) }}"
-  # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Add control-plane taint to controlplane nodes
   run_once: true
   delegate_to: localhost
@@ -55,11 +101,16 @@
     state: present
     name: "{{ item }}"
     taints:
-    - effect: NoSchedule
-      key: node-role.kubernetes.io/control-plane
-  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+  register: controlplane_taint_result
+  retries: 5
+  delay: 10
+  until: not controlplane_taint_result.failed
+  when:
+    - kubeconfig.stat.exists
+    - rke2_cluster_api_ready | default(false)
   loop: "{{ controlplane | list | flatten(1) }}"
-  # loop: "{{ inventory_hostname in groups.controlnodes }}"
 - name: Remove taint node.cloudprovider.kubernetes.io/uninitialized to all nodes
   run_once: true
   delegate_to: localhost
@@ -68,9 +119,15 @@
     state: absent
     name: "{{ item }}"
     taints:
-    - effect: NoSchedule
-      key: node.cloudprovider.kubernetes.io/uninitialized
-  # loop: "{{ groups.kubernetes | map('extract', hostvars) | map(attribute='ansible_hostname') | list | flatten(1) }}"
+      - effect: NoSchedule
+        key: node.cloudprovider.kubernetes.io/uninitialized
+  register: remove_uninitialized_taint_result
+  retries: 5
+  delay: 10
+  until: not remove_uninitialized_taint_result.failed
+  when:
+    - kubeconfig.stat.exists
+    - rke2_cluster_api_ready | default(false)
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
 - name: Add labels to controlplane nodes
   run_once: true
@@ -90,53 +147,67 @@
           kube-vip.io/bgp-routerid: "{{ hostvars[item]['rke2_kubevip_bgp_routerid'] }}"
           # metallb_bgp_routerid: 1.1.2.1
           metallb.io/bgp-routerid: "{{ hostvars[item]['metallb_bgp_routerid'] }}"
-  # loop: "{{ groups.controlnodes | map('extract', hostvars) | map(attribute='ansible_host') | list | flatten(1) }}"
+  register: label_controlplane_result
+  retries: 5
+  delay: 10
+  until: not label_controlplane_result.failed
+  when:
+    - kubeconfig.stat.exists
+    - rke2_cluster_api_ready | default(false)
   loop: "{{ groups.controlnodes | list | flatten(1) }}"
 
-# # fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
-# - name: Apply strategic merge patch to DaemonSet
-#   run_once: true
-#   delegate_to: localhost
-#   kubernetes.core.k8s:
-#     kubeconfig: "{{ home }}/.kube/config"
-#     state: patched
-#     definition:
-#       apiVersion: apps/v1
-#       kind: DaemonSet
-#       metadata:
-#         name: kube-vip-ds
-#         namespace: kube-system
-#       spec:
-#         template:
-#           spec:
-#             initContainers:
-#             - name: get-node-label
-#               image: badouralix/curl-jq:latest # A lightweight image with curl
-#               command: ["sh", "-c", "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') > /data/config.env; cat /data/config.env"]
-#               env:
-#               - name: NODE_NAME
-#                 valueFrom:
-#                   fieldRef:
-#                     fieldPath: spec.nodeName # Injects the name of the node the pod is on
-#               volumeMounts:
-#               - name: config
-#                 mountPath: /data
-#             volumes:
-#             - name: config
-#               emptyDir: {}
-#             containers:
-#               - name: kube-vip
-#                 env:
-#                   # Append the new environment variable
-#                   - name: "bgp_routerid"
-#                     valueFrom:
-#                       fileKeyRef:
-#                         path: config.env
-#                         volumeName: config
-#                         key: bgp_routerid
-#                         optional: false
-#     # Use strategic merge patch to append to the existing env list
-#     merge_type: strategic-merge
+# fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+- name: Apply strategic merge patch to DaemonSet
+  run_once: true
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: patched
+    definition:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: kube-vip-ds
+        namespace: kube-system
+      spec:
+        template:
+          spec:
+            initContainers:
+              - name: get-node-label
+                image: badouralix/curl-jq:latest # A lightweight image with curl
+                command: [
+                  "sh",
+                  "-c",
+                  "echo bgp_routerid=$(curl -sS --header \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" \
+                  --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                  https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/nodes/$NODE_NAME \
+                  | jq -r '.metadata.labels[\"kube-vip.io/bgp-routerid\"]') \
+                  > /data/config.env; cat /data/config.env"
+                ]
+                env:
+                  - name: NODE_NAME
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: spec.nodeName # Injects the name of the node the pod is on
+                volumeMounts:
+                  - name: config
+                    mountPath: /data
+            volumes:
+              - name: config
+                emptyDir: {}
+            containers:
+              - name: kube-vip
+                env:
+                  # Append the new environment variable
+                  - name: "bgp_routerid"
+                    valueFrom:
+                      fileKeyRef:
+                        path: config.env
+                        volumeName: config
+                        key: bgp_routerid
+                        optional: false
+    # Use strategic merge patch to append to the existing env list
+    merge_type: strategic-merge
 
 # - name: Restart kube-vip
 #   become: true

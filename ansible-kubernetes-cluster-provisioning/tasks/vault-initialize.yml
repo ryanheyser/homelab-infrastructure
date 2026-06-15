@@ -28,25 +28,25 @@
 - name: Decode unseal_keys_b64[0]
   become: false
   ansible.builtin.shell:
-    cmd: "echo {{ (vault_operator_init.unseal_keys_b64[0]) }} | base64 -d | gpg -dq"
+    cmd: "set -o pipefail; echo {{ vault_operator_init.unseal_keys_b64[0] }} | base64 -d | gpg -dq"
   args:
     executable: /usr/bin/bash
   register: unseal_keys_b64_0
   changed_when: true
 - name: Debug Decode unseal_keys_b64[0]
   ansible.builtin.debug:
-    msg: "{{ ( unseal_keys_b64_0.stdout ) }}"
+    msg: "{{ unseal_keys_b64_0.stdout }}"
 - name: Decode unseal_keys_b64[1]
   become: false
   ansible.builtin.shell:
-    cmd: "echo {{ (vault_operator_init.unseal_keys_b64[1]) }} | base64 -d | gpg -dq"
+    cmd: "set -o pipefail; echo {{ vault_operator_init.unseal_keys_b64[1] }} | base64 -d | gpg -dq"
   args:
     executable: /usr/bin/bash
   register: unseal_keys_b64_1
   changed_when: true
 - name: Debug Decode unseal_keys_b64[1]
   ansible.builtin.debug:
-    msg: "{{ ( unseal_keys_b64_1.stdout ) }}"
+    msg: "{{ unseal_keys_b64_1.stdout }}"
 - name: Check Vault Status - vault-0
   when: kubeconfig.stat.exists
   kubernetes.core.k8s_exec:
@@ -403,7 +403,13 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret etherpadDatabaseConfig databaseHost={{ (vaultinitial).default_etherpad_database_database_host }} databasePort={{ (vaultinitial).default_etherpad_database_database_port }} databaseName={{ (vaultinitial).default_etherpad_database_database_name }} databaseUser={{ (vaultinitial).default_etherpad_database_database_user }} databasePassword={{ (vaultinitial).default_etherpad_database_database_password }} databaseType={{ (vaultinitial).default_etherpad_database_database_type }}"
+    command: |
+      sh -c "vault kv put -mount=secret etherpadDatabaseConfig databaseHost={{ (vaultinitial).default_etherpad_database_database_host }} \
+        databasePort={{ (vaultinitial).default_etherpad_database_database_port }} \
+        databaseName={{ (vaultinitial).default_etherpad_database_database_name }} \
+        databaseUser={{ (vaultinitial).default_etherpad_database_database_user }} \
+        databasePassword={{ (vaultinitial).default_etherpad_database_database_password }} \
+        databaseType={{ (vaultinitial).default_etherpad_database_database_type }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create grimmory Config Secret
@@ -411,7 +417,10 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret grimmory-config grimmory-database-username={{ (vaultinitial).default_grimmory_config_database_username }} grimmory-database-password={{ (vaultinitial).default_grimmory_config_database_password }} database-database-url={{ (vaultinitial).default_grimmory_config_database_url }}"
+    command: |
+      sh -c "vault kv put -mount=secret grimmory-config grimmory-database-username={{ (vaultinitial).default_grimmory_config_database_username }} \
+      grimmory-database-password={{ (vaultinitial).default_grimmory_config_database_password }} \
+      database-database-url={{ (vaultinitial).default_grimmory_config_database_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create grimmory Database Config Secret
@@ -419,7 +428,11 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret grimmory-database-config grimmory-database-username={{ (vaultinitial).default_grimmory_database_mysql_username }} grimmory-database-password={{ (vaultinitial).default_grimmory_database_mysql_password }} grimmory-database-root-password={{ (vaultinitial).default_grimmory_database_mysql_root_password }} grimmory-database-name={{ (vaultinitial).default_grimmory_database_mysql_database }}"
+    command: |
+      sh -c "vault kv put -mount=secret grimmory-database-config grimmory-database-username={{ (vaultinitial).default_grimmory_database_mysql_username }} \
+      grimmory-database-password={{ (vaultinitial).default_grimmory_database_mysql_password }} \
+      grimmory-database-root-password={{ (vaultinitial).default_grimmory_database_mysql_root_password }} \
+      grimmory-database-name={{ (vaultinitial).default_grimmory_database_mysql_database }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Calibre Credentials Secret
@@ -427,7 +440,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret calibreCredentials calibreUser={{ (vaultinitial).default_calibre_calibreUser }} calibrePassword={{ (vaultinitial).default_calibre_calibrePassword }}"
+    command: |
+      sh -c "vault kv put -mount=secret calibreCredentials calibreUser={{ (vaultinitial).default_calibre_calibreUser }} \
+      calibrePassword={{ (vaultinitial).default_calibre_calibrePassword }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Immich Minio Credentials Secret
@@ -435,7 +450,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret minioCredentials minioUser={{ (vaultinitial).default_immich_minio_user }} minioPassword={{ (vaultinitial).default_immich_minio_password }}"
+    command: |
+      sh -c "vault kv put -mount=secret minioCredentials minioUser={{ (vaultinitial).default_immich_minio_user }} \
+      minioPassword={{ (vaultinitial).default_immich_minio_password }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Immich Database Credentials Secret
@@ -443,7 +460,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret immich-database-credentials db-url={{ (vaultinitial).default_immich_database_credentials_db_url }}"
+    command: |
+      sh -c "vault kv put -mount=secret immich-database-credentials db-url={{ (vaultinitial).default_immich_database_credentials_db_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Homepage Pve Token Secret
@@ -451,7 +469,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret homepage-pve-token pve-token={{ (vaultinitial).default_homepage_homepagePveToken }}"
+    command: |
+      sh -c "vault kv put -mount=secret homepage-pve-token pve-token={{ (vaultinitial).default_homepage_homepagePveToken }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Linkwarden Config Secret
@@ -459,7 +478,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret linkwardenConfig nextAuthSecret={{ (vaultinitial).default_linkwarden_config_next_auth_secret }} meiliMasterKey={{ (vaultinitial).default_linkwarden_config_next_meili_master_key }}"
+    command: |
+      sh -c "vault kv put -mount=secret linkwardenConfig nextAuthSecret={{ (vaultinitial).default_linkwarden_config_next_auth_secret }} \
+      meiliMasterKey={{ (vaultinitial).default_linkwarden_config_next_meili_master_key }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Linkwarden Database Config Secret
@@ -467,7 +488,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret linkwardenDatabaseConfig databasePassword={{ (vaultinitial).default_linkwarden_database_database_password }} databaseURL={{ (vaultinitial).default_linkwarden_database_database_url }}"
+    command: |
+      sh -c "vault kv put -mount=secret linkwardenDatabaseConfig databasePassword={{ (vaultinitial).default_linkwarden_database_database_password }} \
+      databaseURL={{ (vaultinitial).default_linkwarden_database_database_url }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Server Secret Key Secret
@@ -475,7 +498,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret mangayomi-server-secret-key secret-key={{ (vaultinitial).default_mangayomi_server_secretKey }}"
+    command: |
+      sh -c "vault kv put -mount=secret mangayomi-server-secret-key secret-key={{ (vaultinitial).default_mangayomi_server_secretKey }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Server Mongo Config Secret
@@ -483,7 +507,11 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret mangayomi-server-mongo-config mongo-config-database-user={{ (vaultinitial).default_mangayomi_server_databaseUser }} mongo-config-database-password={{ (vaultinitial).default_mangayomi_server_databasePassword }} mongo-config-database-url={{ (vaultinitial).default_mangayomi_server_databaseURL }} mongo-config-database-name={{ (vaultinitial).default_mangayomi_server_databaseName }}"
+    command: |
+      sh -c "vault kv put -mount=secret mangayomi-server-mongo-config mongo-config-database-user={{ (vaultinitial).default_mangayomi_server_databaseUser }} \
+      mongo-config-database-password={{ (vaultinitial).default_mangayomi_server_databasePassword }} \
+      mongo-config-database-url={{ (vaultinitial).default_mangayomi_server_databaseURL }} \
+      mongo-config-database-name={{ (vaultinitial).default_mangayomi_server_databaseName }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Vaultwarden admin token Secret
@@ -491,7 +519,10 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret vaultwarden-admin-token admin-token={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_adminToken }} installation-id={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_installationId }} installation-key={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_installationKey }}"
+    command: |
+      sh -c "vault kv put -mount=secret vaultwarden-admin-token admin-token={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_adminToken }} \
+      installation-id={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_installationId }} \
+      installation-key={{ (vaultinitial).default_vaultwarden_vaultwardenAdminToken_installationKey }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Authentik Credentials Secret
@@ -499,7 +530,11 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret authentik-credentials adminPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_adminPassword }} bootstrapPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_bootstrapPassword }} userPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_userPassword }} replicationPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_replicationPassword }}"
+    command: |
+      sh -c "vault kv put -mount=secret authentik-credentials adminPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_adminPassword }} \
+      bootstrapPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_bootstrapPassword }} \
+      userPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_userPassword }} \
+      replicationPassword={{ (vaultinitial).network_system_authentik_authentikCredentials_replicationPassword }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Authentik Secret Key Secret
@@ -507,7 +542,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret authentik-secret-key authentik-secret-key={{ (vaultinitial).network_system_authentik_authentikSecretKey }}"
+    command: |
+      sh -c "vault kv put -mount=secret authentik-secret-key authentik-secret-key={{ (vaultinitial).network_system_authentik_authentikSecretKey }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Cloudflare Zone ID Secret
@@ -515,7 +551,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret cloudflare-zone-id zone-id={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_zoneid }}"
+    command: |
+      sh -c "vault kv put -mount=secret cloudflare-zone-id zone-id={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_zoneid }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Cloudflare Record ID Secret
@@ -523,7 +560,10 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret cloudflare-record-id heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_heyser_xyz }} wildcard-heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_heyser_xyz }} wildcard-homelab-heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_homelab_heyser_xyz }}"
+    command: |
+      sh -c "vault kv put -mount=secret cloudflare-record-id heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_heyser_xyz }} \
+      wildcard-heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_heyser_xyz }} \
+      wildcard-homelab-heyser-xyz={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_recordid_wildcard_homelab_heyser_xyz }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Cloudflare Auth Key Secret
@@ -531,7 +571,8 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret cloudflare-auth-key auth-key={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_authkey }}"
+    command: |
+      sh -c "vault kv put -mount=secret cloudflare-auth-key auth-key={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_authkey }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Tailscale Credentials Secret
@@ -539,6 +580,9 @@
     kubeconfig: "{{ home }}/.kube/config"
     namespace: vault-system
     pod: vault-0
-    command: sh -c "vault kv put -mount=secret tailscale-client-credentials client-id={{ (vaultinitial).network_system_tailscale_tailscaleClientCredentials_client_id }} client-secret={{ (vaultinitial).network_system_tailscale_tailscaleClientCredentials_client_secret }}"
+    command: |
+      sh -c "vault kv put -mount=secret tailscale-client-credentials \
+      client-id={{ (vaultinitial).network_system_tailscale_tailscaleClientCredentials_client_id }} \
+      client-secret={{ (vaultinitial).network_system_tailscale_tailscaleClientCredentials_client_secret }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success

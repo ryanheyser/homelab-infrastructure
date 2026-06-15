@@ -47,39 +47,39 @@
         # server: "storage.homelab.heyser.xyz"
         path: "/mnt/kracko"
         mountOptions:
-        - "vers=4"
-        - "minorversion=1"
-        - "local_lock=posix"
-        - "proto=tcp"
-        - "noresvport"
-        - "ac"
+          - "vers=4"
+          - "minorversion=1"
+          - "local_lock=posix"
+          - "proto=tcp"
+          - "noresvport"
+          - "ac"
       storageClass:
         defaultClass: true
         name: "nfs-dynamic"
         pathPattern: "${.PVC.annotations.nfs.io/storage-path}"
-        accesssModes: "ReadWriteMany"
+        accessModes: "ReadWriteMany"
         archiveOnDelete: false
         provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner"
         reclaimPolicy: "Retain"
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-      - key: node-role.kubernetes.io/control-plane
-        operator: Exists
-      - key: node-role.kubernetes.io/etcd
-        operator: Exists
-      - key: node-role.kubernetes.io/master
-        operator: Exists
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          operator: Exists
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - nfs-subdir-external-provisioner
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nfs-subdir-external-provisioner
+              topologyKey: "kubernetes.io/hostname"
 - name: Deploy nfs-subdir-external-provisioner chart for statefulsets
   when: kubeconfig.stat.exists
   kubernetes.core.helm:
@@ -102,46 +102,46 @@
         # server: "storage.homelab.heyser.xyz"
         path: "/mnt/kracko"
         mountOptions:
-        - "vers=4"
-        - "minorversion=1"
-        - "local_lock=posix"
-        - "proto=tcp"
-        - "noresvport"
-        - "ac"
+          - "vers=4"
+          - "minorversion=1"
+          - "local_lock=posix"
+          - "proto=tcp"
+          - "noresvport"
+          - "ac"
       storageClass:
         defaultClass: false
         name: "nfs-dynamic-ss"
         pathPattern: "${.PVC.annotations.nfs.io/storage-path}/${.PVC.name}"
-        accesssModes: "ReadWriteMany"
+        accessModes: "ReadWriteMany"
         archiveOnDelete: false
         provisionerName: "k8s-sigs.io/nfs-subdir-external-provisioner-ss"
         reclaimPolicy: "Retain"
       podAnnotations:
         app.kubernetes.io/component: nfs
       tolerations:
-      - key: node-role.kubernetes.io/control-plane
-        operator: Exists
-      - key: node-role.kubernetes.io/etcd
-        operator: Exists
-      - key: node-role.kubernetes.io/master
-        operator: Exists
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+        - key: node-role.kubernetes.io/etcd
+          operator: Exists
+        - key: node-role.kubernetes.io/master
+          operator: Exists
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - nfs-subdir-external-provisioner-ss
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nfs-subdir-external-provisioner-ss
+              topologyKey: "kubernetes.io/hostname"
 - name: Wait for nfs-subdir-external-provisioner to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
     kind: Deployment
     namespace: storage-system
     label_selectors:
-    - app = nfs-subdir-external-provisioner
+      - app = nfs-subdir-external-provisioner
     wait: true
     wait_condition:
       type: "Available"
@@ -158,7 +158,7 @@
     kind: Deployment
     namespace: storage-system
     label_selectors:
-    - app = nfs-subdir-external-provisioner-ss
+      - app = nfs-subdir-external-provisioner-ss
     wait: true
     wait_condition:
       type: "Available"
@@ -185,42 +185,42 @@
         strategyType: RollingUpdate
         defaultOnDeletePolicy: retain
         tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-        - key: node-role.kubernetes.io/etcd
-          operator: Exists
-        - key: node-role.kubernetes.io/master
-          operator: Exists
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+          - key: node-role.kubernetes.io/etcd
+            operator: Exists
+          - key: node-role.kubernetes.io/master
+            operator: Exists
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - csi-nfs
-              topologyKey: "kubernetes.io/hostname"
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - csi-nfs
+                topologyKey: "kubernetes.io/hostname"
       node:
         maxUnavailable: 1
         tolerations:
-        - operator: Exists
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-        - key: node-role.kubernetes.io/etcd
-          operator: Exists
-        - key: node-role.kubernetes.io/master
-          operator: Exists
+          - operator: Exists
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+          - key: node-role.kubernetes.io/etcd
+            operator: Exists
+          - key: node-role.kubernetes.io/master
+            operator: Exists
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - csi-nfs
-              topologyKey: "kubernetes.io/hostname"
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - csi-nfs
+                topologyKey: "kubernetes.io/hostname"
       externalSnapshotter:
         enabled: true
         controller:
@@ -240,12 +240,12 @@
         volumeBindingMode: Immediate
         mountPermissions: "0777"
         mountOptions:
-        - "vers=4"
-        - "minorversion=1"
-        - "local_lock=posix"
-        - "proto=tcp"
-        - "noresvport"
-        - "ac"
+          - "vers=4"
+          - "minorversion=1"
+          - "local_lock=posix"
+          - "proto=tcp"
+          - "noresvport"
+          - "ac"
 - name: Deploy cloudnative-pg chart
   when: kubeconfig.stat.exists
   kubernetes.core.helm:

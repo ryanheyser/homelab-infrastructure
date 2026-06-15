@@ -1,3 +1,21 @@
+cluster_cidr: "10.255.0.0/16"
+service_cidr: "10.254.0.0/16"
+kube_dns: "10.254.0.10"
+api_virtual_ip: "10.0.1.10"
+api_virtual_ip_cidr: 18
+kubevip_bgp_as: 64998
+kubevip_bgp_peer_as: 64999
+kubevip_bgp_peer_address: "10.0.0.1"
+kubevip_bgp_source_interface: "ens18"
+node_internal_cidr: "10.0.0.0/18"
+calico_mtu: 1420
+kubevip_image: "ghcr.io/kube-vip/kube-vip:v1.2.0"
+kubevip_cloud_provider_image: "ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12"
+primarycni: calico
+api_sans:
+  - kubernetes.homelab.heyser.xyz
+
+# Cluster-wide defaults. Keep host-specific values in inventory.
 github_token: '!vault |
   $ANSIBLE_VAULT;1.1;AES256
   31376165383330653737393839613239626332306636656261653037333761323631363637373164

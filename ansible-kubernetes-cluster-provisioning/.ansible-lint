@@ -1,0 +1,6 @@
+exclude_paths:
+  - group_vars
+  - helm_values
+  - secrets
+  - .git
+skip_list: []

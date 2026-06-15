@@ -56,36 +56,36 @@
   ansible.builtin.apt:
     state: 'absent'
     pkg:
-    - bind9
+      - bind9
     purge: true
 - name: Setup | install required packages
   ansible.builtin.apt:
     state: 'present'
     update_cache: true
     pkg:
-    - age
-    # - build-essential
-    - curl
-    - dnsutils
-    - gpg
-    - linux-generic
-    - linux-headers-generic
-    - mtr-tiny
-    - net-tools
-    - nfs-common
-    - open-vm-tools
-    - openssl
-    - p7zip-full
-    - pciutils
-    - python3
-    - python3-pip
-    - python3-venv
-    - python3-virtualenv
-    - software-properties-common
-    - tcpdump
-    - vim
-    - wget
-    - zstd
+      - age
+      # - build-essential
+      - curl
+      - dnsutils
+      - gpg
+      - linux-generic
+      - linux-headers-generic
+      - mtr-tiny
+      - net-tools
+      - nfs-common
+      - open-vm-tools
+      - openssl
+      - p7zip-full
+      - pciutils
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-virtualenv
+      - software-properties-common
+      - tcpdump
+      - vim
+      - wget
+      - zstd
   become: true
   changed_when: true
 - name: Setup | Get Hashicorp GPG
@@ -100,7 +100,7 @@
 - name: Setup | Add Hashicorp GPG to system
   become: true
   ansible.builtin.shell: |
-    echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    set -o pipefail && echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   when: not hashicorp_gpg_file.stat.exists
   changed_when: true
 - name: Setup | Add Hashicorp apt source
@@ -108,8 +108,10 @@
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
     state: present
 - name: Setup | Get Helm GPG
-  ansible.builtin.shell: |
-    curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+  ansible.builtin.uri:
+    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+    return_content: true
+    method: GET
   register: helmgpg
 - name: Setup | Check to see if helm gpg exists
   ansible.builtin.stat:
@@ -118,7 +120,7 @@
 - name: Setup | Add Helm GPG to system
   become: true
   ansible.builtin.shell: |
-    echo "{{ helmgpg.stdout }}" | sudo gpg --yes --dearmor -o /usr/share/keyrings/helm.gpg
+    set -o pipefail && echo "{{ helmgpg.content }}" | sudo gpg --yes --dearmor -o /usr/share/keyrings/helm.gpg
   # when: not helm_gpg_file.stat.exists
   changed_when: true
 - name: Setup | Add Helm apt source
@@ -133,9 +135,9 @@
     state: 'present'
     update_cache: true
     pkg:
-    - ansible
-    - vault
-    - helm
+      - ansible
+      - vault
+      - helm
   become: true
   changed_when: true
 - name: Install sops on localhost
@@ -168,4 +170,9 @@
   register: reboot_required_file
 - name: Reboot if required
   ansible.builtin.reboot:
+  when: reboot_required_file.stat.exists
+- name: Wait for host after reboot
+  ansible.builtin.wait_for_connection:
+    delay: 10
+    timeout: 300
   when: reboot_required_file.stat.exists
