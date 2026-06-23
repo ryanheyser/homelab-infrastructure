@@ -61,24 +61,24 @@ ingressClass:
   enabled: true
   isDefaultClass: true
   name: traefik
-gateway:
-  enabled: true
-  listeners:
-    web:
-      port: 80
-      protocol: HTTP
-      namespacePolicy:
-        from: All
-    websecure:
-      port: 443
-      protocol: HTTPS
-      namespacePolicy:
-        from: All
-      certificateRefs:
-      - kind: Secret
-        name: wildcard-homelab-heyser-xyz-tls
-        namespace: network-system
-      mode: Terminate
+# gateway:
+#   enabled: false
+#   listeners:
+#     web:
+#       port: 80
+#       protocol: HTTP
+#       namespacePolicy:
+#         from: All
+#     websecure:
+#       port: 443
+#       protocol: HTTPS
+#       namespacePolicy:
+#         from: All
+#       certificateRefs:
+#       - kind: Secret
+#         name: wildcard-homelab-heyser-xyz-tls
+#         namespace: network-system
+#       mode: Terminate
 service:
   annotations:
     cni.projectcalico.org/ipAddrs: '["10.0.100.1"]'
