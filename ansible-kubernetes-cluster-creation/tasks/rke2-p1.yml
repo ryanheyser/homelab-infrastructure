@@ -134,7 +134,7 @@
 - name: Deploy | Install RKE2
   vars:
     # renovate: depName=rancher/rke2
-    rke2_version: v1.35.5+rke2r2
+    rke2_version: v1.36.1+rke2r2
     rke2_allow_downgrade: true
     rke2_ha_mode: true
     rke2_interface: "{{ kubevip_bgp_source_interface }}"
