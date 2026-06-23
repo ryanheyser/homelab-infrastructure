@@ -52,7 +52,7 @@ providers:
     # comment out ingressClass to allow all ingresses to be processed  
     # ingressClass: traefik 
   kubernetesGateway:
-    enabled: true
+    enabled: false
     nativeLBByDefault: true
     experimentalChannel: true
 # nodeSelector:
