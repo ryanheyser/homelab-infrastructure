@@ -212,6 +212,14 @@
     kube_dns: 10.254.0.10
     api_virtual_ip: 10.0.1.10
     api_virtual_ip_cidr: 18
+    api_sans:
+      - "kubernetes.homelab.heyser.xyz"
+      - "madoo.homelab.heyser.xyz"
+      - "madoo"
+      - "magoo.homelab.heyser.xyz"
+      - "magoo"
+      - "moggy.homelab.heyser.xyz"
+      - "moggy"
     kubevip_bgp_source_interface: ens18
     kubevip_image: ghcr.io/kube-vip/kube-vip:v1.2.0
     kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
