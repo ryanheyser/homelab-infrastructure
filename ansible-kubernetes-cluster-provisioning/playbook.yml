@@ -60,7 +60,9 @@
       when: not age_key_file.stat.exists
 
     - name: Check required binaries
-      ansible.builtin.command: "command -v {{ item }}"
+      ansible.builtin.shell: "command -v {{ item | quote }}"
+      args:
+        executable: /bin/bash
       loop:
         - sops
         - helm
@@ -71,9 +73,9 @@
 
     - name: Fail if required binaries missing
       ansible.builtin.fail:
-        msg: "Missing required binary: {{ item.item }}"
-      loop: "{{ required_bins.results | selectattr('rc', 'ne', 0) | list }}"
-      when: required_bins is defined and (required_bins.results | selectattr('rc', 'ne', 0) | list) | length > 0
+        msg: >-
+          Missing required binaries: {{ required_bins.results | selectattr('rc', 'ne', 0) | map(attribute='item') | list | join(', ') }}
+      when: required_bins.results | selectattr('rc', 'ne', 0) | list | length > 0
 
 # Age/Sops
 - name: Age/Sops
