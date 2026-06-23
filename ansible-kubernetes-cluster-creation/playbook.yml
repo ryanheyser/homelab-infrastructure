@@ -292,6 +292,11 @@
   vars:
     home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
     primarycni: calico
+    kube_dns: 10.254.0.10
+    cluster_cidr: 10.255.0.0/16
+    service_cidr: 10.254.0.0/16
+    calico_mtu: 1420
+    node_internal_cidr: 10.0.0.0/18
   tags:
     - setup
     - kubernetes
