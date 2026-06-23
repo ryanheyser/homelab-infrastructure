@@ -225,7 +225,7 @@
     kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
     cluster_cidr: 10.255.0.0/16
     service_cidr: 10.254.0.0/16
-    
+
   tasks:
     - name: Setup | RKE2 Part 1
       ansible.builtin.include_tasks:
@@ -242,6 +242,9 @@
     - kubernetes
     - rke2
     - rke2-post-install
+  vars:
+    api_virtual_ip: 10.0.1.10
+
   tasks:
     - name: Setup | RKE2 Part 2
       ansible.builtin.include_tasks:
