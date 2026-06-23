@@ -53,7 +53,7 @@
       httpCheckFrequency: "1m"
       imageGCHighThresholdPercent: 75
       imageGCLowThresholdPercent: 60
-      clusterDNS: 
+      clusterDNS:
       - "{{ kube_dns }}"
       cgroupDriver: systemd
       maxPods: 64
@@ -153,28 +153,28 @@
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
     rke2_kubevip_cloud_provider_image: "{{ kubevip_cloud_provider_image }}"
     rke2_kubevip_args:
-    - param: "\"enable_node_labeling\""
-      value: "\"true\""
+      - param: "\"enable_node_labeling\""
+        value: "\"true\""
     # - param: "\"vip_loglevel\""
     #   value: "\"-4\""
-    - param: "\"bgp_enable\""
-      value: "\"true\""
-    - param: "\"bgp_as\""
-      value: "\"{{ kubevip_bgp_as }}\""
-    - param: "\"bgp_peeras\""
-      value: "\"{{ kubevip_bgp_peer_as }}\""
-    - param: "\"bgp_multihop\""
-      value: "\"true\""
-    - param: "\"bgp_peeraddress\""
-      value: "\"{{ kubevip_bgp_peer_address }}\""
-    - param: "\"bgp_sourceif\""
-      value: "\"{{ kubevip_bgp_source_interface }}\""
+    # - param: "\"bgp_enable\""
+    #   value: "\"true\""
+    # - param: "\"bgp_as\""
+    #   value: "\"{{ kubevip_bgp_as }}\""
+    # - param: "\"bgp_peeras\""
+    #   value: "\"{{ kubevip_bgp_peer_as }}\""
+    # - param: "\"bgp_multihop\""
+    #   value: "\"true\""
+    # - param: "\"bgp_peeraddress\""
+    #   value: "\"{{ kubevip_bgp_peer_address }}\""
+    # - param: "\"bgp_sourceif\""
+    #   value: "\"{{ kubevip_bgp_source_interface }}\""
     # - param: "\"bgp_sourceip\""
     #   valueFrom:
     #     fieldRef:
     #       fieldPath: status.hostIP`
-    - param: "\"bgp_routerinterface\""
-      value: "\"{{ kubevip_bgp_source_interface }}\""
+    # - param: "\"bgp_routerinterface\""
+    #   value: "\"{{ kubevip_bgp_source_interface }}\""
     # - param: "\"bgp_routerid\""
     #   value: |-
     #     "valueFrom:

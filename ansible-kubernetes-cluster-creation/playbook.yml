@@ -208,7 +208,8 @@
         {%- set var = var.append('https://' + hostvars[x].ansible_host + ':5001') -%}
       {% endfor %}
       {{ var }}
-    primarycni: calico 
+    primarycni: calico
+    kube_dns: 10.254.0.10
   tasks:
     - name: Setup | RKE2 Part 1
       ansible.builtin.include_tasks:
