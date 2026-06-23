@@ -10,13 +10,13 @@ updateStrategy:
   rollingUpdate:
     maxUnavailable: 1
     maxSurge: 0
-logs:
-  general:
-    level: INFO
-    format: json
-  access:
-    enabled: true
-    format: json
+# logs:
+#   general:
+#     level: INFO
+#     format: json
+#   access:
+#     enabled: true
+#     format: json
 resources:
   requests:
     cpu: "500m"
