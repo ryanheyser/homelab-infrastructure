@@ -263,10 +263,6 @@
             port: 53
             protocol: TCP
             targetPort: 53
-          - name: tcp-53-alt
-            port: 53
-            protocol: UDP
-            targetPort: 53
         externalTrafficPolicy: Cluster
         loadBalancerIP: 10.0.100.2
         type: LoadBalancer
