@@ -314,7 +314,7 @@
               configBlock: |-
                 except "cluster.local" "svc.cluster.local" ".svc"
                 policy sequential
-                max_concurrent 1
+                max_concurrent 1000
             - name: cache
               parameters: 30
             - name: loop
