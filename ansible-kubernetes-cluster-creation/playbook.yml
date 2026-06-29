@@ -221,6 +221,9 @@
       - "moggy.homelab.heyser.xyz"
       - "moggy"
     kubevip_bgp_source_interface: ens18
+    kubevip_bgp_as: 64998
+    kubevip_bgp_peer_as: 64999
+    kubevip_bgp_peer_address: 10.0.0.1
     kubevip_image: ghcr.io/kube-vip/kube-vip:v1.2.0
     kubevip_cloud_provider_image: ghcr.io/kube-vip/kube-vip-cloud-provider:v0.0.12
     cluster_cidr: 10.255.0.0/16
