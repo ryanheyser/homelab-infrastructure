@@ -334,6 +334,9 @@
     pod: vault-0
     command: "vault status -format=json"
   register: vault_status_after_unseal_vault_0
+  until: (vault_status_after_unseal_2.stdout | from_json).sealed == false
+  retries: 10
+  delay: "{{ 2 ** (vault_status_after_unseal_2.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
@@ -402,6 +405,9 @@
     pod: vault-2
     command: "vault status -format=json"
   register: vault_status_after_unseal_2
+  until: (vault_status_after_unseal_2.stdout | from_json).sealed == false
+  retries: 10
+  delay: "{{ 2 ** (vault_status_after_unseal_2.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
@@ -436,6 +442,9 @@
     pod: vault-3
     command: "vault status -format=json"
   register: vault_status_after_unseal_3
+  until: (vault_status_after_unseal_3.stdout | from_json).sealed == false
+  retries: 10
+  delay: "{{ 2 ** (vault_status_after_unseal_3.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
@@ -470,6 +479,9 @@
     pod: vault-4
     command: "vault status -format=json"
   register: vault_status_after_unseal_4
+  until: (vault_status_after_unseal_4.stdout | from_json).sealed == false
+  retries: 10
+  delay: "{{ 2 ** (vault_status_after_unseal_4.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
