@@ -86,13 +86,43 @@ service:
     metallb.io/address-pool: "system"
     metallb.io/allow-shared-ip: "traefik-share"
     metallb.io/loadBalancerIPs: 10.0.100.1
-    traefik.ingress.kubernetes.io/service.nativelb: "true"
+    # traefik.ingress.kubernetes.io/service.nativelb: "true"
   spec:
     # loadBalancerIP: 10.0.100.1
-    externalIPs:
-    - 10.0.100.1
+    # externalIPs:
+    # - 10.0.100.1
     externalTrafficPolicy: Cluster
 ports:
+  dns-tcp:
+    port: 53
+    containerPort: 53
+    hostPort: 5353
+    expose:
+      default: true
+      # traefik-dns: true
+  dns-udp:
+    port: 53
+    containerPort: 53
+    hostPort: 5353
+    protocol: UDP
+    expose:
+      default: true
+      # traefik-dns: true
+  dns-tls-tcp:
+    port: 853
+    containerPort: 853
+    hostPort: 853
+    expose:
+      default: true
+      # traefik-dns: true
+  dns-quic-udp:
+    port: 853
+    containerPort: 853
+    hostPort: 853
+    protocol: UDP
+    expose:
+      default: true
+      # traefik-dns: true
   traefik:
     port: 9090
     containerPort: 9090
@@ -134,9 +164,9 @@ ports:
       - 10.0.0.0/18
       - 10.254.0.0/16
       - 10.255.0.0/16
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
+    # http:
+    #   redirections:
+    #     entryPoint:
+    #       to: websecure
+    #       scheme: https
+    #       permanent: true
