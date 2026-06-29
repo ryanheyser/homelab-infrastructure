@@ -334,9 +334,9 @@
     pod: vault-0
     command: "vault status -format=json"
   register: vault_status_after_unseal_vault_0
-  until: (vault_status_after_unseal_2.stdout | from_json).sealed == false
+  until: (vault_status_after_unseal_vault_0.stdout | from_json).sealed == false
   retries: 10
-  delay: "{{ 2 ** (vault_status_after_unseal_2.attempts) | default(1) }}"
+  delay: "{{ 2 ** (vault_status_after_unseal_vault_0.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
@@ -371,6 +371,9 @@
     pod: vault-1
     command: "vault status -format=json"
   register: vault_status_after_unseal_1
+  until: (vault_status_after_unseal_1.stdout | from_json).sealed == false
+  retries: 10
+  delay: "{{ 2 ** (vault_status_after_unseal_1.attempts) | default(1) }}"
   ignore_unreachable: true
   # failed_when: (vault_status_after_unseal.stdout | from_json).sealed
   when: >-
