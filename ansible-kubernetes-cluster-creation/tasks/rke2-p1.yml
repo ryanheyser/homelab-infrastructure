@@ -145,9 +145,11 @@
     rke2_ha_mode_keepalived: false
     rke2_ha_mode_kubevip: true
     rke2_ha_mode_kubevip_interface: "{{ kubevip_bgp_source_interface }}"
+    rke2_kubevip_arp_enable: "false"
     rke2_kubevip_svc_enable: "false"
     rke2_kubevip_service_election_enable: "false"
     rke2_kubevip_ipvs_lb_enable: "false"
+    rke2_kubevip_loglevel: "-4"
     # renovate: repository=ghcr.io/kube-vip/kube-vip depName=ghcr.io/kube-vip/kube-vip
     rke2_kubevip_image: "{{ kubevip_image }}"
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
@@ -155,32 +157,27 @@
     rke2_kubevip_args:
       - param: "\"enable_node_labeling\""
         value: "\"true\""
-    # - param: "\"vip_loglevel\""
-    #   value: "\"-4\""
-    # - param: "\"bgp_enable\""
-    #   value: "\"true\""
-    # - param: "\"bgp_as\""
-    #   value: "\"{{ kubevip_bgp_as }}\""
-    # - param: "\"bgp_peeras\""
-    #   value: "\"{{ kubevip_bgp_peer_as }}\""
-    # - param: "\"bgp_multihop\""
-    #   value: "\"true\""
-    # - param: "\"bgp_peeraddress\""
-    #   value: "\"{{ kubevip_bgp_peer_address }}\""
-    # - param: "\"bgp_sourceif\""
-    #   value: "\"{{ kubevip_bgp_source_interface }}\""
-    # - param: "\"bgp_sourceip\""
-    #   valueFrom:
-    #     fieldRef:
-    #       fieldPath: status.hostIP`
-    # - param: "\"bgp_routerinterface\""
-    #   value: "\"{{ kubevip_bgp_source_interface }}\""
-    # - param: "\"bgp_routerid\""
-    #   value: |-
-    #     "valueFrom:
-    #       fieldRef:
-    #         apiVersion: v1
-    #         fieldPath: metadata.labels['kube-vip.io/bgp-routerid']"
+      - param: "\"bgp_enable\""
+        value: "\"true\""
+      - param: "\"bgp_as\""
+        value: "\"{{ kubevip_bgp_as }}\""
+      - param: "\"bgp_peeras\""
+        value: "\"{{ kubevip_bgp_peer_as }}\""
+      - param: "\"bgp_multihop\""
+        value: "\"true\""
+      - param: "\"bgp_peeraddress\""
+        value: "\"{{ kubevip_bgp_peer_address }}\""
+      - param: "\"bgp_sourceip\""
+        valueFrom:
+          fieldRef:
+            fieldPath: status.hostIP
+      - param: "\"bgp_routerinterface\""
+        value: "\"{{ kubevip_bgp_source_interface }}\""
+      - param: "\"bgp_routerid\""
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
@@ -192,14 +189,14 @@
     # rke2_cni: 'none'
     rke2_token: "{{ rke2_server_token }}"
     rke2_cni:
-    - multus
-    - "{{ primarycni }}"
+      - multus
+      - "{{ primarycni }}"
     rke2_cluster_cidr:
-    - "{{ cluster_cidr }}"
-    # - fd00:255::/56
+      - "{{ cluster_cidr }}"
+      # - fd00:255::/56
     rke2_service_cidr:
-    - "{{ service_cidr }}"
-    # - fd00:254::/56
+      - "{{ service_cidr }}"
+      # - fd00:254::/56
     rke2_node_name: "{{ inventory_hostname }}"
     rke2_cluster_group_name: kubernetes
     rke2_servers_group_name: controlnodes
@@ -231,53 +228,53 @@
     #       password: "{{ (docker | from_yaml).docker_token }}"
     # rke2_disable_cloud_controller: true
     rke2_disable:
-    - rke2-canal
-    - rke2-ingress-nginx
-    - rke2-metrics-server
-    - rke2-snapshot-controller
-    - rke2-snapshot-controller-crd
-    - rke2-snapshot-validation-webhook
+      - rke2-canal
+      - rke2-ingress-nginx
+      - rke2-metrics-server
+      - rke2-snapshot-controller
+      - rke2-snapshot-controller-crd
+      - rke2-snapshot-validation-webhook
     rke2_kube_apiserver_args:
-    - "--kubelet-timeout=30s"
-    - "--request-timeout=5m0s"
-    - "--event-ttl=30m0s"
-    # - "--feature-gates=kube:ImageVolume=true,kube:RotateKubeletServerCertificate=true,kube:EnvFiles=true,kube:MutatingAdmissionPolicy=true"
-    - "--feature-gates=kube:ImageVolume=true,kube:RotateKubeletServerCertificate=true,kube:EnvFiles=true"
-    # - "--advertise-address={{ ansible_host }}"
+      - "--kubelet-timeout=30s"
+      - "--request-timeout=5m0s"
+      - "--event-ttl=30m0s"
+      # - "--feature-gates=kube:ImageVolume=true,kube:RotateKubeletServerCertificate=true,kube:EnvFiles=true,kube:MutatingAdmissionPolicy=true"
+      - "--feature-gates=kube:ImageVolume=true,kube:RotateKubeletServerCertificate=true,kube:EnvFiles=true"
+      # - "--advertise-address={{ ansible_host }}"
     rke2_kubelet_arg:
-    - "--config=/etc/kubernetes/kubelet-config.yml"
-    # rke2_kube_proxy_arg:
-    # - "proxy-mode=ipvs"
-    # - "ipvs-strict-arp=true"
+      - "--config=/etc/kubernetes/kubelet-config.yml"
+      # rke2_kube_proxy_arg:
+      # - "proxy-mode=ipvs"
+      # - "ipvs-strict-arp=true"
     rke2_kube_scheduler_arg:
-    - "bind-address=0.0.0.0"
+      - "bind-address=0.0.0.0"
     rke2_kube_controller_manager_arg:
-    - "bind-address=0.0.0.0"
+      - "bind-address=0.0.0.0"
     rke2_server_options:
-    # - "bind-address: {{ ansible_host }}"
-    # - "bind-address: 10.0.1.5"
-    # - "cloud-provider-name: none"
-    # - "disable-cloud-controller: true"
-    - "node-ip: {{ ansible_host }}"
-    # - "advertise-address: {{ ansible_host }}"
-    # - "node-name: {{ inventory_hostname }}"
-    # - "node-external-ip: 10.0.1.5"
-    - "write-kubeconfig-mode: 0644"
-    # - "embedded-registry: true"
-    # - "etcd-arg: [ 'name={{ inventory_hostname }}', 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=256', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
-    # - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=32' ]"
-    - "selinux: false"
-    # - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2500m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m', 'etcd-cpu=3000m', 'etcd-mem=4096Mi' ]"
-    - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2000m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m' ]"
-    # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+      # - "bind-address: {{ ansible_host }}"
+      # - "bind-address: 10.0.1.5"
+      # - "cloud-provider-name: none"
+      # - "disable-cloud-controller: true"
+      - "node-ip: {{ ansible_host }}"
+      # - "advertise-address: {{ ansible_host }}"
+      # - "node-name: {{ inventory_hostname }}"
+      # - "node-external-ip: 10.0.1.5"
+      - "write-kubeconfig-mode: 0644"
+      # - "embedded-registry: true"
+      # - "etcd-arg: [ 'name={{ inventory_hostname }}', 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'grpc-keepalive-interval=0', 'grpc-keepalive-timeout=0', 'auth-token-ttl=3600', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=256', 'socket-reuse-port=true', 'socket-reuse-address=true' ]"
+      # - "etcd-arg: [ 'election-timeout=30000', 'heartbeat-interval=5000', 'snapshot-count=25000', 'experimental-initial-corrupt-check=true', 'experimental-bootstrap-defrag-threshold-megabytes=32' ]"
+      - "selinux: false"
+      # - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2500m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m', 'etcd-cpu=3000m', 'etcd-mem=4096Mi' ]"
+      - "control-plane-resource-requests: [ 'kube-apiserver-cpu=2000m', 'kube-proxy=500m', 'kube-scheduler-cpu=500m' ]"
+      # - "node-label: [ 'node-role.kubernetes.io/control-plane=true', 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
     rke2_agent_options:
-    - "node-ip: {{ ansible_host }}"
-    # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
-    # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
+      - "node-ip: {{ ansible_host }}"
+      # - "kubelet-arg: [ '--config=/etc/kubernetes/kubeletconfig.yml' ]"
+      # - "node-label: [ 'topology.kubernetes.io/region=us-east-1', 'topology.kubernetes.io/zone=us-east-1a' ]"
   ansible.builtin.import_role:
     name: "lablabs.rke2"
-      #when: >-
-      #not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
+      # when: >-
+      # not ((ansible_play_hosts_all | difference(ansible_play_hosts)) | length > 0)
   register: installrke2
 # - name: Cleanup | Remove multus-shim if exists
 #   ansible.builtin.file:
