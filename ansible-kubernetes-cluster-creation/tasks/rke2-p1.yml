@@ -145,11 +145,11 @@
     rke2_ha_mode_keepalived: false
     rke2_ha_mode_kubevip: true
     rke2_ha_mode_kubevip_interface: "{{ kubevip_bgp_source_interface }}"
-    # rke2_kubevip_arp_enable: false
+    rke2_kubevip_arp_enable: false
     rke2_kubevip_svc_enable: false
     rke2_kubevip_service_election_enable: false
     rke2_kubevip_ipvs_lb_enable: false
-    # rke2_kubevip_loglevel: "-4"
+    rke2_kubevip_loglevel: "-4"
     # renovate: repository=ghcr.io/kube-vip/kube-vip depName=ghcr.io/kube-vip/kube-vip
     rke2_kubevip_image: "{{ kubevip_image }}"
     # renovate: repository=ghcr.io/kube-vip/kube-vip-cloud-provider depName=ghcr.io/kube-vip/kube-vip-cloud-provider
@@ -157,27 +157,27 @@
     rke2_kubevip_args:
       - param: "enable_node_labeling"
         value: "true"
-    #   - param: "\"bgp_enable\""
-    #     value: "\"true\""
-    #   - param: "\"bgp_as\""
-    #     value: "\"{{ kubevip_bgp_as }}\""
-    #   - param: "\"bgp_peeras\""
-    #     value: "\"{{ kubevip_bgp_peer_as }}\""
-    #   - param: "\"bgp_multihop\""
-    #     value: "\"true\""
-    #   - param: "\"bgp_peeraddress\""
-    #     value: "\"{{ kubevip_bgp_peer_address }}\""
-    #   - param: "\"bgp_sourceip\""
-    #     valueFrom:
-    #       fieldRef:
-    #         fieldPath: status.hostIP
-    #   - param: "\"bgp_routerinterface\""
-    #     value: "\"{{ kubevip_bgp_source_interface }}\""
-    #   - param: "\"bgp_routerid\""
-    #     valueFrom:
-    #       fieldRef:
-    #         apiVersion: v1
-    #         fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
+      - param: "bgp_enable"
+        value: "true"
+      - param: "bgp_as"
+        value: "{{ kubevip_bgp_as }}"
+      - param: "bgp_peeras"
+        value: "{{ kubevip_bgp_peer_as }}"
+      - param: "bgp_multihop"
+        value: "true"
+      - param: "bgp_peeraddress"
+        value: "{{ kubevip_bgp_peer_address }}"
+      - param: "bgp_sourceip"
+        valueFrom:
+          fieldRef:
+            fieldPath: status.hostIP
+      - param: "bgp_routerinterface"
+        value: "{{ kubevip_bgp_source_interface }}"
+      - param: "bgp_routerid"
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels['kube-vip.io/bgp-routerid']
     # rke2_bind_address: "{{ ansible_host }}"
     # rke2_bind_address: "10.0.1.5"
     # rke2_bind_address: "0.0.0.0"
