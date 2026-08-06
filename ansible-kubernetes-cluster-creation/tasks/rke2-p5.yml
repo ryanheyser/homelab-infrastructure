@@ -135,6 +135,7 @@
               multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
               linuxDataplane: "Nftables"
+              # bpfNetworkBootstrap: "Enabled"
               bgp: "Enabled"
               # mtu: 9000
               # mtu: "{{ calico_mtu | int }}"
@@ -151,7 +152,7 @@
               #   - fd00:11::/64
               #   firstFound: false
               containerIPForwarding: "Enabled"
-              # kubeProxyManagement: "Enabled"
+              kubeProxyManagement: "Enabled"
 - name: Wait for Calico pods to become ready
   delegate_to: localhost
   run_once: true
