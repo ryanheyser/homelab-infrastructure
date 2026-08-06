@@ -105,7 +105,7 @@
           apiServer:
             enabled: true
             xdpEnabled: false
-            healthEnabled: false
+            # healthEnabled: false
           global:
             clusterCIDRv4: "{{ cluster_cidr }}"
             # clusterCIDRv6: "fd00:255::/56"
@@ -137,7 +137,7 @@
               linuxDataplane: "Nftables"
               bgp: "Enabled"
               # mtu: 9000
-              mtu: "{{ calico_mtu }}"
+              mtu: "{{ calico_mtu | int }}"
               nodeAddressAutodetectionV4:
                 # kubernetes: NodeInternalIP
                 firstFound: false
