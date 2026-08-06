@@ -101,7 +101,7 @@
           felixConfiguration:
             defaultEndpointToHostAction: "ACCEPT"
             featureDetectOverride: "ChecksumOffloadBroken=true"
-            wireguardEnabled: true
+            # wireguardEnabled: true
           apiServer:
             enabled: true
             # xdpEnabled: false
@@ -115,7 +115,7 @@
             enabled: true
             # nonPrivileged: "Enabled"
             natOutgoing: "Disabled"
-            kubernetesProvider: "RKE2"
+            kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
@@ -151,7 +151,7 @@
               #   - fd00:11::/64
               #   firstFound: false
               containerIPForwarding: "Enabled"
-              kubeProxyManagement: "Enabled"
+              # kubeProxyManagement: "Enabled"
 - name: Wait for Calico pods to become ready
   delegate_to: localhost
   run_once: true
