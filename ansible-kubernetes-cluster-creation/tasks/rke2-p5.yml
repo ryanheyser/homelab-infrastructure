@@ -137,7 +137,8 @@
               linuxDataplane: "Nftables"
               bgp: "Enabled"
               # mtu: 9000
-              mtu: "{{ calico_mtu | int }}"
+              # mtu: "{{ calico_mtu | int }}"
+              mtu: 1420
               nodeAddressAutodetectionV4:
                 # kubernetes: NodeInternalIP
                 firstFound: false
