@@ -104,7 +104,7 @@
             wireguardEnabled: true
           apiServer:
             enabled: true
-            xdpEnabled: false
+            # xdpEnabled: false
             # healthEnabled: false
           global:
             clusterCIDRv4: "{{ cluster_cidr }}"
