@@ -190,8 +190,7 @@
     rke2_token: "{{ rke2_server_token }}"
     rke2_cni:
       - multus
-      # - {{ primarycni }} # broken
-      - calico
+      - "{{ primarycni | string }}"
     rke2_cluster_cidr:
       - "{{ cluster_cidr }}"
       # - fd00:255::/56
