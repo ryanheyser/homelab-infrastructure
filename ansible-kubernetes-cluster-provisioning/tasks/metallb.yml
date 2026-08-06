@@ -45,9 +45,9 @@
       controller:
         logLevel: "debug"
         livenessProbe:
-          enabled: true
+          enabled: false
         readinessProbe:
-          enabled: true
+          enabled: false
         resources:
           limits:
             cpu: 3000m
