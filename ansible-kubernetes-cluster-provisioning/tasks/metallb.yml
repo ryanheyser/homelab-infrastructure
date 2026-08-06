@@ -43,6 +43,7 @@
       crds:
         enabled: true
       controller:
+        priorityClassName: system-cluster-critical
         livenessProbe:
           enabled: false
         readinessProbe:
@@ -60,10 +61,11 @@
           - key: "node-role.kubernetes.io/etcd"
             operator: "Exists"
       speaker:
+        priorityClassName: system-node-critical
         livenessProbe:
-          enabled: true
+          enabled: false
         readinessProbe:
-          enabled: true
+          enabled: false
         tolerations:
           - key: "node-role.kubernetes.io/control-plane"
             operator: "Exists"
