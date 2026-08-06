@@ -43,7 +43,6 @@
       crds:
         enabled: true
       controller:
-        logLevel: "debug"
         livenessProbe:
           enabled: false
         readinessProbe:
@@ -72,6 +71,13 @@
             operator: "Exists"
           - key: "node-role.kubernetes.io/etcd"
             operator: "Exists"
+      networkpolicies:
+        enabled: true
+        defaultDeny: false
+      frr-k8s:
+        prometheus:
+          serviceMonitor:
+            enabled: false
 - name: Wait for metallb controller to complete
   kubernetes.core.k8s_info:
     kubeconfig: "{{ home }}/.kube/config"
