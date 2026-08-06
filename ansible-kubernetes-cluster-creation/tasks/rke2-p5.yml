@@ -101,10 +101,10 @@
           felixConfiguration:
             defaultEndpointToHostAction: "ACCEPT"
             featureDetectOverride: "ChecksumOffloadBroken=true"
-            # wireguardEnabled: true
+            wireguardEnabled: true
+            xdpEnabled: false
           apiServer:
             enabled: true
-            # xdpEnabled: false
             # healthEnabled: false
           global:
             clusterCIDRv4: "{{ cluster_cidr }}"
