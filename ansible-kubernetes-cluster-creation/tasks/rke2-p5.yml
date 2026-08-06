@@ -114,7 +114,7 @@
           installation:
             enabled: true
             # nonPrivileged: "Enabled"
-            natOutgoing: "Disabled"
+            # natOutgoing: "Disabled"
             kubernetesProvider: ''
             controlPlaneTolerations:
             - key: node-role.kubernetes.io/control-plane
