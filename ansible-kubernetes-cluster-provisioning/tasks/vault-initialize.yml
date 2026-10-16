@@ -514,6 +514,15 @@
       mongo-config-database-name={{ (vaultinitial).default_mangayomi_server_databaseName }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+- name: Create Mangayomi-Sync-Server Secret Key Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: |
+      sh -c "vault kv put -mount=secret mangayomi-sync-server-secret-key secret-key={{ (vaultinitial).default_mangayomi_sync_server_secretKey }}"
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
 - name: Create Mangayomi-Sync-Server Postgres Config Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"
