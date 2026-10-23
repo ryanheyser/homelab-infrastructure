@@ -39,6 +39,10 @@
         id: FC9CA96ACA026560
         state: absent
       failed_when: false
+    - name: Cleanup | Remove old hashicorp apt list
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/apt_releases_hashicorp_com.list"
+        state: absent
     - name: Setup | Add Hashicorp apt source
       become: true
       ansible.builtin.deb822_repository:
