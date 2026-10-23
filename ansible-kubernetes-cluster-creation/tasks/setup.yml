@@ -88,52 +88,26 @@
       - zstd
   become: true
   changed_when: true
-- name: Setup | Get Hashicorp GPG
-  ansible.builtin.uri:
-    url: https://apt.releases.hashicorp.com/gpg
-    return_content: true
-  register: hashicorpgpg
-- name: Setup | Check to see if hashicorp gpg exists
-  ansible.builtin.stat:
-    path: "/usr/share/keyrings/hashicorp-archive-keyring.gpg"
-  register: hashicorp_gpg_file
-- name: Setup | Add Hashicorp GPG to system
-  become: true
-  ansible.builtin.shell: |
-    set -o pipefail && echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-  when: not hashicorp_gpg_file.stat.exists
-  args:
-    executable: /bin/bash
-  changed_when: true
 - name: Setup | Add Hashicorp apt source
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
-    state: present
-- name: Setup | Get Helm GPG
-  ansible.builtin.uri:
-    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
-    return_content: true
-    method: GET
-  register: helmgpg
-- name: Setup | Check to see if helm gpg exists
-  ansible.builtin.stat:
-    path: "/usr/share/keyrings/helm.gpg"
-  register: helm_gpg_file
-- name: Setup | Add Helm GPG to system
   become: true
-  ansible.builtin.shell: |
-    set -o pipefail && echo "{{ helmgpg.content }}" | sudo gpg --yes --dearmor -o /usr/share/keyrings/helm.gpg
-  # when: not helm_gpg_file.stat.exists
-  args:
-    executable: /bin/bash
-  changed_when: true
+  ansible.builtin.deb822_repository:
+    name: hashicorp
+    types: deb
+    uris: "https://apt.releases.hashicorp.com"
+    signed_by: "https://apt.releases.hashicorp.com/gpg"
+    suites: "{{ ansible_distribution_release | lower }}"
+    components: main
+    architectures: amd64
 - name: Setup | Add Helm apt source
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
-    state: present
-# - name: Setup | install ansible ppa
-#   ansible.builtin.apt_repository:
-#     repo: ppa:ansible/ansible
+  become: true
+  ansible.builtin.deb822_repository:
+    name: helm
+    types: deb
+    uris: "https://packages.buildkite.com/helm-linux/helm-debian/any/"
+    signed_by: "https://packages.buildkite.com/helm-linux/helm-debian/gpgkey"
+    suites: any
+    components: main
+    architectures: amd64
 - name: Setup | install extra packages
   ansible.builtin.apt:
     state: 'present'
