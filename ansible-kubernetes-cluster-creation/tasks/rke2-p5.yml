@@ -100,7 +100,7 @@
           priorityClassName: system-cluster-critical
           felixConfiguration:
             defaultEndpointToHostAction: "ACCEPT"
-            featureDetectOverride: "ChecksumOffloadBroken=true"
+            featureDetectOverride: "SNATFullyRandom=false,MASQFullyRandom=false,ChecksumOffloadBroken=true"
             wireguardEnabled: true
             xdpEnabled: false
           apiServer:
