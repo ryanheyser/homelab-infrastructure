@@ -99,7 +99,7 @@
         valuesContent: |-
           priorityClassName: system-cluster-critical
           felixConfiguration:
-            defaultEndpointToHostAction: "ACCEPT"
+            defaultEndpointToHostAction: "Accept"
             featureDetectOverride: "SNATFullyRandom=false,MASQFullyRandom=false,ChecksumOffloadBroken=true"
             wireguardEnabled: true
             xdpEnabled: false
