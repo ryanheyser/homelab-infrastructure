@@ -46,19 +46,20 @@
       register: hashicorpgpg
     - name: Setup | Check to see if hashicorp gpg exists
       ansible.builtin.stat:
-        path: "/usr/share/keyrings/hashicorp-archive-keyring.gpg"
+        path: "/usr/share/keyrings/hashicorp.gpg"
       register: hashicorp_gpg_file
     - name: Setup | Add Hashicorp GPG to system
       become: true
       ansible.builtin.shell: |
-        set -o pipefail && echo "{{ hashicorpgpg.content }}" | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        set -o pipefail && echo "{{ hashicorpgpg.content }}" | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
       # when: not hashicorp_gpg_file.stat.exists
       args:
         executable: /bin/bash
       changed_when: true
     - name: Setup | Add Hashicorp apt source
+      become: true
       ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
         state: present
     - name: Setup | Apt Cleanup
       ansible.builtin.apt:
