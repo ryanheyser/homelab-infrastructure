@@ -39,28 +39,16 @@
         id: FC9CA96ACA026560
         state: absent
       failed_when: false
-    - name: Setup | Get Hashicorp GPG
-      ansible.builtin.uri:
-        url: https://apt.releases.hashicorp.com/gpg
-        return_content: true
-      register: hashicorpgpg
-    - name: Setup | Check to see if hashicorp gpg exists
-      ansible.builtin.stat:
-        path: "/usr/share/keyrings/hashicorp.gpg"
-      register: hashicorp_gpg_file
-    - name: Setup | Add Hashicorp GPG to system
-      become: true
-      ansible.builtin.shell: |
-        set -o pipefail && echo "{{ hashicorpgpg.content }}" | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
-      when: not hashicorp_gpg_file.stat.exists
-      args:
-        executable: /bin/bash
-      changed_when: true
     - name: Setup | Add Hashicorp apt source
       become: true
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-        state: present
+      ansible.builtin.deb822_repository:
+        name: hashicorp
+        types: deb
+        uri: "https://apt.releases.hashicorp.com"
+        signed_by: "https://apt.releases.hashicorp.com/gpg"
+        suites: "{{ ansible_distribution_release | lower }}"
+        components: main
+        architectures: amd64
     - name: Setup | Apt Cleanup
       ansible.builtin.apt:
         update_cache: "yes"
