@@ -9,7 +9,7 @@ strategy:
     maxUnavailable: 1
 podDisruptionBudget:
   enabled: true
-  minAvailable: 1
+  maxUnavailable: 1
 webhook:
   replicaCount: 3
   strategy:
@@ -71,7 +71,7 @@ cainjector:
       maxUnavailable: 1
   podDisruptionBudget:
     enabled: true
-    minAvailable: 1
+    maxUnavailable: 1
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
