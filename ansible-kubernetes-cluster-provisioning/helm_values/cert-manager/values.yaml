@@ -5,7 +5,7 @@ replicaCount: 3
 strategy:
   type: RollingUpdate
   rollingUpdate:
-    # maxSurge: 1
+    maxSurge: 1
     maxUnavailable: 1
 podDisruptionBudget:
   enabled: true
@@ -15,11 +15,11 @@ webhook:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      # maxSurge: 1
+      maxSurge: 1
       maxUnavailable: 1
   podDisruptionBudget:
     enabled: true
-    minAvailable: 1
+    maxUnavailable: 1
   tolerations:
   - key: "arm"
     operator: "Exists"
@@ -66,8 +66,9 @@ cainjector:
     value: master
   strategy:
     type: RollingUpdate
-    # maxSurge: 1
-    maxUnavailable: 1
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
