@@ -23,8 +23,10 @@
   ],
   enabled: true,
   timezone: 'America/New_York',
-  dependencyDashboard: true,
-  dependencyDashboardTitle: 'Renovate (Mend) Dashboard',
+  dependencyDashboard: {
+    enabled: true,
+    title: 'Renovate (Mend) Dashboard',
+  },
   suppressNotifications: [
     'prIgnoreNotification',
   ],
