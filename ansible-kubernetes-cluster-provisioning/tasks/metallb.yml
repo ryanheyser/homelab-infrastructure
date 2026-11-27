@@ -98,10 +98,90 @@
   until: metallbcontrollerstatus.resources[0].status.readyReplicas | int > 0
   retries: 20
   delay: 15
-# MetalLB IPAddressPools, BFDProfile, BGPPeer and BGPAdvertisement now live in
-# homelab-ops (network-system/metallb/config.yaml) so Flux can substitute the
-# Comcast-delegated IPv6 prefix (${MLB_V6_PREFIX}). They were created here before;
-# re-running these tasks would strip the IPv6 ranges until Flux re-applied them.
+# Bootstrap MetalLB config (IPv4 only) so the CoreDNS and Traefik LoadBalancers
+# below get their IPs before Flux exists. Flux owns these objects afterwards:
+# homelab-ops network-system/metallb/config.yaml applies the same names with
+# the IPv6 ranges (${MLB_V6_PREFIX}) and takes over the fields via server-side
+# apply.
+# Create-only: an object that already exists is left alone, so re-running this
+# play on a live cluster cannot strip the IPv6 ranges Flux added.
+- name: Define MetalLB bootstrap objects
+  ansible.builtin.set_fact:
+    metallb_bootstrap_objects:
+      - apiVersion: metallb.io/v1beta1
+        kind: IPAddressPool
+        metadata:
+          name: system
+          namespace: network-system
+        spec:
+          addresses:
+            - 10.0.100.0/24
+      - apiVersion: metallb.io/v1beta1
+        kind: IPAddressPool
+        metadata:
+          name: default
+          namespace: network-system
+        spec:
+          addresses:
+            - 10.0.101.0/24
+      - apiVersion: metallb.io/v1beta1
+        kind: BFDProfile
+        metadata:
+          name: bfd-profile
+          namespace: network-system
+        spec:
+          receiveInterval: 300
+          transmitInterval: 300
+          detectMultiplier: 3
+          echoMode: true
+          passiveMode: true
+          minimumTtl: 200
+      - apiVersion: metallb.io/v1beta2
+        kind: BGPPeer
+        metadata:
+          name: default-ipv4
+          namespace: network-system
+        spec:
+          myASN: 65001
+          peerASN: 65000
+          peerAddress: 10.0.0.2
+          ebgpMultiHop: true
+          dualStackAddressFamily: false
+          routerID: 1.1.3.1
+          enableGracefulRestart: true
+      - apiVersion: metallb.io/v1beta1
+        kind: BGPAdvertisement
+        metadata:
+          name: default
+          namespace: network-system
+        spec:
+          ipAddressPools:
+            - default
+            - system
+          aggregationLength: 24
+- name: Look up existing MetalLB bootstrap objects
+  when: kubeconfig.stat.exists
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ home }}/.kube/config"
+    api_version: "{{ item.apiVersion }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.metadata.name }}"
+    namespace: "{{ item.metadata.namespace }}"
+  loop: "{{ metallb_bootstrap_objects }}"
+  loop_control:
+    label: "{{ item.kind }}/{{ item.metadata.name }}"
+  register: metallb_bootstrap_existing
+- name: Create missing MetalLB bootstrap objects
+  when:
+    - kubeconfig.stat.exists
+    - item.resources | length == 0
+  kubernetes.core.k8s:
+    kubeconfig: "{{ home }}/.kube/config"
+    state: present
+    definition: "{{ item.item }}"
+  loop: "{{ metallb_bootstrap_existing.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.kind }}/{{ item.item.metadata.name }}"
 # - name: Create Coredns IP Reservation
 #   when: kubeconfig.stat.exists
 #   kubernetes.core.k8s:

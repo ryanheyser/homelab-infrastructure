@@ -3,6 +3,9 @@ all:
     ansible_python_interpreter: /usr/bin/python3
     # ansible_ssh_common_args: '-o ProxyCommand="ssh -p 2222 -W %h:%p -q ansible@bastion.homelab.heyser.xyz"'
     ansible_port: 22
+    # vlan11 ULA derived from the IPv4 host part: 10.0.1.11 -> fd00:11::1:11.
+    # Matches the IPv6 token netplan sets on the host. Override per host if needed.
+    node_ipv6: "fd00:11::{{ ansible_host.split('.')[2] }}:{{ ansible_host.split('.')[3] }}"
 localhost:
   vars:
     ansible_connection: ssh

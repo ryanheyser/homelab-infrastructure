@@ -9,6 +9,9 @@ all:
       6532323039393639330a373133393239343639666438326236613962353734326630643937626134
       3732'
     ansible_port: 22
+    # vlan11 ULA derived from the IPv4 host part: 10.0.1.11 -> fd00:11::1:11.
+    # Matches the IPv6 token netplan sets on the host. Override per host if needed.
+    node_ipv6: "fd00:11::{{ ansible_host.split('.')[2] }}:{{ ansible_host.split('.')[3] }}"
     github_token: "!vault |
       $ANSIBLE_VAULT;1.1;AES256
       31376165383330653737393839613239626332306636656261653037333761323631363637373164

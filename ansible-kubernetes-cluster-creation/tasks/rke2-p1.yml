@@ -135,9 +135,6 @@
   vars:
     # renovate: depName=rancher/rke2
     rke2_version: v1.36.6+rke2r2
-    # Node IPv6 = ULA on vlan11 built from the IPv4 host part: 10.0.1.11 -> fd00:11::1:11.
-    # The node must already have this address (IPv6 token ::1:11 on its NIC) before RKE2 starts.
-    node_ipv6: "fd00:11::{{ ansible_host.split('.')[2] }}:{{ ansible_host.split('.')[3] }}"
     rke2_allow_downgrade: true
     rke2_ha_mode: true
     rke2_interface: "{{ kubevip_bgp_source_interface }}"
@@ -262,6 +259,7 @@
       # - "bind-address: 10.0.1.5"
       # - "cloud-provider-name: none"
       # - "disable-cloud-controller: true"
+      # node_ipv6 comes from inventory.yml (all.vars); the host must already have it (netplan).
       - "node-ip: {{ ansible_host }},{{ node_ipv6 }}"
       # - "advertise-address: {{ ansible_host }}"
       # - "node-name: {{ inventory_hostname }}"
