@@ -259,7 +259,7 @@
       # - "bind-address: 10.0.1.5"
       # - "cloud-provider-name: none"
       # - "disable-cloud-controller: true"
-      # node_ipv6 comes from inventory.yml (all.vars); the host must already have it (netplan).
+      # node_ipv6 is set per host in inventory.yml; the host must already have it (netplan).
       - "node-ip: {{ ansible_host }},{{ node_ipv6 }}"
       # - "advertise-address: {{ ansible_host }}"
       # - "node-name: {{ inventory_hostname }}"
