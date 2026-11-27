@@ -108,7 +108,7 @@
             # healthEnabled: false
           global:
             clusterCIDRv4: "{{ cluster_cidr }}"
-            # clusterCIDRv6: "fd00:255::/56"
+            clusterCIDRv6: "fd00:255::/56"
           ipamConfig:
             strictAffinity: false
           installation:
@@ -130,7 +130,7 @@
                 maxUnavailable: 1
             serviceCIDRs:
             - "{{ service_cidr }}"
-            # - fd00:254::/56
+            - "fd00:254::/112"
             calicoNetwork:
               multiInterfaceMode: "Multus"
               # linuxDataplane: "BPF"
@@ -146,11 +146,10 @@
                 # interface: ens18
                 cidrs:
                 - "{{ node_internal_cidr }}"
-              nodeAddressAutodetectionV6: {}
-              # nodeAddressAutodetectionV6:
-              #   cidrs:
-              #   - fd00:11::/64
-              #   firstFound: false
+              nodeAddressAutodetectionV6:
+                firstFound: false
+                cidrs:
+                - fd00:11::/64
               containerIPForwarding: "Enabled"
               kubeProxyManagement: "Enabled"
 - name: Wait for Calico pods to become ready
