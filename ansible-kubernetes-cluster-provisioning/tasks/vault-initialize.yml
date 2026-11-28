@@ -593,6 +593,21 @@
       sh -c "vault kv put -mount=secret cloudflare-auth-key auth-key={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_authkey }}"
   when: >-
     kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+# Scoped API token (Zone DNS Edit on heyser.xyz) for favonia/cloudflare-ddns,
+# read by homelab-ops network-system/cloudflare-ddns/secret.yaml.
+- name: Create Cloudflare DDNS Api Token Secret
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ home }}/.kube/config"
+    namespace: vault-system
+    pod: vault-0
+    command: |
+      sh -c "vault kv put -mount=secret cloudflare-api-token ddns-token={{ (vaultinitial).network_system_cloudflare_ddns_cloudflare_api_token }}"
+  no_log: true
+  # Skipped (not failed) until the token is added to vault-initial-secrets.
+  when: >-
+    kubeconfig.stat.exists and vaultinitialsecretstoreinit is success
+    and (vaultinitial).network_system_cloudflare_ddns_cloudflare_api_token
+    is defined
 - name: Create Tailscale Credentials Secret
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ home }}/.kube/config"

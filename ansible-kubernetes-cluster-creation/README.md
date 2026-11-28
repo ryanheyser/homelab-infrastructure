@@ -1,73 +1,69 @@
-# homelab-infrastructure-ansible
-The point of this document is to describe the steps needed to reproduce my current behavior.
+# ansible-kubernetes-cluster-creation
 
-## Setup
+Prepares the cluster nodes and installs RKE2 with the
+[lablabs.rke2](https://github.com/lablabs/ansible-role-rke2) role. See the [repository README](../README.md) for
+prerequisites, secrets handling and the overall order.
 
-### Provision `inventory.yml`
-1. Setup `inventory.yml` with the desired configuration
+## What the playbook does
 
-### Age/Sops
+1. Checks every host is reachable, trusts its SSH host key and loads [vars.yml](vars.yml).
+2. Prepares localhost and the nodes ([tasks/setup-local.yml](tasks/setup-local.yml),
+   [tasks/setup.yml](tasks/setup.yml), [tasks/setup-kubernetes.yml](tasks/setup-kubernetes.yml)), installs sops
+   and the Flux CLI.
+3. Installs RKE2 ([tasks/rke2-p1.yml](tasks/rke2-p1.yml)): an HA control plane on the `controlnodes` group, agents
+   on `workernodes`, with a kube-vip BGP VIP for the API server.
+4. Finishes the install and configures the CNI ([tasks/rke2-p2.yml](tasks/rke2-p2.yml) to
+   [tasks/rke2-p5.yml](tasks/rke2-p5.yml)): Multus plus Calico with BGP, nftables and WireGuard for IPv4 and IPv6.
 
-#### Pre-reqs
-1. Install age on ansible localhost, see [install guide](https://github.com/FiloSottile/age#installation).
-2. Create `secrets/age.key`:
+The RKE2 version is pinned as `rke2_version` in `tasks/rke2-p1.yml`. After bootstrap, upgrades are done by the
+system-upgrade-controller plans in homelab-ops.
+
+## Networking
+
+The cluster is dual-stack from creation; RKE2 cannot convert an existing IPv4-only cluster.
+
+| Range | Use |
+| --- | --- |
+| `fd00:255::/56` | Pod IPv6 (Calico) |
+| `fd00:254::/112` | Service IPv6 |
+| `fd00:11::/64` | Node IPv6 (ULA on the home VLAN) |
+
+IPv4 comes first in every list so Services keep IPv4 as their primary family.
+
+## Inventory
+
+[inventory.yml](inventory.yml) defines `controlnodes`, `workernodes` and the `kubernetes` parent group. Each host
+sets:
+
+* `ansible_host`: the node's IPv4 address.
+* `node_ipv6`: the node's IPv6 ULA (for example `fd00:11::1:11`), passed to RKE2 as the second `node-ip`. The host
+  must already have this address from netplan; the playbook does not configure it.
+* `metallb_bgp_routerid`: the BGP router ID for that node.
+
+Keep the same per-host values in the other workspaces' inventories.
+
+## Secrets
+
+| File | Contents |
+| --- | --- |
+| `secrets/docker.sops.yaml.enc` | Docker Hub credentials (`docker_user`, `docker_token`, `docker_email`) |
+| `secrets/github.sops.yaml.enc` | `GITHUB_TOKEN` |
+| `secrets/rke2.sops.yaml.enc` | `RKE2_SERVER_TOKEN`, the cluster join token |
+
+`github_token` in [vars.yml](vars.yml) and the sudo passwords in the inventory are ansible-vault strings. To
+replace one:
+
 ```bash
-age-keygen -o secrets/age.key
+ansible-vault encrypt_string '<value>' --name 'github_token' --ask-vault-pass
 ```
-3. Retrieve age public key from `secrets/age.key`, will be used in later steps.
-4. To decrypt files created in later steps, you will have to make a copy of this file:
-```bash
-mkdir -p $HOME/.config/sops/age
-cp secrets/age.key ~/.config/sops/age/keys.txt
-chmod 0400 ~/.config/sops/age/keys.txt
-```
-
-### Provision SOPS templates
-
-#### docker.sops.yaml.template
-1. Copy `secrets/docker.sops.yaml.template` to `secrets/docker.sops.yaml`
-2. Provision `secrets/docker.sops.yaml` with docker hub credentials
-3. Encrypt `secrets/docker.sops.yaml` to `secrets/docker.sops.yaml.enc` by:
-```bash
-sops --encrypt --age '<age public key>' secrets/docker.sops.yaml >secrets/docker.sops.yaml.enc
-```
-
-#### github.sops.yaml.template
-1. Copy `secrets/github.sops.yaml.template` to `secrets/github.sops.yaml`
-2. Provision `secrets/github.sops.yaml` with github credentials
-3. Encrypt `secrets/github.sops.yaml` to `secrets/github.sops.yaml.enc` by:
-```bash
-sops --encrypt --age '<age public key>' secrets/github.sops.yaml >secrets/github.sops.yaml.enc
-```
-
-#### Optional
-1. Delete the unencryped files `secrets/docker.sops.yaml` and `secrets/github.sops.yaml`
-2. To decrypt:
-```bash
-sops --decrypt --input-type yaml --output-type yaml secrets/docker.sops.yaml.enc >secrets/docker.sops.yaml
-sops --decrypt --input-type yaml --output-type yaml secrets/github.sops.yaml.enc >github.sops.yaml
-```
-
-### Provision github_token
-Replace ansible-vault encrypted string with the output of:
-```bash
-ansible-vault encrypt_string '<redacted>' --name 'github_token' --ask-vault-pass
-```
-This can be the same token created in the `github.sops.yaml.template` step above.
 
 ## Run
 
-### Lint
 ```bash
-ansible-lint --exclude=secrets/*.sops.yaml
+ansible-galaxy install -r requirements.yml
+ansible-lint --exclude=secrets/
+ansible-playbook playbook.yml -i inventory.yml --check --ask-vault-pass --ask-become-pass
+ansible-playbook playbook.yml -i inventory.yml --ask-vault-pass --ask-become-pass
 ```
 
-### Check configuration
-```bash
- ansible-playbook playbook.yml --check -i inventory.yml --ask-vault-pass --ask-become-pass
-```
-
-### Execute
-```bash
- ansible-playbook playbook.yml -i inventory.yml --ask-vault-pass --ask-become-pass
-```
+`playbook-k3s-nonworking.yml` is the old k3s playbook, kept for reference only. Do not run it.

@@ -36,11 +36,16 @@ proxmox:
   hosts:
     awasuki:
       ansible_host: 10.0.0.9
+      node_ipv6: fd00:11::9
     awadoron:
       ansible_host: 10.0.0.12
+      node_ipv6: fd00:11::12
     angermasker:
       ansible_host: 10.0.0.13
+      node_ipv6: fd00:11::13
     amprey:
       ansible_host: 10.0.0.14
+      node_ipv6: fd00:11::14
     acchi:
       ansible_host: 10.0.0.15
+      node_ipv6: fd00:11::15
