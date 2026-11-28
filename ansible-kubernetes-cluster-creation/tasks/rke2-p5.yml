@@ -102,6 +102,8 @@
             defaultEndpointToHostAction: "Accept"
             featureDetectOverride: "SNATFullyRandom=false,MASQFullyRandom=false,ChecksumOffloadBroken=true"
             wireguardEnabled: true
+            # Encrypt IPv6 pod traffic between nodes too (dual-stack).
+            wireguardEnabledV6: true
             xdpEnabled: false
           apiServer:
             enabled: true
